@@ -1,8 +1,8 @@
 # CodeXP
 
 ![Build](https://github.com/ILoveGameCoding/intellij-codexp/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/intellij-codexp.svg)](https://plugins.jetbrains.com/plugin/intellij-codexp)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/intellij-codexp.svg)](https://plugins.jetbrains.com/plugin/intellij-codexp)
+[![Version](https://img.shields.io/jetbrains/plugin/v/21896-codexp.svg)](https://plugins.jetbrains.com/plugin/21896-codexp)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/21896-codexp.svg)](https://plugins.jetbrains.com/plugin/21896-codexp)
 
 ## Template ToDo list
 - [x] Create a new [IntelliJ Platform Plugin Template][template] project.
