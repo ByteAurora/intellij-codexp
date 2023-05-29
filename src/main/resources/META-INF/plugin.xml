@@ -23,7 +23,5 @@
     </application-components>
 
     <applicationListeners>
-        <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.MyFrameStateListener"
-                  topic="com.intellij.ide.FrameStateListener"/>
     </applicationListeners>
 </idea-plugin>
