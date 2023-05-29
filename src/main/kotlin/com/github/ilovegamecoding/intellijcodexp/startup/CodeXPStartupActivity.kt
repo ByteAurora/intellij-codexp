@@ -10,12 +10,9 @@ class CodeXPStartupActivity : StartupActivity {
     override fun runActivity(project: Project) {
         val state = service<CodeXP>()
         if (!state.hasExecuted) {
-            thisLogger().info("CodeXP first execution")
             // TODO: Add plugin initialize logic
 
             state.hasExecuted = true
-        } else {
-            thisLogger().info("CodeXP has already executed")
         }
     }
 }

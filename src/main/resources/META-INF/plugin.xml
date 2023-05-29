@@ -12,14 +12,12 @@
         <toolWindow factoryClass="com.github.ilovegamecoding.intellijcodexp.toolWindow.CodeXPToolWindowFactory"
                     id="CodeXPToolWindow"/>
         <postStartupActivity implementation="com.github.ilovegamecoding.intellijcodexp.startup.CodeXPStartupActivity"/>
+        <applicationService serviceImplementation="com.github.ilovegamecoding.intellijcodexp.core.CodeXP"/>
+        <applicationService serviceImplementation="com.github.ilovegamecoding.intellijcodexp.core.CodeXPUser"/>
+        <applicationService serviceImplementation="com.github.ilovegamecoding.intellijcodexp.services.CodeXPService"/>
     </extensions>
 
     <application-components>
-        <component>
-            <implementation-class>com.github.ilovegamecoding.intellijcodexp.services.CodeXPService</implementation-class>
-            <implementation-class>com.github.ilovegamecoding.intellijcodexp.core.CodeXP</implementation-class>
-            <implementation-class>com.github.ilovegamecoding.intellijcodexp.core.CodeXPUser</implementation-class>
-        </component>
     </application-components>
 
     <applicationListeners>
