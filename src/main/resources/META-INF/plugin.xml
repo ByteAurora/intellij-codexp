@@ -17,10 +17,12 @@
     <application-components>
         <component>
             <implementation-class>com.github.ilovegamecoding.intellijcodexp.services.CodeXPService</implementation-class>
+            <implementation-class>com.github.ilovegamecoding.intellijcodexp.core.CodeXPUser</implementation-class>
         </component>
     </application-components>
 
     <applicationListeners>
-        <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.MyFrameStateListener" topic="com.intellij.ide.FrameStateListener"/>
+        <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.MyFrameStateListener"
+                  topic="com.intellij.ide.FrameStateListener"/>
     </applicationListeners>
 </idea-plugin>
