@@ -9,8 +9,16 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.ilovegamecoding.intellijcodexp.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <toolWindow factoryClass="com.github.ilovegamecoding.intellijcodexp.toolWindow.CodeXPToolWindowFactory"
+                    id="CodeXPToolWindow"/>
     </extensions>
+
+    <application-components>
+        <component>
+            <implementation-class>com.github.ilovegamecoding.intellijcodexp.services.CodeXPService</implementation-class>
+        </component>
+    </application-components>
+
 
     <applicationListeners>
         <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.MyFrameStateListener" topic="com.intellij.ide.FrameStateListener"/>
