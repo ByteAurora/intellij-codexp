@@ -19,5 +19,11 @@
     </application-components>
 
     <applicationListeners>
+        <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener"
+                  topic="com.intellij.ide.FrameStateListener"/>
+        <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener"
+                  topic="com.intellij.openapi.editor.event.DocumentListener"/>
+        <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener"
+                  topic="com.intellij.openapi.editor.event.EditorFactoryListener"/>
     </applicationListeners>
 </idea-plugin>
