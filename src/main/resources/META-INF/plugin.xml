@@ -12,7 +12,6 @@
         <toolWindow factoryClass="com.github.ilovegamecoding.intellijcodexp.toolWindow.CodeXPToolWindowFactory"
                     id="CodeXPToolWindow"/>
         <postStartupActivity implementation="com.github.ilovegamecoding.intellijcodexp.startup.CodeXPStartupActivity"/>
-        <applicationService serviceImplementation="com.github.ilovegamecoding.intellijcodexp.core.CodeXP"/>
         <applicationService serviceImplementation="com.github.ilovegamecoding.intellijcodexp.services.CodeXPService"/>
     </extensions>
 
