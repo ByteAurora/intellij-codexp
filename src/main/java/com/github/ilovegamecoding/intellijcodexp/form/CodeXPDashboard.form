@@ -38,7 +38,7 @@
                 <constraints/>
                 <properties>
                   <font name="Noto Sans Medium" size="12" style="0"/>
-                  <text resource-bundle="messages/MyBundle" key="TEXT_+"/>
+                  <text resource-bundle="messages/CodeXPBundle" key="TEXT_+"/>
                 </properties>
               </component>
               <component id="de0" class="javax.swing.JLabel" binding="tvCurrentLevelXP">
@@ -52,7 +52,7 @@
                 <constraints/>
                 <properties>
                   <font name="Noto Sans Medium" size="12" style="0"/>
-                  <text resource-bundle="messages/MyBundle" key="TEXT_XP"/>
+                  <text resource-bundle="messages/CodeXPBundle" key="TEXT_XP"/>
                 </properties>
               </component>
             </children>
@@ -71,7 +71,7 @@
                 </constraints>
                 <properties>
                   <font name="Noto Sans SemiBold" size="12" style="0"/>
-                  <text resource-bundle="messages/MyBundle" key="TEXT_LV"/>
+                  <text resource-bundle="messages/CodeXPBundle" key="TEXT_LV"/>
                   <verticalAlignment value="3"/>
                   <verticalTextPosition value="3"/>
                 </properties>
@@ -101,7 +101,7 @@
                 </constraints>
                 <properties>
                   <font name="Noto Sans SemiBold" size="12" style="0"/>
-                  <text resource-bundle="messages/MyBundle" key="TEXT_LV"/>
+                  <text resource-bundle="messages/CodeXPBundle" key="TEXT_LV"/>
                   <verticalAlignment value="3"/>
                   <verticalTextPosition value="3"/>
                 </properties>
@@ -133,7 +133,7 @@
             </constraints>
             <properties>
               <font name="Noto Sans Black" size="28" style="0"/>
-              <text resource-bundle="messages/MyBundle" key="TEXT_CODEXP_DASHBOARD"/>
+              <text resource-bundle="messages/CodeXPBundle" key="TEXT_CODEXP_DASHBOARD"/>
             </properties>
           </component>
           <component id="fc9cf" class="javax.swing.JButton" binding="resetButton" default-binding="true">
@@ -141,7 +141,7 @@
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="messages/MyBundle" key="TEXT_RESET"/>
+              <text resource-bundle="messages/CodeXPBundle" key="TEXT_RESET"/>
             </properties>
           </component>
           <hspacer id="6219b">
@@ -165,7 +165,7 @@
             </constraints>
             <properties>
               <font name="Noto Sans SemiBold" size="16" style="0"/>
-              <text resource-bundle="messages/MyBundle" key="TEXT_NAME"/>
+              <text resource-bundle="messages/CodeXPBundle" key="TEXT_NAME"/>
             </properties>
           </component>
         </children>
@@ -184,7 +184,7 @@
             </constraints>
             <properties>
               <font name="Noto Sans SemiBold" size="16" style="0"/>
-              <text resource-bundle="messages/MyBundle" key="TEXT_LEVEL"/>
+              <text resource-bundle="messages/CodeXPBundle" key="TEXT_LEVEL"/>
             </properties>
           </component>
         </children>
@@ -203,7 +203,7 @@
             </constraints>
             <properties>
               <font name="Noto Sans SemiBold" size="16" style="0"/>
-              <text resource-bundle="messages/MyBundle" key="TEXT_TOTAL_XP"/>
+              <text resource-bundle="messages/CodeXPBundle" key="TEXT_TOTAL_XP"/>
             </properties>
           </component>
         </children>
@@ -222,7 +222,7 @@
             </constraints>
             <properties>
               <font name="Noto Sans SemiBold" size="16" style="0"/>
-              <text resource-bundle="messages/MyBundle" key="TEXT_CHALLENGES"/>
+              <text resource-bundle="messages/CodeXPBundle" key="TEXT_CHALLENGES"/>
             </properties>
           </component>
         </children>
@@ -241,7 +241,7 @@
             </constraints>
             <properties>
               <font name="Noto Sans SemiBold" size="16" style="0"/>
-              <text resource-bundle="messages/MyBundle" key="TEXT_COMPLETED_CHALLENGES"/>
+              <text resource-bundle="messages/CodeXPBundle" key="TEXT_COMPLETED_CHALLENGES"/>
             </properties>
           </component>
         </children>
@@ -293,7 +293,7 @@
             </constraints>
             <properties>
               <font name="Noto Sans Medium" size="12" style="0"/>
-              <text resource-bundle="messages/MyBundle" key="TEXT_LV"/>
+              <text resource-bundle="messages/CodeXPBundle" key="TEXT_LV"/>
             </properties>
           </component>
         </children>
@@ -322,7 +322,7 @@
             </constraints>
             <properties>
               <font name="Noto Sans Medium" size="12" style="0"/>
-              <text resource-bundle="messages/MyBundle" key="TEXT_XP"/>
+              <text resource-bundle="messages/CodeXPBundle" key="TEXT_XP"/>
             </properties>
           </component>
         </children>
