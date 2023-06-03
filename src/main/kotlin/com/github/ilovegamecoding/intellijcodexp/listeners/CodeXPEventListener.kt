@@ -1,38 +1,48 @@
 package com.github.ilovegamecoding.intellijcodexp.listeners
 
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
-import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
-import com.intellij.ide.FrameStateListener
-import com.intellij.openapi.components.service
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.AnActionResult
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.ex.AnActionListener
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.thisLogger
-import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.event.DocumentEvent
-import com.intellij.openapi.editor.event.DocumentListener
-import com.intellij.openapi.editor.event.EditorFactoryEvent
-import com.intellij.openapi.editor.event.EditorFactoryListener
 
-internal class CodeXPEventListener : DocumentListener, EditorFactoryListener, FrameStateListener {
-    private val codeXPService = service<CodeXPService>()
+/**
+ * CodeXPEventListener class
+ *
+ * This class listens to events from the IDE and fires them to the message bus.
+ */
+internal class CodeXPEventListener : AnActionListener {
+    override fun afterEditorTyping(c: Char, dataContext: DataContext) {
+        super.afterEditorTyping(c, dataContext)
+        fireEvent(CodeXPService.Event.TYPING)
+    }
 
-    init {
-        val editorFactory = EditorFactory.getInstance()
-        for (editor in editorFactory.allEditors) {
-            editor.document.addDocumentListener(this)
+    override fun afterActionPerformed(action: AnAction, event: AnActionEvent, result: AnActionResult) {
+        super.afterActionPerformed(action, event, result)
+        thisLogger().warn("Action performed: ${action.templateText}")
+
+        when (action.templateText) { // Fire event based on action.
+            "Run" -> fireEvent(CodeXPService.Event.RUN)
+            "Save All" -> fireEvent(CodeXPService.Event.SAVE)
+            "Debug" -> fireEvent(CodeXPService.Event.DEBUG)
+            "Build Project" -> fireEvent(CodeXPService.Event.BUILD)
+            "Rebuild Project" -> fireEvent(CodeXPService.Event.BUILD)
+            "Paste" -> fireEvent(CodeXPService.Event.PASTE)
+            "Backspace" -> fireEvent(CodeXPService.Event.BACKSPACE)
+            "Tab" -> fireEvent(CodeXPService.Event.TAB)
         }
-        editorFactory.addEditorFactoryListener(this) { }
     }
 
-    override fun documentChanged(event: DocumentEvent) {
-        super.documentChanged(event)
-        thisLogger().warn("CodeXPEventListener.documentChanged")
-        codeXPService.increaseChallengeValue(CodeXPChallenge.Type.TYPING_COUNT, 1)
-    }
-
-    override fun editorCreated(event: EditorFactoryEvent) {
-        event.editor.document.addDocumentListener(this)
-    }
-
-    override fun onFrameActivated() {
-
+    /**
+     * Fire event to the message bus.
+     *
+     * @param event The event to fire.
+     */
+    private fun fireEvent(event: CodeXPService.Event) {
+        ApplicationManager.getApplication().messageBus.syncPublisher(CodeXPListener.CODEXP_EVENT)
+            .eventOccurred(event)
     }
 }
