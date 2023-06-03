@@ -33,6 +33,7 @@ internal class CodeXPEventListener : AnActionListener {
             "Paste" -> fireEvent(CodeXPService.Event.PASTE)
             "Backspace" -> fireEvent(CodeXPService.Event.BACKSPACE)
             "Tab" -> fireEvent(CodeXPService.Event.TAB)
+            else -> fireEvent(CodeXPService.Event.ACTION)
         }
     }
 
