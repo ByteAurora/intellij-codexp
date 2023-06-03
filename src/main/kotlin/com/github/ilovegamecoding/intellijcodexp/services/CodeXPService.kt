@@ -1,8 +1,12 @@
 package com.github.ilovegamecoding.intellijcodexp.services
 
+import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.*
-import com.intellij.util.xmlb.XmlSerializerUtil
+import com.intellij.openapi.diagnostic.thisLogger
+import com.intellij.util.messages.MessageBus
+import com.intellij.util.messages.MessageBusConnection
 
 /**
  * CodeXPService class
@@ -15,83 +19,179 @@ import com.intellij.util.xmlb.XmlSerializerUtil
     name = "com.github.ilovegamecoding.intellijcodexp.services.CodeXP",
     storages = [Storage("CodeXP.xml")]
 )
-class CodeXPService : PersistentStateComponent<CodeXPService> {
+class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeXPListener {
     /**
-     * All current challenges yet to be completed.
+     * Event enum for the plugin events.
      */
-    var challenges = mutableMapOf<Int, CodeXPChallenge>()
-
-    /**
-     * All completed challenges.
-     */
-    var completedChallenges = mutableMapOf<Int, CodeXPChallenge>()
-
-    /**
-     * Plugin has been executed before.
-     */
-    var hasExecuted: Boolean = false
-
-    /**
-     * Nickname of the user.
-     */
-    var nickname: String = ""
-
-    override fun getState(): CodeXPService {
-        return this
-    }
-
-    override fun loadState(state: CodeXPService) {
-        XmlSerializerUtil.copyBean(state, this)
+    enum class Event(val xpValue: Long) {
+        NONE(0),
+        TYPING(2),
+        PASTE(1),
+        BACKSPACE(1),
+        TAB(1),
+        SAVE(10),
+        BUILD(5),
+        RUN(10),
+        DEBUG(20),
+        COMMIT(8),
+        PUSH(20),
+        MERGE(10),
+        PULL(5),
+        ACTION(5);
     }
 
     /**
-     * Reset the plugin.
+     * The state of the CodeXP plugin.
      */
-    fun resetPlugin() {
-        challenges.clear()
-        completedChallenges.clear()
-        hasExecuted = false
-        nickname = ""
-    }
+    data class CodeXPState(
+        /**
+         * Whether the plugin has been executed before.
+         */
+        var hasExecuted: Boolean = false,
 
-    /**
-     * Executes a given lambda function only if the plugin has not been executed before.
-     *
-     * @param challenges Challenges to add to the plugin.
-     */
-    fun initializePlugin(challenges: List<CodeXPChallenge>) {
-        if (!hasExecuted) {
-            // TODO: Add logic to execute only once
+        /**
+         * User's nickname.
+         */
+        var nickname: String = "",
 
-            hasExecuted = true
+        /**
+         * User's total XP.
+         */
+        var xp: Long = 0,
+
+        /**
+         * Save the number of times an event has occurred based on the [Event] enum.
+         */
+        var eventCounts: MutableMap<Event, Long> = mutableMapOf(),
+
+        /**
+         * Challenges that not yet been completed.
+         */
+        var challenges: MutableMap<Event, MutableList<CodeXPChallenge>> = mutableMapOf(),
+
+        /**
+         * Challenges that have been completed.
+         */
+        var completedChallenges: MutableList<CodeXPChallenge> = mutableListOf()
+    ) {
+        /**
+         * Increment the event count for a specific event.
+         */
+        fun incrementEventCount(event: Event, incrementValue: Long = 1) {
+            eventCounts[event] = eventCounts.getOrDefault(event, 0) + incrementValue
+            xp += event.xpValue
         }
 
-        challenges.forEach(this::addChallenge)
+        /**
+         * Get the number of times an event has occurred.
+         */
+        fun getEventCount(event: Event): Long {
+            return eventCounts[event] ?: 0
+        }
     }
 
     /**
-     * Add a challenge to the plugin.
+     * The state of the CodeXP plugin
+     */
+    private var codeXPState: CodeXPState = CodeXPState()
+
+    /**
+     * The message bus for the plugin
+     */
+    private var messageBus: MessageBus? = null
+
+    /**
+     * The connection to the message bus
+     */
+    private var connection: MessageBusConnection? = null
+
+    init {
+        // Connect to the application message bus
+        messageBus = ApplicationManager.getApplication().messageBus
+        connection = messageBus?.connect()
+        connection?.subscribe(CodeXPListener.CODEXP_EVENT, this)
+
+        initialize {
+            addChallenge(
+                CodeXPChallenge(
+                    event = Event.TYPING,
+                    name = "Typing Challenge",
+                    description = "Just type. We will give you XP for it.",
+                    progress = 0,
+                    goal = 10,
+                    rewardXP = 100,
+                )
+            )
+        }
+    }
+
+    override fun getState(): CodeXPState {
+        return codeXPState
+    }
+
+    override fun loadState(codeXPState: CodeXPState) {
+        this.codeXPState = codeXPState
+    }
+
+    override fun eventOccurred(event: Event) {
+        codeXPState.incrementEventCount(event)
+        checkChallenge(event)
+    }
+
+    /**
+     * Initialize the plugin.
+     *
+     * @param initializeCallback The callback to execute when the plugin is initialized.
+     */
+    fun initialize(initializeCallback: () -> Unit) {
+        if (!codeXPState.hasExecuted) {
+            initializeCallback()
+            codeXPState.hasExecuted = true
+        }
+    }
+
+    /**
+     * Add a challenge to the list of challenges.
      *
      * @param challenge The challenge to add.
      */
     fun addChallenge(challenge: CodeXPChallenge) {
-        if (challenges.containsKey(challenge.type) || completedChallenges.containsKey(challenge.type)) return
-        challenges[challenge.type] = challenge
+        if (codeXPState.challenges[challenge.event] == null) {
+            codeXPState.challenges[challenge.event] = mutableListOf()
+        }
+        codeXPState.challenges[challenge.event]?.add(challenge)
     }
 
     /**
-     * Increase the value of a challenge.
+     * Checks if the user has completed any challenges for the given event
      *
-     * @param type The type of the challenge.
-     * @param amount The amount to increase the challenge value by.
+     * @param event The event to check for challenges
      */
-    fun increaseChallengeValue(type: CodeXPChallenge.Type, amount: Int) {
-        val challenge = challenges[type.ordinal] ?: return
+    fun checkChallenge(event: Event) {
+        codeXPState.challenges[event]?.let { challenges -> // If there are challenges for the event
+            // Create a list of completed challenges
+            val completedChallenges = mutableListOf<CodeXPChallenge>()
 
-        challenge.value += amount
-        if (challenge.value >= challenge.goal) { // If challenge is completed
-            challenges.remove(challenge.type)
-            completedChallenges[challenge.type] = challenge
+            for (challenge in challenges) {
+                // Increment the challenge progress
+                challenge.progress += 1
+
+                if (challenge.progress >= challenge.goal) { // If the challenge is completed
+                    thisLogger().warn("Challenge completed: ${challenge.name}")
+
+                    // Add the challenge to the completedChallenges list
+                    completedChallenges.add(challenge)
+
+                    // Add the reward XP to the user's XP
+                    codeXPState.xp += challenge.rewardXP
+                }
+            }
+
+            // Remove completed challenges
+            challenges.removeAll(completedChallenges)
+
+            // Add the completed challenges to the completedChallenges list
+            codeXPState.completedChallenges.addAll(completedChallenges)
         }
     }
 }
