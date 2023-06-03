@@ -4,7 +4,6 @@ import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.*
-import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.util.messages.MessageBus
 import com.intellij.util.messages.MessageBusConnection
 
@@ -33,10 +32,6 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         BUILD(5),
         RUN(10),
         DEBUG(20),
-        COMMIT(8),
-        PUSH(20),
-        MERGE(10),
-        PULL(5),
         ACTION(5);
     }
 
@@ -67,7 +62,7 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         /**
          * Challenges that not yet been completed.
          */
-        var challenges: MutableMap<Event, MutableList<CodeXPChallenge>> = mutableMapOf(),
+        var challenges: MutableMap<Event, CodeXPChallenge> = mutableMapOf(),
 
         /**
          * Challenges that have been completed.
@@ -116,10 +111,108 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
                 CodeXPChallenge(
                     event = Event.TYPING,
                     name = "Typing Challenge",
-                    description = "Just type. We will give you XP for it.",
+                    description = "Typing [goal] times.",
+                    progress = 0,
+                    goal = 100,
+                    goalIncrement = 100,
+                    rewardXP = 100,
+                    rewardXPIncrement = 200
+                )
+            )
+            addChallenge(
+                CodeXPChallenge(
+                    event = Event.PASTE,
+                    name = "Paste Challenge",
+                    description = "Paste [goal] times.",
                     progress = 0,
                     goal = 10,
+                    goalIncrement = 10,
                     rewardXP = 100,
+                    rewardXPIncrement = 150
+                )
+            )
+            addChallenge(
+                CodeXPChallenge(
+                    event = Event.BACKSPACE,
+                    name = "Backspace Challenge",
+                    description = "Press the backspace key [goal] times.",
+                    progress = 0,
+                    goal = 50,
+                    goalIncrement = 50,
+                    rewardXP = 100,
+                    rewardXPIncrement = 150
+                )
+            )
+            addChallenge(
+                CodeXPChallenge(
+                    event = Event.TAB,
+                    name = "Tab Challenge",
+                    description = "Press the tab key [goal] times.",
+                    progress = 0,
+                    goal = 50,
+                    goalIncrement = 50,
+                    rewardXP = 100,
+                    rewardXPIncrement = 150
+                )
+            )
+            addChallenge(
+                CodeXPChallenge(
+                    event = Event.SAVE,
+                    name = "Save Challenge",
+                    description = "Save [goal] times.",
+                    progress = 0,
+                    goal = 10,
+                    goalIncrement = 10,
+                    rewardXP = 300,
+                    rewardXPIncrement = 400
+                )
+            )
+            addChallenge(
+                CodeXPChallenge(
+                    event = Event.BUILD,
+                    name = "Build Challenge",
+                    description = "Build [goal] times.",
+                    progress = 0,
+                    goal = 10,
+                    goalIncrement = 10,
+                    rewardXP = 150,
+                    rewardXPIncrement = 200
+                )
+            )
+            addChallenge(
+                CodeXPChallenge(
+                    event = Event.RUN,
+                    name = "Run Challenge",
+                    description = "Run [goal] times.",
+                    progress = 0,
+                    goal = 10,
+                    goalIncrement = 10,
+                    rewardXP = 200,
+                    rewardXPIncrement = 250
+                )
+            )
+            addChallenge(
+                CodeXPChallenge(
+                    event = Event.DEBUG,
+                    name = "Debug Challenge",
+                    description = "Debug [goal] times.",
+                    progress = 0,
+                    goal = 10,
+                    goalIncrement = 10,
+                    rewardXP = 300,
+                    rewardXPIncrement = 400
+                )
+            )
+            addChallenge(
+                CodeXPChallenge(
+                    event = Event.ACTION,
+                    name = "Action Challenge",
+                    description = "Perform [goal] actions.",
+                    progress = 0,
+                    goal = 20,
+                    goalIncrement = 20,
+                    rewardXP = 100,
+                    rewardXPIncrement = 120
                 )
             )
         }
@@ -156,10 +249,7 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
      * @param challenge The challenge to add.
      */
     fun addChallenge(challenge: CodeXPChallenge) {
-        if (codeXPState.challenges[challenge.event] == null) {
-            codeXPState.challenges[challenge.event] = mutableListOf()
-        }
-        codeXPState.challenges[challenge.event]?.add(challenge)
+        codeXPState.challenges[challenge.event] = challenge
     }
 
     /**
@@ -168,30 +258,44 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
      * @param event The event to check for challenges
      */
     fun checkChallenge(event: Event) {
-        codeXPState.challenges[event]?.let { challenges -> // If there are challenges for the event
-            // Create a list of completed challenges
-            val completedChallenges = mutableListOf<CodeXPChallenge>()
+        codeXPState.challenges[event]?.let { challenge ->
+            challenge.progress += 1
 
-            for (challenge in challenges) {
-                // Increment the challenge progress
-                challenge.progress += 1
-
-                if (challenge.progress >= challenge.goal) { // If the challenge is completed
-                    thisLogger().warn("Challenge completed: ${challenge.name}")
-
-                    // Add the challenge to the completedChallenges list
-                    completedChallenges.add(challenge)
-
-                    // Add the reward XP to the user's XP
-                    codeXPState.xp += challenge.rewardXP
-                }
+            if (challenge.progress >= challenge.goal) {
+                codeXPState.xp += challenge.rewardXP
+                replaceChallengeWithNew(challenge, event)
             }
-
-            // Remove completed challenges
-            challenges.removeAll(completedChallenges)
-
-            // Add the completed challenges to the completedChallenges list
-            codeXPState.completedChallenges.addAll(completedChallenges)
         }
+    }
+
+    /**
+     * Replace a completed challenge with a new challenge with an increased goal.
+     *
+     * @param completedChallenge The completed challenge.
+     * @param event The type of the completed challenge.
+     */
+    private fun replaceChallengeWithNew(completedChallenge: CodeXPChallenge, event: Event) {
+        codeXPState.completedChallenges.add(completedChallenge)
+        codeXPState.challenges[event] = createNextChallenge(
+            completedChallenge
+        )
+    }
+
+    /**
+     * Create a new challenge with an increased goal.
+     *
+     * @param completedChallenge The completed challenge.
+     */
+    private fun createNextChallenge(completedChallenge: CodeXPChallenge): CodeXPChallenge {
+        return CodeXPChallenge(
+            event = completedChallenge.event,
+            name = completedChallenge.name,
+            description = completedChallenge.description,
+            rewardXP = completedChallenge.rewardXP + completedChallenge.rewardXPIncrement,
+            rewardXPIncrement = completedChallenge.rewardXPIncrement,
+            progress = 0,
+            goal = completedChallenge.goal + completedChallenge.goalIncrement,
+            goalIncrement = completedChallenge.goalIncrement
+        )
     }
 }
