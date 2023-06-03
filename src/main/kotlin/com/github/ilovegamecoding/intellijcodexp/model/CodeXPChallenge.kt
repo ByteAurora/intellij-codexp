@@ -1,16 +1,17 @@
 package com.github.ilovegamecoding.intellijcodexp.model
 
+import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
+
 /**
  * CodeXPChallenge class
- * CodeXPChallenge is a class that represents a challenge. Challenges are used to track the progress of the user.
  *
- * @constructor Create empty CodeXPChallenge.
+ * CodeXPChallenge is a class that represents a challenge. Challenges are used to track the progress of the user.
  */
 class CodeXPChallenge() {
     /**
-     * Type of challenge.
+     * Event of challenge.
      */
-    var type: Int = -1
+    var event: CodeXPService.Event = CodeXPService.Event.NONE
 
     /**
      * Name of challenge.
@@ -28,9 +29,9 @@ class CodeXPChallenge() {
     var rewardXP: Long = 0L
 
     /**
-     * Current value of challenge.
+     * Current progress of challenge.
      */
-    var value: Long = 0L
+    var progress: Long = 0L
 
     /**
      * Goal of challenge.
@@ -41,36 +42,18 @@ class CodeXPChallenge() {
      * Constructor for CodeXPChallenge with all parameters.
      */
     constructor(
-        type: Int,
+        event: CodeXPService.Event,
         name: String,
         description: String,
         rewardXP: Long,
-        value: Long,
+        progress: Long,
         goal: Long
     ) : this() {
-        this.type = type
+        this.event = event
         this.name = name
         this.description = description
         this.rewardXP = rewardXP
-        this.value = value
+        this.progress = progress
         this.goal = goal
-    }
-
-    /**
-     * Type of challenge.
-     *
-     * !! Do not ever change the order of the enum values. If you want to add a new challenge type, add it to the end of the enum !!
-     */
-    enum class Type {
-        TOTAL_XP,
-        ACTION_COUNT,
-        BUILD_COUNT,
-        DEBUG_COUNT,
-        RUN_COUNT,
-        COMMIT_COUNT,
-        PUSH_COUNT,
-        MERGE_COUNT,
-        PULL_COUNT,
-        TYPING_COUNT,
     }
 }
