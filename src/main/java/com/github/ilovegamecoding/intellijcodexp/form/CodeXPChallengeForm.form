@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.github.ilovegamecoding.intellijcodexp.form.CodeXPChallengeForm">
+  <grid id="27dc6" binding="pChallenge" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="400" height="117"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <component id="24948" class="javax.swing.JLabel" binding="lblChallengeName">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+            <preferred-size width="385" height="17"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font name="Noto Sans SemiBold" size="14" style="0"/>
+          <text value="Challenge Title"/>
+        </properties>
+      </component>
+      <grid id="74276" layout-manager="GridBagLayout">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="ff2ca" class="javax.swing.JProgressBar" binding="pbChallengeProgress">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag top="0" left="0" bottom="0" right="4" weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <stringPainted value="false"/>
+            </properties>
+          </component>
+          <grid id="e1ea5" layout-manager="GridBagLayout">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+              <gridbag top="0" left="0" bottom="0" right="8" weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="4ea00" class="javax.swing.JLabel" binding="lblChallengeProgress">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <gridbag weightx="0.0" weighty="0.0"/>
+                </constraints>
+                <properties>
+                  <font name="Noto Sans Medium" size="12" style="0"/>
+                  <horizontalAlignment value="4"/>
+                  <horizontalTextPosition value="0"/>
+                  <preferredSize width="32" height="20"/>
+                  <text value="100"/>
+                </properties>
+              </component>
+              <component id="58862" class="javax.swing.JLabel" binding="lblChallengePercentageIcon">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <gridbag top="0" left="4" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+                </constraints>
+                <properties>
+                  <font name="Noto Sans Medium" size="12" style="0"/>
+                  <horizontalAlignment value="2"/>
+                  <text resource-bundle="messages/CodeXPBundle" key="TEXT_%"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
+      <grid id="37efc" layout-manager="GridBagLayout">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="385" height="24"/>
+          </grid>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="dffc2" class="javax.swing.JLabel" binding="lblChallengeDescription">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <font name="Noto Sans Medium" size="12" style="0"/>
+              <text value="This is a challenge description"/>
+            </properties>
+          </component>
+          <grid id="5e072" layout-manager="GridBagLayout">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="4" fill="2" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="8f47b" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                  <gridbag weightx="0.0" weighty="0.0"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="messages/CodeXPBundle" key="TEXT_+"/>
+                </properties>
+              </component>
+              <component id="3ed92" class="javax.swing.JLabel" binding="lblChallengeReward">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                  <gridbag weightx="0.0" weighty="0.0"/>
+                </constraints>
+                <properties>
+                  <text value="100"/>
+                </properties>
+              </component>
+              <component id="10c9f" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                  <gridbag top="0" left="4" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="messages/CodeXPBundle" key="TEXT_XP"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>
