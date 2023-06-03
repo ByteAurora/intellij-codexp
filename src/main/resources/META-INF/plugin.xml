@@ -11,7 +11,6 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow factoryClass="com.github.ilovegamecoding.intellijcodexp.toolWindow.CodeXPToolWindowFactory"
                     id="CodeXPToolWindow"/>
-        <postStartupActivity implementation="com.github.ilovegamecoding.intellijcodexp.startup.CodeXPStartupActivity"/>
         <applicationService serviceImplementation="com.github.ilovegamecoding.intellijcodexp.services.CodeXPService"/>
     </extensions>
 
@@ -20,10 +19,6 @@
 
     <applicationListeners>
         <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener"
-                  topic="com.intellij.ide.FrameStateListener"/>
-        <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener"
-                  topic="com.intellij.openapi.editor.event.DocumentListener"/>
-        <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener"
-                  topic="com.intellij.openapi.editor.event.EditorFactoryListener"/>
+                  topic="com.intellij.openapi.actionSystem.ex.AnActionListener"/>
     </applicationListeners>
 </idea-plugin>
