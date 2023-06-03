@@ -1,8 +1,5 @@
 package com.github.ilovegamecoding.intellijcodexp.form;
 
-import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService;
-import com.intellij.openapi.application.ApplicationManager;
-
 import javax.swing.*;
 
 public class CodeXPDashboard {
