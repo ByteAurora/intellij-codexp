@@ -12,6 +12,7 @@
         <toolWindow factoryClass="com.github.ilovegamecoding.intellijcodexp.toolWindow.CodeXPToolWindowFactory"
                     id="CodeXPToolWindow"/>
         <applicationService serviceImplementation="com.github.ilovegamecoding.intellijcodexp.services.CodeXPService"/>
+        <notificationGroup displayType="BALLOON" id="CodeXP"/>
     </extensions>
 
     <application-components>
