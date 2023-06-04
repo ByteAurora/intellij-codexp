@@ -17,7 +17,10 @@ object CodeXPNotificationManager {
         notify("${codeXPChallenge.name} completed!", "Reward: ${codeXPChallenge.rewardXP} XP")
     }
 
-    fun notifyLevelUp(level: Int, xpToNextLevel: Long) {
-        notify("Level up!", "Congratulations! You are now level $level. You need $xpToNextLevel XP to reach the next level.")
+    fun notifyLevelUp(nickname: String, level: Int, xpToNextLevel: Long) {
+        notify(
+            "Level up!",
+            "Congratulations $nickname! You are now level $level. You need $xpToNextLevel XP to reach the next level."
+        )
     }
 }

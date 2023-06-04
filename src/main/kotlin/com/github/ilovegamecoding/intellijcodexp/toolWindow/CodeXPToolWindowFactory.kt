@@ -161,7 +161,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      * @param codeXPDashboard CodeXP dashboard.
      */
     private fun updateNickname(codeXPService: CodeXPService, codeXPDashboard: CodeXPDashboard) {
-        codeXPDashboard.tfNickname.text = codeXPService.state.nickname
+        codeXPService.state.nickname = codeXPDashboard.tfNickname.text
     }
 
     /**
@@ -180,7 +180,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
 
         val beforeLevel = codeXPDashboard.lblCurrentLevel.text.toInt()
         if (beforeLevel != currentLevel && beforeLevel != 0) {
-            CodeXPNotificationManager.notifyLevelUp(currentLevel, xpToNextLevel)
+            CodeXPNotificationManager.notifyLevelUp(codeXPService.state.nickname, currentLevel, xpToNextLevel)
         }
 
         codeXPDashboard.lblCurrentLevel.text = StringUtil.numberToStringWithCommas(currentLevel.toLong())
