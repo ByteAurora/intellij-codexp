@@ -1,4 +1,4 @@
-package com.github.ilovegamecoding.intellijcodexp
+package com.github.ilovegamecoding.intellijcodexp.util
 
 object StringUtil {
     fun numberToStringWithCommas(number: Long): String {

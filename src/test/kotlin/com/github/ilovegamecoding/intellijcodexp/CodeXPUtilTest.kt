@@ -1,5 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp
 
+import com.github.ilovegamecoding.intellijcodexp.util.StringUtil
 import com.intellij.testFramework.TestDataPath
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
