@@ -4,9 +4,6 @@
 
 ## [Unreleased]
 ### Added
-
-## [1.0.0]
-### Added
 - Implement core logic of CodeXP
 - Implement CodeXP Dashboard
 - Define events to detect and add challenges for each event
