@@ -1,6 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.toolWindow
 
-import com.github.ilovegamecoding.intellijcodexp.StringUtil
+import com.github.ilovegamecoding.intellijcodexp.util.StringUtil
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPChallengeForm
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPDashboard
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
