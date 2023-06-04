@@ -2,6 +2,11 @@
 
 # CodeXP Changelog
 
+## [Unreleased]
+### Added
+
+---
+
 ## [1.0.0]
 ### Added
 - Implement core logic of CodeXP
