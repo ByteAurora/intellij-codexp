@@ -1,11 +1,12 @@
 package com.github.ilovegamecoding.intellijcodexp.toolWindow
 
-import com.github.ilovegamecoding.intellijcodexp.util.StringUtil
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPChallengeForm
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPDashboard
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
+import com.github.ilovegamecoding.intellijcodexp.manager.CodeXPNotificationManager
 import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
+import com.github.ilovegamecoding.intellijcodexp.util.StringUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
@@ -172,9 +173,15 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
     private fun updateXPInfo(codeXPService: CodeXPService, codeXPDashboard: CodeXPDashboard) {
         val totalXP = codeXPService.state.xp
         codeXPDashboard.lblTotalXP.text = StringUtil.numberToStringWithCommas(totalXP)
-        val (currentLevel, xpIntoCurrentLevel, progressToNextLevel) = calculateLevelAndProgress(
+        val (currentLevel, xpIntoCurrentLevel, progressToNextLevel, xpToNextLevel) = calculateLevelAndProgress(
             totalXP
         )
+
+
+        val beforeLevel = codeXPDashboard.lblCurrentLevel.text.toInt()
+        if (beforeLevel != currentLevel && beforeLevel != 0) {
+            CodeXPNotificationManager.notifyLevelUp(currentLevel, xpToNextLevel)
+        }
 
         codeXPDashboard.lblCurrentLevel.text = StringUtil.numberToStringWithCommas(currentLevel.toLong())
         codeXPDashboard.lblNextLevel.text = StringUtil.numberToStringWithCommas((currentLevel + 1).toLong())
@@ -261,7 +268,12 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         /**
          * Progress to the next level.
          */
-        val progressToNextLevel: Int
+        val progressToNextLevel: Int,
+
+        /**
+         * XP needed to reach the next level.
+         */
+        val xpToNextLevel: Long
     )
 
     /**
@@ -284,7 +296,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         val xpIntoCurrentLevel = totalXP - (xp - currentLevelXP)
         val progress = (xpIntoCurrentLevel / currentLevelXP) * 100
 
-        return LevelInfo(level, xpIntoCurrentLevel.toLong(), progress.toInt())
+        return LevelInfo(level, xpIntoCurrentLevel.toLong(), progress.toInt(), currentLevelXP.toLong())
     }
 }
 

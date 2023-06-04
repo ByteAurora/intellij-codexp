@@ -1,6 +1,7 @@
 package com.github.ilovegamecoding.intellijcodexp.services
 
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
+import com.github.ilovegamecoding.intellijcodexp.manager.CodeXPNotificationManager
 import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.*
@@ -264,6 +265,7 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
             if (challenge.progress >= challenge.goal) {
                 codeXPState.xp += challenge.rewardXP
                 replaceChallengeWithNew(challenge, event)
+                CodeXPNotificationManager.notifyChallengeComplete(challenge)
             }
         }
     }
