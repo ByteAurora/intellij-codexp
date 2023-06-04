@@ -9,8 +9,6 @@ The CodeXP plugin is designed to gamify your coding experience in IntelliJ IDEs.
 
 ## Features
 
----
-
 - Awards experience points (xp) for various actions such as:
   - Typing
   - Paste
@@ -25,8 +23,6 @@ The CodeXP plugin is designed to gamify your coding experience in IntelliJ IDEs.
 <br>
 
 ## Installation
-
----
 
 - Using IDE built-in plugin system:
 
@@ -44,8 +40,6 @@ The CodeXP plugin is designed to gamify your coding experience in IntelliJ IDEs.
 
 ## Dashboard in Light/Dark Theme
 
----
-
 <p float="left">
   <img src="https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/dashboard_light_1.png" width="400" />
   <img src="https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/dashboard_light_2.png" width="400" />
@@ -59,8 +53,6 @@ The CodeXP plugin is designed to gamify your coding experience in IntelliJ IDEs.
 
 ## Completed Challenges
 
----
-
 Completed challenges are added under the "Completed Challenges" section. Also, more difficult challenges are automatically added after you complete a challenge.
 
 ![Completed Challenges](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/completed_challenges.png)
@@ -70,7 +62,7 @@ Completed challenges are added under the "Completed Challenges" section. Also, m
 ## Notification
 Whenever a challenge is completed or a level up occurs, a notification is provided to inform you of the details.
 
-![Notification](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/notification.jpg")
+![Notification](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/notification.jpg)
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].
