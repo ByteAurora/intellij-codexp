@@ -2,6 +2,9 @@
 
 # CodeXP Changelog
 
-## [Unreleased]
+## [1.0.0]
 ### Added
-- Release test
+- Implement core logic of CodeXP
+- Implement CodeXP Dashboard
+- Define events to detect and add challenges for each event
+- Implement notification alert feature for leveling up or completing challenges
