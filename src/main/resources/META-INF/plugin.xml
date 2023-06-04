@@ -13,7 +13,7 @@
                     anchor="right"
                     id="CodeXP Dashboard" icon="icons/toolWindowIcon.svg" />
         <applicationService serviceImplementation="com.github.ilovegamecoding.intellijcodexp.services.CodeXPService"/>
-        <notificationGroup displayType="BALLOON" id="CodeXP Dashboard"/>
+        <notificationGroup displayType="BALLOON" id="CodeXP"/>
     </extensions>
 
     <application-components>
