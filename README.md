@@ -1,11 +1,13 @@
-# CodeXP
+# <img src="https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/codexp.png" alt="CodeXP" width="32" height="32"/>  CodeXP
 
 ![Build](https://github.com/ILoveGameCoding/intellij-codexp/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/21896-codexp.svg)](https://plugins.jetbrains.com/plugin/21896-codexp)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/21896-codexp.svg)](https://plugins.jetbrains.com/plugin/21896-codexp)
 
 <!-- Plugin description -->
-The CodeXP plugin is designed to gamify your coding experience in IntelliJ IDEs. 
+The CodeXP plugin is designed to gamify your coding experience in IntelliJ IDEs.
+
+<br>
 
 ## Features
 
