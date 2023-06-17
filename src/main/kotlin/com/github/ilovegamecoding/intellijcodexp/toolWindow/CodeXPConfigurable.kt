@@ -45,6 +45,6 @@ class CodeXPConfigurable : Configurable {
     }
 
     override fun getDisplayName(): String {
-        return "CodeXP Plugin Configuration"
+        return "CodeXP"
     }
 }
