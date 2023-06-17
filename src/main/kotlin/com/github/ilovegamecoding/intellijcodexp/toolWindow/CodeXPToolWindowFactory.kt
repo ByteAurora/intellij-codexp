@@ -24,15 +24,30 @@ import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
 
+/**
+ * CodeXPToolWindowFactory class
+ *
+ * This class creates the tool window for the CodeXP plugin.
+ */
 class CodeXPToolWindowFactory : ToolWindowFactory {
+    /**
+     * CodeXP service.
+     */
+    private lateinit var codeXPService: CodeXPService
+
+    /**
+     * CodeXP dashboard form.
+     */
+    private lateinit var codeXPDashboard: CodeXPDashboard
+
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         // Get the CodeXP service
-        val codeXPService = ApplicationManager.getApplication().getService(CodeXPService::class.java)
+        codeXPService = ApplicationManager.getApplication().getService(CodeXPService::class.java)
 
         // Create the dashboard
-        val codeXPDashboard = CodeXPDashboard()
+        codeXPDashboard = CodeXPDashboard()
 
-        initializeUI(codeXPService, codeXPDashboard)
+        initializeUI()
 
         // Add the dashboard to the tool window
         val contentFactory = ContentFactory.SERVICE.getInstance()
@@ -47,11 +62,8 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
 
     /**
      * Initializes the UI of the dashboard.
-     *
-     * @param codeXPService CodeXP service.
-     * @param codeXPDashboard CodeXP dashboard.
      */
-    private fun initializeUI(codeXPService: CodeXPService, codeXPDashboard: CodeXPDashboard) {
+    private fun initializeUI() {
         // Listen to events from the CodeXP service
         val connection = ApplicationManager.getApplication().messageBus.connect()
 
@@ -59,15 +71,15 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         codeXPDashboard.tfNickname.text = codeXPService.state.nickname
         codeXPDashboard.tfNickname.document.addDocumentListener(object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) {
-                updateNickname(codeXPService, codeXPDashboard)
+                updateNickname()
             }
 
             override fun removeUpdate(e: DocumentEvent) {
-                updateNickname(codeXPService, codeXPDashboard)
+                updateNickname()
             }
 
             override fun changedUpdate(e: DocumentEvent) {
-                updateNickname(codeXPService, codeXPDashboard)
+                updateNickname()
             }
         })
 
@@ -105,7 +117,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
                 eventStaticForms[event] = pEvent
 
                 // Initialize challenges
-                val challengeForm = createChallengeForm(codeXPService.state.challenges[event]!!)
+                val challengeForm = createOrUpdateChallengeForm(codeXPService.state.challenges[event]!!)
                 codeXPDashboard.pChallenges.add(challengeForm.pChallenge, gridBagConstraints)
                 challengeForms[event] = challengeForm
             }
@@ -115,7 +127,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         codeXPService.state.completedChallenges.forEach { completedChallenge ->
             gridBagConstraints.gridy = codeXPDashboard.pCompletedChallenges.componentCount
 
-            val challengeForm = createChallengeForm(completedChallenge)
+            val challengeForm = createOrUpdateChallengeForm(completedChallenge)
             codeXPDashboard.pCompletedChallenges.add(challengeForm.pChallenge, gridBagConstraints)
         }
         codeXPDashboard.lblCompletedChallengesCount.text =
@@ -135,51 +147,44 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
                 } else {  // Before challenge is completed
                     gridBagConstraints.gridy = codeXPDashboard.pCompletedChallenges.componentCount
                     codeXPService.state.completedChallenges.find { it.id == beforeChallengeForm.challengeID }
-                        ?.let { createChallengeForm(it).pChallenge }?.let {
+                        ?.let { createOrUpdateChallengeForm(it).pChallenge }?.let {
                             codeXPDashboard.pCompletedChallenges.add(
                                 it,
                                 gridBagConstraints
                             )
                         }
 
-                    setChallengeToForm(currentChallenge, challengeForms[event]!!)
+                    createOrUpdateChallengeForm(currentChallenge, challengeForms[event]!!)
                     codeXPDashboard.lblCompletedChallengesCount.text =
                         StringUtil.numberToStringWithCommas(codeXPService.state.completedChallenges.size.toLong())
                 }
 
-                updateXPInfo(codeXPService, codeXPDashboard)
+                updateXPInfo()
             }
         })
 
-        updateXPInfo(codeXPService, codeXPDashboard)
+        updateXPInfo()
     }
 
     /**
      * Updates user nickname on the dashboard.
-     *
-     * @param codeXPService CodeXP service.
-     * @param codeXPDashboard CodeXP dashboard.
      */
-    private fun updateNickname(codeXPService: CodeXPService, codeXPDashboard: CodeXPDashboard) {
+    private fun updateNickname() {
         codeXPService.state.nickname = codeXPDashboard.tfNickname.text
     }
 
     /**
      * Updates the XP info on the dashboard.
-     *
-     * @param codeXPService CodeXP service.
-     * @param codeXPDashboard CodeXP dashboard.
      */
-    private fun updateXPInfo(codeXPService: CodeXPService, codeXPDashboard: CodeXPDashboard) {
+    private fun updateXPInfo() {
         val totalXP = codeXPService.state.xp
         codeXPDashboard.lblTotalXP.text = StringUtil.numberToStringWithCommas(totalXP)
         val (currentLevel, xpIntoCurrentLevel, progressToNextLevel, xpToNextLevel) = calculateLevelAndProgress(
             totalXP
         )
 
-
         val beforeLevel = codeXPDashboard.lblCurrentLevel.text.toInt()
-        if (beforeLevel != currentLevel && beforeLevel != 0) {
+        if (beforeLevel != currentLevel && beforeLevel != 0 && codeXPService.codeXPConfiguration.showCompleteChallengeNotification) {
             CodeXPNotificationManager.notifyLevelUp(codeXPService.state.nickname, currentLevel, xpToNextLevel)
         }
 
@@ -204,51 +209,35 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
     }
 
     /**
-     * Creates a challenge form.
+     * Create or update existing challenge form.
      *
-     * @param challenge Challenge to create the form for.
+     * @param challenge Challenge to create or update.
+     * @param challengeForm Challenge form to update.
      * @return Challenge form.
      */
-    private fun createChallengeForm(challenge: CodeXPChallenge): CodeXPChallengeForm {
-        val challengeForm = CodeXPChallengeForm()
-        challengeForm.challengeID = challenge.id
-        challengeForm.pChallenge.border = BorderFactory.createEmptyBorder(16, 32, 0, 32)
-        challengeForm.lblChallengeName.text = challenge.name
-        challengeForm.lblChallengeReward.text = StringUtil.numberToStringWithCommas(challenge.rewardXP)
-        challengeForm.lblChallengeDescription.text =
+    private fun createOrUpdateChallengeForm(
+        challenge: CodeXPChallenge,
+        challengeForm: CodeXPChallengeForm? = null
+    ): CodeXPChallengeForm {
+        val form = challengeForm ?: CodeXPChallengeForm()
+
+        form.challengeID = challenge.id
+        form.pChallenge.border = BorderFactory.createEmptyBorder(16, 32, 0, 32)
+        form.lblChallengeName.text = challenge.name
+        form.lblChallengeReward.text = StringUtil.numberToStringWithCommas(challenge.rewardXP)
+        form.lblChallengeDescription.text =
             challenge.description.replace("[goal]", StringUtil.numberToStringWithCommas(challenge.goal))
 
         if (challenge.progress >= challenge.goal) {
-            challengeForm.lblChallengeProgress.isVisible = false
-            challengeForm.pbChallengeProgress.isVisible = false
-            challengeForm.lblChallengePercentageIcon.isVisible = false
+            form.lblChallengeProgress.isVisible = false
+            form.pbChallengeProgress.isVisible = false
+            form.lblChallengePercentageIcon.isVisible = false
         } else {
-            updateChallengeProgress(challenge, challengeForm)
+            val progressPercentage = ((challenge.progress.toDouble() / challenge.goal) * 100).toInt()
+            form.lblChallengeProgress.text = progressPercentage.toString()
+            form.pbChallengeProgress.value = progressPercentage
         }
-        return challengeForm
-    }
-
-    /**
-     * Sets challenge to the form.
-     *
-     * @param challenge Challenge to set.
-     * @param challengeForm Challenge form.
-     */
-    private fun setChallengeToForm(challenge: CodeXPChallenge, challengeForm: CodeXPChallengeForm) {
-        challengeForm.challengeID = challenge.id
-        challengeForm.pChallenge.border = BorderFactory.createEmptyBorder(16, 32, 0, 32)
-        challengeForm.lblChallengeName.text = challenge.name
-        challengeForm.lblChallengeReward.text = StringUtil.numberToStringWithCommas(challenge.rewardXP)
-        challengeForm.lblChallengeDescription.text =
-            challenge.description.replace("[goal]", StringUtil.numberToStringWithCommas(challenge.goal))
-
-        if (challenge.progress >= challenge.goal) {
-            challengeForm.lblChallengeProgress.isVisible = false
-            challengeForm.pbChallengeProgress.isVisible = false
-            challengeForm.lblChallengePercentageIcon.isVisible = false
-        } else {
-            updateChallengeProgress(challenge, challengeForm)
-        }
+        return form
     }
 
     /**
