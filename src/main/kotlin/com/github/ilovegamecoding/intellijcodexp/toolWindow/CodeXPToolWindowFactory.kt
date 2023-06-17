@@ -1,7 +1,7 @@
 package com.github.ilovegamecoding.intellijcodexp.toolWindow
 
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPChallengeForm
-import com.github.ilovegamecoding.intellijcodexp.form.CodeXPDashboard
+import com.github.ilovegamecoding.intellijcodexp.form.CodeXPDashboardForm
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.manager.CodeXPNotificationManager
 import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
@@ -38,20 +38,20 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
     /**
      * CodeXP dashboard form.
      */
-    private lateinit var codeXPDashboard: CodeXPDashboard
+    private lateinit var codeXPDashboardForm: CodeXPDashboardForm
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         // Get the CodeXP service
         codeXPService = ApplicationManager.getApplication().getService(CodeXPService::class.java)
 
         // Create the dashboard
-        codeXPDashboard = CodeXPDashboard()
+        codeXPDashboardForm = CodeXPDashboardForm()
 
         initializeUI()
 
         // Add the dashboard to the tool window
         val contentFactory = ContentFactory.SERVICE.getInstance()
-        val scrollPane = JBScrollPane(codeXPDashboard.pMain)
+        val scrollPane = JBScrollPane(codeXPDashboardForm.pMain)
         val rootPanel = JPanel(BorderLayout())
         rootPanel.add(BorderLayout.CENTER, scrollPane)
         val content = contentFactory.createContent(rootPanel, null, false)
@@ -68,8 +68,8 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         val connection = ApplicationManager.getApplication().messageBus.connect()
 
         // Set nickname and listen changes from the text field
-        codeXPDashboard.tfNickname.text = codeXPService.state.nickname
-        codeXPDashboard.tfNickname.document.addDocumentListener(object : DocumentListener {
+        codeXPDashboardForm.tfNickname.text = codeXPService.state.nickname
+        codeXPDashboardForm.tfNickname.document.addDocumentListener(object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) {
                 updateNickname()
             }
@@ -112,25 +112,25 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
                 pEvent.add(lblEventName)
                 pEvent.add(lblEventReward)
                 pEvent.add(lblEventCount)
-                codeXPDashboard.pEventStatistics.add(pEvent, gridBagConstraints)
+                codeXPDashboardForm.pEventStatistics.add(pEvent, gridBagConstraints)
 
                 eventStaticForms[event] = pEvent
 
                 // Initialize challenges
                 val challengeForm = createOrUpdateChallengeForm(codeXPService.state.challenges[event]!!)
-                codeXPDashboard.pChallenges.add(challengeForm.pChallenge, gridBagConstraints)
+                codeXPDashboardForm.pChallenges.add(challengeForm.pChallenge, gridBagConstraints)
                 challengeForms[event] = challengeForm
             }
         }
 
         // Initialize completed challenges
         codeXPService.state.completedChallenges.forEach { completedChallenge ->
-            gridBagConstraints.gridy = codeXPDashboard.pCompletedChallenges.componentCount
+            gridBagConstraints.gridy = codeXPDashboardForm.pCompletedChallenges.componentCount
 
             val challengeForm = createOrUpdateChallengeForm(completedChallenge)
-            codeXPDashboard.pCompletedChallenges.add(challengeForm.pChallenge, gridBagConstraints)
+            codeXPDashboardForm.pCompletedChallenges.add(challengeForm.pChallenge, gridBagConstraints)
         }
-        codeXPDashboard.lblCompletedChallengesCount.text =
+        codeXPDashboardForm.lblCompletedChallengesCount.text =
             StringUtil.numberToStringWithCommas(codeXPService.state.completedChallenges.size.toLong())
 
         // Update the dashboard when events occur
@@ -145,17 +145,17 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
                 if (currentChallenge.id == beforeChallengeForm.challengeID) { // Challenge is not completed
                     updateChallengeProgress(currentChallenge, beforeChallengeForm)
                 } else {  // Before challenge is completed
-                    gridBagConstraints.gridy = codeXPDashboard.pCompletedChallenges.componentCount
+                    gridBagConstraints.gridy = codeXPDashboardForm.pCompletedChallenges.componentCount
                     codeXPService.state.completedChallenges.find { it.id == beforeChallengeForm.challengeID }
                         ?.let { createOrUpdateChallengeForm(it).pChallenge }?.let {
-                            codeXPDashboard.pCompletedChallenges.add(
+                            codeXPDashboardForm.pCompletedChallenges.add(
                                 it,
                                 gridBagConstraints
                             )
                         }
 
                     createOrUpdateChallengeForm(currentChallenge, challengeForms[event]!!)
-                    codeXPDashboard.lblCompletedChallengesCount.text =
+                    codeXPDashboardForm.lblCompletedChallengesCount.text =
                         StringUtil.numberToStringWithCommas(codeXPService.state.completedChallenges.size.toLong())
                 }
 
@@ -170,7 +170,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      * Updates user nickname on the dashboard.
      */
     private fun updateNickname() {
-        codeXPService.state.nickname = codeXPDashboard.tfNickname.text
+        codeXPService.state.nickname = codeXPDashboardForm.tfNickname.text
     }
 
     /**
@@ -178,22 +178,22 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      */
     private fun updateXPInfo() {
         val totalXP = codeXPService.state.xp
-        codeXPDashboard.lblTotalXP.text = StringUtil.numberToStringWithCommas(totalXP)
+        codeXPDashboardForm.lblTotalXP.text = StringUtil.numberToStringWithCommas(totalXP)
         val (currentLevel, xpIntoCurrentLevel, progressToNextLevel, xpToNextLevel) = calculateLevelAndProgress(
             totalXP
         )
 
-        val beforeLevel = codeXPDashboard.lblCurrentLevel.text.toInt()
+        val beforeLevel = codeXPDashboardForm.lblCurrentLevel.text.toInt()
         if (beforeLevel != currentLevel && beforeLevel != 0 && codeXPService.codeXPConfiguration.showCompleteChallengeNotification) {
             CodeXPNotificationManager.notifyLevelUp(codeXPService.state.nickname, currentLevel, xpToNextLevel)
         }
 
-        codeXPDashboard.lblCurrentLevel.text = StringUtil.numberToStringWithCommas(currentLevel.toLong())
-        codeXPDashboard.lblNextLevel.text = StringUtil.numberToStringWithCommas((currentLevel + 1).toLong())
-        codeXPDashboard.lblCurrentLevelXP.text = StringUtil.numberToStringWithCommas(xpIntoCurrentLevel)
-        codeXPDashboard.pbCurrentLevelProgress.value = progressToNextLevel
-        codeXPDashboard.pbCurrentLevelProgress.string = "$progressToNextLevel %"
-        codeXPDashboard.lblLevel.text = StringUtil.numberToStringWithCommas(currentLevel.toLong())
+        codeXPDashboardForm.lblCurrentLevel.text = StringUtil.numberToStringWithCommas(currentLevel.toLong())
+        codeXPDashboardForm.lblNextLevel.text = StringUtil.numberToStringWithCommas((currentLevel + 1).toLong())
+        codeXPDashboardForm.lblCurrentLevelXP.text = StringUtil.numberToStringWithCommas(xpIntoCurrentLevel)
+        codeXPDashboardForm.pbCurrentLevelProgress.value = progressToNextLevel
+        codeXPDashboardForm.pbCurrentLevelProgress.string = "$progressToNextLevel %"
+        codeXPDashboardForm.lblLevel.text = StringUtil.numberToStringWithCommas(currentLevel.toLong())
     }
 
     /**

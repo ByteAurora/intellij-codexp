@@ -2,7 +2,7 @@ package com.github.ilovegamecoding.intellijcodexp.form;
 
 import javax.swing.*;
 
-public class CodeXPDashboard {
+public class CodeXPDashboardForm {
     public JPanel pMain;
     public JProgressBar pbCurrentLevelProgress;
     public JLabel lblNextLevel;
