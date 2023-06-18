@@ -68,7 +68,12 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         /**
          * Challenges that have been completed.
          */
-        var completedChallenges: MutableList<CodeXPChallenge> = mutableListOf()
+        var completedChallenges: MutableList<CodeXPChallenge> = mutableListOf(),
+
+        /**
+         * Show completed challenges in the dashboard.
+         */
+        var showCompletedChallenges: Boolean = true
     ) {
         /**
          * Increment the event count for a specific event.
@@ -286,7 +291,7 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
                 codeXPState.xp += challenge.rewardXP
                 replaceChallengeWithNew(challenge, event)
 
-                if (codeXPConfiguration.showLevelUpNotification)
+                if (codeXPConfiguration.showCompleteChallengeNotification)
                     CodeXPNotificationManager.notifyChallengeComplete(challenge)
             }
         }
