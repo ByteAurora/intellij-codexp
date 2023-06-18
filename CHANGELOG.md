@@ -9,7 +9,7 @@
 - Add CodeXP configuration in IDE setting
 - Add checkbox for show/hide completed challenges
 
-## v1.0.0
+## 1.0.0
 
 ### Added
 
