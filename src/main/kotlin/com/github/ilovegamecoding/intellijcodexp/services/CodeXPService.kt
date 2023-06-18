@@ -68,7 +68,12 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         /**
          * Challenges that have been completed.
          */
-        var completedChallenges: MutableList<CodeXPChallenge> = mutableListOf()
+        var completedChallenges: MutableList<CodeXPChallenge> = mutableListOf(),
+
+        /**
+         * Show completed challenges in the dashboard.
+         */
+        var showCompletedChallenges: Boolean = true
     ) {
         /**
          * Increment the event count for a specific event.
@@ -87,9 +92,29 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
     }
 
     /**
+     * The configuration of the CodeXP plugin
+     */
+    data class CodeXPConfiguration(
+        /**
+         * Show a notification when the user levels up.
+         */
+        var showLevelUpNotification: Boolean = true,
+
+        /**
+         * Show a notification when the user completes a challenge.
+         */
+        var showCompleteChallengeNotification: Boolean = true
+    )
+
+    /**
      * The state of the CodeXP plugin
      */
     private var codeXPState: CodeXPState = CodeXPState()
+
+    /**
+     * The configuration of the CodeXP plugin
+     */
+    var codeXPConfiguration: CodeXPConfiguration = CodeXPConfiguration()
 
     /**
      * The message bus for the plugin
@@ -265,7 +290,9 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
             if (challenge.progress >= challenge.goal) {
                 codeXPState.xp += challenge.rewardXP
                 replaceChallengeWithNew(challenge, event)
-                CodeXPNotificationManager.notifyChallengeComplete(challenge)
+
+                if (codeXPConfiguration.showCompleteChallengeNotification)
+                    CodeXPNotificationManager.notifyChallengeComplete(challenge)
             }
         }
     }
