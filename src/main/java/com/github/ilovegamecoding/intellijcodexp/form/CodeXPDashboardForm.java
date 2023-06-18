@@ -16,4 +16,5 @@ public class CodeXPDashboardForm {
     public JPanel pEventStatistics;
     public JPanel pChallenges;
     public JLabel lblCompletedChallengesCount;
+    public JCheckBox cbShowCompletedChallenges;
 }
