@@ -134,9 +134,11 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
                 eventStaticForms[event] = pEvent
 
                 // Initialize challenges
-                val challengeForm = createOrUpdateChallengeForm(codeXPService.state.challenges[event]!!)
-                codeXPDashboardForm.pChallenges.add(challengeForm.pChallenge, gridBagConstraints)
-                challengeForms[event] = challengeForm
+                codeXPService.state.challenges[event]?.let {
+                    val challengeForm = createOrUpdateChallengeForm(it)
+                    codeXPDashboardForm.pChallenges.add(challengeForm.pChallenge, gridBagConstraints)
+                    challengeForms[event] = challengeForm
+                }
             }
         }
     }
@@ -190,26 +192,27 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
                     (eventStaticForms[event]!!.getComponent(2) as JLabel).text =
                         StringUtil.numberToStringWithCommas(codeXPService.state.getEventCount(event))
 
-                    val currentChallenge = codeXPService.state.challenges[event]!!
-                    val beforeChallengeForm = challengeForms[event]!!
+                    codeXPService.state.challenges[event]?.let { currentChallenge ->
+                        val beforeChallengeForm = challengeForms[event]!!
 
-                    if (currentChallenge.id == beforeChallengeForm.challengeID) { // Challenge is not completed
-                        updateChallengeProgress(currentChallenge, beforeChallengeForm)
-                    } else {  // Before challenge is completed
-                        if (codeXPService.state.showCompletedChallenges) {
-                            gridBagConstraints.gridy = codeXPDashboardForm.pCompletedChallenges.componentCount
-                            codeXPService.state.completedChallenges.find { it.id == beforeChallengeForm.challengeID }
-                                ?.let { createOrUpdateChallengeForm(it).pChallenge }?.let {
-                                    codeXPDashboardForm.pCompletedChallenges.add(
-                                        it,
-                                        gridBagConstraints
-                                    )
-                                }
+                        if (currentChallenge.id == beforeChallengeForm.challengeID) { // Challenge is not completed
+                            updateChallengeProgress(currentChallenge, beforeChallengeForm)
+                        } else {  // Before challenge is completed
+                            if (codeXPService.state.showCompletedChallenges) {
+                                gridBagConstraints.gridy = codeXPDashboardForm.pCompletedChallenges.componentCount
+                                codeXPService.state.completedChallenges.find { it.id == beforeChallengeForm.challengeID }
+                                    ?.let { createOrUpdateChallengeForm(it).pChallenge }?.let {
+                                        codeXPDashboardForm.pCompletedChallenges.add(
+                                            it,
+                                            gridBagConstraints
+                                        )
+                                    }
+                            }
+
+                            createOrUpdateChallengeForm(currentChallenge, challengeForms[event]!!)
+                            codeXPDashboardForm.lblCompletedChallengesCount.text =
+                                StringUtil.numberToStringWithCommas(codeXPService.state.completedChallenges.size.toLong())
                         }
-
-                        createOrUpdateChallengeForm(currentChallenge, challengeForms[event]!!)
-                        codeXPDashboardForm.lblCompletedChallengesCount.text =
-                            StringUtil.numberToStringWithCommas(codeXPService.state.completedChallenges.size.toLong())
                     }
 
                     updateXPInfo()
