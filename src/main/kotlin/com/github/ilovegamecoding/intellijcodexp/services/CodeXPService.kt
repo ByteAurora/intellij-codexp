@@ -29,6 +29,7 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         PASTE(1),
         BACKSPACE(1),
         TAB(1),
+        ENTER(1),
         SAVE(10),
         BUILD(5),
         RUN(10),
@@ -266,6 +267,12 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         if (!codeXPState.hasExecuted) {
             initializeCallback()
             codeXPState.hasExecuted = true
+        }
+
+        Event.values().forEach { event ->
+            if (!codeXPState.eventCounts.containsKey(event)) {
+                codeXPState.eventCounts[event] = 0
+            }
         }
     }
 
