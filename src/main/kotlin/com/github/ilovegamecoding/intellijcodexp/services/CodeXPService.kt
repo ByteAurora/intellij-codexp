@@ -2,10 +2,10 @@ package com.github.ilovegamecoding.intellijcodexp.services
 
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
-import com.github.ilovegamecoding.intellijcodexp.listener.CodeXPListener
-import com.github.ilovegamecoding.intellijcodexp.manager.CodeXPNotificationManager
-import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
-import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallengeFactory
+import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
+import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPNotificationManager
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallengeFactory
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.*
 import com.intellij.util.messages.MessageBus

@@ -1,4 +1,4 @@
-package com.github.ilovegamecoding.intellijcodexp.model
+package com.github.ilovegamecoding.intellijcodexp.models
 
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 

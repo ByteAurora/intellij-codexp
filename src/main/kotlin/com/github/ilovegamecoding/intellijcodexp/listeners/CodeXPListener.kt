@@ -1,4 +1,4 @@
-package com.github.ilovegamecoding.intellijcodexp.listener
+package com.github.ilovegamecoding.intellijcodexp.listeners
 
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.intellij.util.messages.Topic

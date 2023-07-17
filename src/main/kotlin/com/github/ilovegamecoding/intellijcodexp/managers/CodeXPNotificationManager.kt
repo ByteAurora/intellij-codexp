@@ -1,6 +1,6 @@
-package com.github.ilovegamecoding.intellijcodexp.manager
+package com.github.ilovegamecoding.intellijcodexp.managers
 
-import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType

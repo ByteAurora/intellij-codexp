@@ -3,11 +3,11 @@ package com.github.ilovegamecoding.intellijcodexp.toolWindow
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPChallengeForm
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPDashboardForm
-import com.github.ilovegamecoding.intellijcodexp.listener.CodeXPListener
-import com.github.ilovegamecoding.intellijcodexp.manager.CodeXPNotificationManager
-import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
+import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
+import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPNotificationManager
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
-import com.github.ilovegamecoding.intellijcodexp.util.StringUtil
+import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
