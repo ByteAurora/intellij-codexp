@@ -3,6 +3,7 @@ package com.github.ilovegamecoding.intellijcodexp.services
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.manager.CodeXPNotificationManager
 import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
+import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallengeFactory
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.*
 import com.intellij.util.messages.MessageBus
@@ -132,17 +133,19 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         messageBus = ApplicationManager.getApplication().messageBus
         connection = messageBus?.connect()
         connection?.subscribe(CodeXPListener.CODEXP_EVENT, this)
-
-        initialize { }
     }
 
     override fun getState(): CodeXPState {
         return codeXPState
     }
 
+    override fun noStateLoaded() {
+        super.noStateLoaded()
+        initialize { }
+    }
+
     override fun loadState(codeXPState: CodeXPState) {
         this.codeXPState = codeXPState
-
         initialize { }
     }
 
@@ -168,126 +171,9 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
             }
         }
 
-        addChallenge(
-            CodeXPChallenge(
-                event = Event.TYPING,
-                name = "Typing Challenge",
-                description = "Typing [goal] times.",
-                progress = 0,
-                goal = 100,
-                goalIncrement = 100,
-                rewardXP = 100,
-                rewardXPIncrement = 200
-            )
-        )
-        addChallenge(
-            CodeXPChallenge(
-                event = Event.PASTE,
-                name = "Paste Challenge",
-                description = "Paste [goal] times.",
-                progress = 0,
-                goal = 10,
-                goalIncrement = 10,
-                rewardXP = 100,
-                rewardXPIncrement = 150
-            )
-        )
-        addChallenge(
-            CodeXPChallenge(
-                event = Event.BACKSPACE,
-                name = "Backspace Challenge",
-                description = "Press the backspace key [goal] times.",
-                progress = 0,
-                goal = 50,
-                goalIncrement = 50,
-                rewardXP = 100,
-                rewardXPIncrement = 150
-            )
-        )
-        addChallenge(
-            CodeXPChallenge(
-                event = Event.TAB,
-                name = "Tab Challenge",
-                description = "Press the tab key [goal] times.",
-                progress = 0,
-                goal = 50,
-                goalIncrement = 50,
-                rewardXP = 100,
-                rewardXPIncrement = 150
-            )
-        )
-        addChallenge(
-            CodeXPChallenge(
-                event = Event.ENTER,
-                name = "Enter Challenge",
-                description = "Press the enter key [goal] times.",
-                progress = 0,
-                goal = 10,
-                goalIncrement = 20,
-                rewardXP = 100,
-                rewardXPIncrement = 200
-            )
-        )
-        addChallenge(
-            CodeXPChallenge(
-                event = Event.SAVE,
-                name = "Save Challenge",
-                description = "Save [goal] times.",
-                progress = 0,
-                goal = 10,
-                goalIncrement = 10,
-                rewardXP = 300,
-                rewardXPIncrement = 400
-            )
-        )
-        addChallenge(
-            CodeXPChallenge(
-                event = Event.BUILD,
-                name = "Build Challenge",
-                description = "Build [goal] times.",
-                progress = 0,
-                goal = 10,
-                goalIncrement = 10,
-                rewardXP = 150,
-                rewardXPIncrement = 200
-            )
-        )
-        addChallenge(
-            CodeXPChallenge(
-                event = Event.RUN,
-                name = "Run Challenge",
-                description = "Run [goal] times.",
-                progress = 0,
-                goal = 10,
-                goalIncrement = 10,
-                rewardXP = 200,
-                rewardXPIncrement = 250
-            )
-        )
-        addChallenge(
-            CodeXPChallenge(
-                event = Event.DEBUG,
-                name = "Debug Challenge",
-                description = "Debug [goal] times.",
-                progress = 0,
-                goal = 10,
-                goalIncrement = 10,
-                rewardXP = 300,
-                rewardXPIncrement = 400
-            )
-        )
-        addChallenge(
-            CodeXPChallenge(
-                event = Event.ACTION,
-                name = "Action Challenge",
-                description = "Perform [goal] actions.",
-                progress = 0,
-                goal = 20,
-                goalIncrement = 20,
-                rewardXP = 100,
-                rewardXPIncrement = 120
-            )
-        )
+        CodeXPChallengeFactory.createEventDefaultChallenges().forEach { challenge ->
+            addChallenge(challenge)
+        }
     }
 
     /**
