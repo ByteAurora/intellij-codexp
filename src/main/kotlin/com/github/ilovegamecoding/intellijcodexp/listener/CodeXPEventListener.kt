@@ -104,13 +104,19 @@ internal class CodeXPEventListener : AnActionListener {
         currentXPGainValue += event.xpValue.toInt()
 
         val newFadingLabel = FadingLabel(currentXPGainValue).apply {
-            font = Font(font.fontName, Font.BOLD, 14)
+            font = Font(font.fontName, Font.BOLD, editor.colorsScheme.editorFontSize)
             size = preferredSize
+            val caretHeight = editor.lineHeight
             fadingLabelPosition.let { point ->
                 val position = codeXPConfiguration.positionToDisplayGainedXP
+                val xOffset = when {
+                    position.name.contains("LEFT") -> -width
+                    position.name.contains("RIGHT") -> 0
+                    else -> -width / 2
+                }
                 point.translate(
-                    (position.x * 4) + if (position.name.contains("LEFT")) -width else 0,
-                    position.y * (height / 2)
+                    (position.x * 4) + xOffset,
+                    position.y * (caretHeight / 2)
                 )
                 location = point
             }
