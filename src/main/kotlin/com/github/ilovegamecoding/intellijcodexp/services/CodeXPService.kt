@@ -1,6 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.services
 
-import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
+import com.github.ilovegamecoding.intellijcodexp.listener.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.manager.CodeXPNotificationManager
 import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallengeFactory

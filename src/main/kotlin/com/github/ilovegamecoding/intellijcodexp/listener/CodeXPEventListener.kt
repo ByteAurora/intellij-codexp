@@ -1,4 +1,4 @@
-package com.github.ilovegamecoding.intellijcodexp.listeners
+package com.github.ilovegamecoding.intellijcodexp.listener
 
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
 import com.intellij.openapi.actionSystem.*

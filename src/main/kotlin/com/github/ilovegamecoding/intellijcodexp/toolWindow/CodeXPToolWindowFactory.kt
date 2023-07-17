@@ -2,7 +2,7 @@ package com.github.ilovegamecoding.intellijcodexp.toolWindow
 
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPChallengeForm
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPDashboardForm
-import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
+import com.github.ilovegamecoding.intellijcodexp.listener.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.manager.CodeXPNotificationManager
 import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService

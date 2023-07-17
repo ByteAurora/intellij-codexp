@@ -22,7 +22,7 @@
     </application-components>
 
     <applicationListeners>
-        <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener"
+        <listener class="com.github.ilovegamecoding.intellijcodexp.listener.CodeXPEventListener"
                   topic="com.intellij.openapi.actionSystem.ex.AnActionListener"/>
     </applicationListeners>
 </idea-plugin>
