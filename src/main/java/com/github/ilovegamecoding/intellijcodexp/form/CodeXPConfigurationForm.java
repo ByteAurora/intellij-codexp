@@ -7,4 +7,6 @@ public class CodeXPConfigurationForm {
     public JCheckBox cbShowLevelUpNotification;
     public JCheckBox cbShowCompletedChallenges;
     public JPanel pMain;
+    public JCheckBox cbShowGainedXP;
+    public JComboBox cbPositionToDisplayGainedXP;
 }

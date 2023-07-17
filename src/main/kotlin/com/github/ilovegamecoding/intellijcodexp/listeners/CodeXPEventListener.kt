@@ -1,13 +1,12 @@
 package com.github.ilovegamecoding.intellijcodexp.listeners
 
-import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
+import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.AnActionResult
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.thisLogger
 
 /**
  * CodeXPEventListener class
@@ -17,23 +16,26 @@ import com.intellij.openapi.diagnostic.thisLogger
 internal class CodeXPEventListener : AnActionListener {
     override fun afterEditorTyping(c: Char, dataContext: DataContext) {
         super.afterEditorTyping(c, dataContext)
-        fireEvent(CodeXPService.Event.TYPING)
+
+        fireEvent(Event.TYPING, dataContext)
     }
 
     override fun afterActionPerformed(action: AnAction, event: AnActionEvent, result: AnActionResult) {
         super.afterActionPerformed(action, event, result)
-        thisLogger().warn("Action performed: ${action.templateText}")
 
-        when (action.templateText) { // Fire event based on action.
-            "Run" -> fireEvent(CodeXPService.Event.RUN)
-            "Save All" -> fireEvent(CodeXPService.Event.SAVE)
-            "Debug" -> fireEvent(CodeXPService.Event.DEBUG)
-            "Build Project" -> fireEvent(CodeXPService.Event.BUILD)
-            "Rebuild Project" -> fireEvent(CodeXPService.Event.BUILD)
-            "Paste" -> fireEvent(CodeXPService.Event.PASTE)
-            "Backspace" -> fireEvent(CodeXPService.Event.BACKSPACE)
-            "Tab" -> fireEvent(CodeXPService.Event.TAB)
-            else -> fireEvent(CodeXPService.Event.ACTION)
+        when (action.templateText) {
+            "Run" -> fireEvent(Event.RUN)
+            "Save All" -> fireEvent(Event.SAVE)
+            "Debug" -> fireEvent(Event.DEBUG)
+            "Build Project" -> fireEvent(Event.BUILD)
+            "Rebuild Project" -> fireEvent(Event.BUILD)
+            "Cut" -> fireEvent(Event.CUT, event.dataContext)
+            "Copy" -> fireEvent(Event.COPY, event.dataContext)
+            "Paste" -> fireEvent(Event.PASTE, event.dataContext)
+            "Backspace" -> fireEvent(Event.BACKSPACE, event.dataContext)
+            "Tab" -> fireEvent(Event.TAB, event.dataContext)
+            "Enter" -> fireEvent(Event.ENTER, event.dataContext)
+            else -> fireEvent(Event.ACTION)
         }
     }
 
@@ -41,9 +43,10 @@ internal class CodeXPEventListener : AnActionListener {
      * Fire event to the message bus.
      *
      * @param event The event to fire.
+     * @param dataContext The data context of the event.
      */
-    private fun fireEvent(event: CodeXPService.Event) {
+    private fun fireEvent(event: Event, dataContext: DataContext? = null) {
         ApplicationManager.getApplication().messageBus.syncPublisher(CodeXPListener.CODEXP_EVENT)
-            .eventOccurred(event)
+            .eventOccurred(event, dataContext)
     }
 }
