@@ -1,6 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.listener
 
-import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
+import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.intellij.util.messages.Topic
 
 /**
@@ -21,5 +21,5 @@ interface CodeXPListener {
      *
      * @param event The event that occurred.
      */
-    fun eventOccurred(event: CodeXPService.Event)
+    fun eventOccurred(event: Event)
 }

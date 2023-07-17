@@ -1,6 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.model
 
-import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
+import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import java.util.*
 
 /**
@@ -17,7 +17,7 @@ class CodeXPChallenge() {
     /**
      * Event of challenge.
      */
-    var event: CodeXPService.Event = CodeXPService.Event.NONE
+    var event: Event = Event.NONE
 
     /**
      * Name of challenge.
@@ -58,7 +58,7 @@ class CodeXPChallenge() {
      * Constructor for CodeXPChallenge with all parameters.
      */
     constructor(
-        event: CodeXPService.Event,
+        event: Event,
         name: String,
         description: String,
         rewardXP: Long,

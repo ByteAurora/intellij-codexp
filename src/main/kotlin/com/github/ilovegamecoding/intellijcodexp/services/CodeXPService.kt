@@ -1,5 +1,7 @@
 package com.github.ilovegamecoding.intellijcodexp.services
 
+import com.github.ilovegamecoding.intellijcodexp.enums.Event
+import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
 import com.github.ilovegamecoding.intellijcodexp.listener.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.manager.CodeXPNotificationManager
 import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
@@ -21,38 +23,6 @@ import com.intellij.util.messages.MessageBusConnection
     storages = [Storage("CodeXP.xml")]
 )
 class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeXPListener {
-    /**
-     * Event enum for the plugin events.
-     */
-    enum class Event(val xpValue: Long) {
-        NONE(0),
-        TYPING(2),
-        PASTE(1),
-        BACKSPACE(1),
-        TAB(1),
-        ENTER(1),
-        SAVE(10),
-        BUILD(5),
-        RUN(10),
-        DEBUG(20),
-        ACTION(5);
-    }
-
-
-    /**
-     * Position enum for the gained XP label.
-     */
-    enum class PositionToDisplayGainedXP(val x: Int, val y: Int) {
-        TOP(0, -1),
-        TOP_LEFT(-1, -1),
-        LEFT(-1, 0),
-        BOTTOM_LEFT(-1, 1),
-        BOTTOM(0, 1),
-        BOTTOM_RIGHT(1, 1),
-        RIGHT(1, 0),
-        TOP_RIGHT(1, -1)
-    }
-
     /**
      * The state of the CodeXP plugin.
      */

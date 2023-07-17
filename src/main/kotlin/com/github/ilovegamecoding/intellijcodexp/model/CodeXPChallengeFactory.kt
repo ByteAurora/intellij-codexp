@@ -1,58 +1,58 @@
 package com.github.ilovegamecoding.intellijcodexp.model
 
-import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
+import com.github.ilovegamecoding.intellijcodexp.enums.Event
 
 object CodeXPChallengeFactory {
     fun createEventDefaultChallenges(): List<CodeXPChallenge> {
         return listOf(
             createChallenge(
-                event = CodeXPService.Event.TYPING,
+                event = Event.TYPING,
                 name = "Typing Challenge", description = "Typing [goal] times.",
                 goal = 100, rewardXP = 100, rewardXPIncrement = 200
             ),
             createChallenge(
-                event = CodeXPService.Event.PASTE,
+                event = Event.PASTE,
                 name = "Paste Challenge", description = "Paste [goal] times.",
                 goal = 10, rewardXP = 100, rewardXPIncrement = 150
             ),
             createChallenge(
-                event = CodeXPService.Event.BACKSPACE,
+                event = Event.BACKSPACE,
                 name = "Backspace Challenge", description = "Press the backspace key [goal] times.",
                 goal = 50, rewardXP = 100, rewardXPIncrement = 150
             ),
             createChallenge(
-                event = CodeXPService.Event.TAB,
+                event = Event.TAB,
                 name = "Tab Challenge",
                 description = "Press the tab key [goal] times.",
                 goal = 50, rewardXP = 100, rewardXPIncrement = 150
             ),
             createChallenge(
-                event = CodeXPService.Event.ENTER,
+                event = Event.ENTER,
                 name = "Enter Challenge", description = "Press the enter key [goal] times.",
                 goal = 10, rewardXP = 100, rewardXPIncrement = 200
             ),
             createChallenge(
-                event = CodeXPService.Event.SAVE,
+                event = Event.SAVE,
                 name = "Save Challenge", description = "Save [goal] times.",
                 goal = 10, rewardXP = 300, rewardXPIncrement = 400
             ),
             createChallenge(
-                event = CodeXPService.Event.BUILD,
+                event = Event.BUILD,
                 name = "Build Challenge", description = "Build [goal] times.",
                 goal = 10, rewardXP = 150, rewardXPIncrement = 200
             ),
             createChallenge(
-                event = CodeXPService.Event.RUN,
+                event = Event.RUN,
                 name = "Run Challenge", description = "Run [goal] times.",
                 goal = 10, rewardXP = 200, rewardXPIncrement = 250
             ),
             createChallenge(
-                event = CodeXPService.Event.DEBUG,
+                event = Event.DEBUG,
                 name = "Debug Challenge", description = "Debug [goal] times.",
                 goal = 10, rewardXP = 300, rewardXPIncrement = 400
             ),
             createChallenge(
-                event = CodeXPService.Event.ACTION,
+                event = Event.ACTION,
                 name = "Action Challenge", description = "Perform [goal] actions.",
                 goal = 20, rewardXP = 100, rewardXPIncrement = 120
             )
@@ -60,7 +60,7 @@ object CodeXPChallengeFactory {
     }
 
     private fun createChallenge(
-        event: CodeXPService.Event,
+        event: Event,
         name: String,
         description: String,
         goal: Long,

@@ -1,5 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.listener
 
+import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.AnActionListener
@@ -31,7 +32,7 @@ internal class CodeXPEventListener : AnActionListener {
     override fun afterEditorTyping(c: Char, dataContext: DataContext) {
         super.afterEditorTyping(c, dataContext)
 
-        fireEventAndDisplayXPLabel(CodeXPService.Event.TYPING, dataContext)
+        fireEventAndDisplayXPLabel(Event.TYPING, dataContext)
     }
 
     override fun afterActionPerformed(action: AnAction, event: AnActionEvent, result: AnActionResult) {
@@ -39,16 +40,16 @@ internal class CodeXPEventListener : AnActionListener {
         thisLogger().warn("Action performed: ${action.templateText}")
 
         when (action.templateText) { // Fire event based on action.
-            "Run" -> fireEvent(CodeXPService.Event.RUN)
-            "Save All" -> fireEvent(CodeXPService.Event.SAVE)
-            "Debug" -> fireEvent(CodeXPService.Event.DEBUG)
-            "Build Project" -> fireEvent(CodeXPService.Event.BUILD)
-            "Rebuild Project" -> fireEvent(CodeXPService.Event.BUILD)
-            "Paste" -> fireEventAndDisplayXPLabel(CodeXPService.Event.PASTE, event.dataContext)
-            "Backspace" -> fireEventAndDisplayXPLabel(CodeXPService.Event.BACKSPACE, event.dataContext)
-            "Tab" -> fireEventAndDisplayXPLabel(CodeXPService.Event.TAB, event.dataContext)
-            "Enter" -> fireEventAndDisplayXPLabel(CodeXPService.Event.ENTER, event.dataContext)
-            else -> fireEvent(CodeXPService.Event.ACTION)
+            "Run" -> fireEvent(Event.RUN)
+            "Save All" -> fireEvent(Event.SAVE)
+            "Debug" -> fireEvent(Event.DEBUG)
+            "Build Project" -> fireEvent(Event.BUILD)
+            "Rebuild Project" -> fireEvent(Event.BUILD)
+            "Paste" -> fireEventAndDisplayXPLabel(Event.PASTE, event.dataContext)
+            "Backspace" -> fireEventAndDisplayXPLabel(Event.BACKSPACE, event.dataContext)
+            "Tab" -> fireEventAndDisplayXPLabel(Event.TAB, event.dataContext)
+            "Enter" -> fireEventAndDisplayXPLabel(Event.ENTER, event.dataContext)
+            else -> fireEvent(Event.ACTION)
         }
     }
 
@@ -58,7 +59,7 @@ internal class CodeXPEventListener : AnActionListener {
      * @param event The event to fire.
      * @param dataContext The data context of the event.
      */
-    private fun fireEventAndDisplayXPLabel(event: CodeXPService.Event, dataContext: DataContext) {
+    private fun fireEventAndDisplayXPLabel(event: Event, dataContext: DataContext) {
         fireEvent(event)
         displayXPLabel(event, dataContext)
     }
@@ -68,7 +69,7 @@ internal class CodeXPEventListener : AnActionListener {
      *
      * @param event The event to fire.
      */
-    private fun fireEvent(event: CodeXPService.Event) {
+    private fun fireEvent(event: Event) {
         ApplicationManager.getApplication().messageBus.syncPublisher(CodeXPListener.CODEXP_EVENT)
             .eventOccurred(event)
     }
@@ -79,7 +80,7 @@ internal class CodeXPEventListener : AnActionListener {
      * @param event The event to fire.
      * @param dataContext The data context of the event.
      */
-    private fun displayXPLabel(event: CodeXPService.Event, dataContext: DataContext) {
+    private fun displayXPLabel(event: Event, dataContext: DataContext) {
         val codeXPConfiguration =
             ApplicationManager.getApplication().getService(CodeXPService::class.java).state.codeXPConfiguration
 

@@ -1,5 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.toolWindow
 
+import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPChallengeForm
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPDashboardForm
 import com.github.ilovegamecoding.intellijcodexp.listener.CodeXPListener
@@ -65,8 +66,8 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      * Initializes the UI of the dashboard.
      */
     private fun initializeUI() {
-        val eventStaticForms = HashMap<CodeXPService.Event, JPanel>()
-        val challengeForms = HashMap<CodeXPService.Event, CodeXPChallengeForm>()
+        val eventStaticForms = HashMap<Event, JPanel>()
+        val challengeForms = HashMap<Event, CodeXPChallengeForm>()
 
         initializeNickname()
         initializeEventStatisticsAndChallenges(eventStaticForms, challengeForms)
@@ -101,15 +102,15 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      * Initialize event statistics and challenges.
      */
     private fun initializeEventStatisticsAndChallenges(
-        eventStaticForms: HashMap<CodeXPService.Event, JPanel>,
-        challengeForms: HashMap<CodeXPService.Event, CodeXPChallengeForm>
+        eventStaticForms: HashMap<Event, JPanel>,
+        challengeForms: HashMap<Event, CodeXPChallengeForm>
     ) {
         val gridBagConstraints = GridBagConstraints()
         gridBagConstraints.weightx = 1.0
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL
 
-        CodeXPService.Event.values().forEachIndexed { index, event -> // Add ui for each event
-            if (event != CodeXPService.Event.NONE) { // Ignore the NONE event type
+        Event.values().forEachIndexed { index, event -> // Add ui for each event
+            if (event != Event.NONE) { // Ignore the NONE event type
                 // Initialize event statistics
                 gridBagConstraints.gridy = index
 
@@ -178,8 +179,8 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      * @param challengeForms Challenge forms.
      */
     private fun initializeConnection(
-        eventStaticForms: HashMap<CodeXPService.Event, JPanel>,
-        challengeForms: HashMap<CodeXPService.Event, CodeXPChallengeForm>
+        eventStaticForms: HashMap<Event, JPanel>,
+        challengeForms: HashMap<Event, CodeXPChallengeForm>
     ) {
         val gridBagConstraints = GridBagConstraints()
         gridBagConstraints.weightx = 1.0
@@ -188,7 +189,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         // Update the dashboard when events occur
         ApplicationManager.getApplication().messageBus.connect()
             .subscribe(CodeXPListener.CODEXP_EVENT, object : CodeXPListener {
-                override fun eventOccurred(event: CodeXPService.Event) {
+                override fun eventOccurred(event: Event) {
                     (eventStaticForms[event]!!.getComponent(2) as JLabel).text =
                         StringUtil.numberToStringWithCommas(codeXPService.state.getEventCount(event))
 

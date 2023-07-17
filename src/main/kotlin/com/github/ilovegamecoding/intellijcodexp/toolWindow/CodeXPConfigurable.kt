@@ -1,5 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.toolWindow
 
+import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPConfigurationForm
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
 import com.intellij.openapi.application.ApplicationManager
@@ -29,7 +30,7 @@ class CodeXPConfigurable : Configurable {
             cbShowLevelUpNotification.isSelected = config.showLevelUpNotification
             cbShowCompleteChallengeNotification.isSelected = config.showCompleteChallengeNotification
             cbShowGainedXP.isSelected = config.showGainedXP
-            CodeXPService.PositionToDisplayGainedXP.values().map { it.name }
+            PositionToDisplayGainedXP.values().map { it.name }
                 .forEach { cbPositionToDisplayGainedXP.addItem(it) }
             cbPositionToDisplayGainedXP.isEnabled = config.showGainedXP
             cbPositionToDisplayGainedXP.selectedItem = config.positionToDisplayGainedXP.name
@@ -53,7 +54,7 @@ class CodeXPConfigurable : Configurable {
             config.showCompleteChallengeNotification = cbShowCompleteChallengeNotification.isSelected
             config.showGainedXP = cbShowGainedXP.isSelected
             config.positionToDisplayGainedXP =
-                CodeXPService.PositionToDisplayGainedXP.valueOf(cbPositionToDisplayGainedXP.selectedItem as String)
+                PositionToDisplayGainedXP.valueOf(cbPositionToDisplayGainedXP.selectedItem as String)
         }
     }
 
