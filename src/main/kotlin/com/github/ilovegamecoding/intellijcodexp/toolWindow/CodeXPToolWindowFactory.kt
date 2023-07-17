@@ -1,12 +1,14 @@
 package com.github.ilovegamecoding.intellijcodexp.toolWindow
 
+import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPChallengeForm
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPDashboardForm
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
-import com.github.ilovegamecoding.intellijcodexp.manager.CodeXPNotificationManager
-import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
+import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPNotificationManager
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
-import com.github.ilovegamecoding.intellijcodexp.util.StringUtil
+import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
@@ -65,8 +67,8 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      * Initializes the UI of the dashboard.
      */
     private fun initializeUI() {
-        val eventStaticForms = HashMap<CodeXPService.Event, JPanel>()
-        val challengeForms = HashMap<CodeXPService.Event, CodeXPChallengeForm>()
+        val eventStaticForms = HashMap<Event, JPanel>()
+        val challengeForms = HashMap<Event, CodeXPChallengeForm>()
 
         initializeNickname()
         initializeEventStatisticsAndChallenges(eventStaticForms, challengeForms)
@@ -101,15 +103,15 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      * Initialize event statistics and challenges.
      */
     private fun initializeEventStatisticsAndChallenges(
-        eventStaticForms: HashMap<CodeXPService.Event, JPanel>,
-        challengeForms: HashMap<CodeXPService.Event, CodeXPChallengeForm>
+        eventStaticForms: HashMap<Event, JPanel>,
+        challengeForms: HashMap<Event, CodeXPChallengeForm>
     ) {
         val gridBagConstraints = GridBagConstraints()
         gridBagConstraints.weightx = 1.0
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL
 
-        CodeXPService.Event.values().forEachIndexed { index, event -> // Add ui for each event
-            if (event != CodeXPService.Event.NONE) { // Ignore the NONE event type
+        Event.values().forEachIndexed { index, event -> // Add ui for each event
+            if (event != Event.NONE) { // Ignore the NONE event type
                 // Initialize event statistics
                 gridBagConstraints.gridy = index
 
@@ -134,9 +136,11 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
                 eventStaticForms[event] = pEvent
 
                 // Initialize challenges
-                val challengeForm = createOrUpdateChallengeForm(codeXPService.state.challenges[event]!!)
-                codeXPDashboardForm.pChallenges.add(challengeForm.pChallenge, gridBagConstraints)
-                challengeForms[event] = challengeForm
+                codeXPService.state.challenges[event]?.let {
+                    val challengeForm = createOrUpdateChallengeForm(it)
+                    codeXPDashboardForm.pChallenges.add(challengeForm.pChallenge, gridBagConstraints)
+                    challengeForms[event] = challengeForm
+                }
             }
         }
     }
@@ -176,8 +180,8 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      * @param challengeForms Challenge forms.
      */
     private fun initializeConnection(
-        eventStaticForms: HashMap<CodeXPService.Event, JPanel>,
-        challengeForms: HashMap<CodeXPService.Event, CodeXPChallengeForm>
+        eventStaticForms: HashMap<Event, JPanel>,
+        challengeForms: HashMap<Event, CodeXPChallengeForm>
     ) {
         val gridBagConstraints = GridBagConstraints()
         gridBagConstraints.weightx = 1.0
@@ -186,30 +190,31 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         // Update the dashboard when events occur
         ApplicationManager.getApplication().messageBus.connect()
             .subscribe(CodeXPListener.CODEXP_EVENT, object : CodeXPListener {
-                override fun eventOccurred(event: CodeXPService.Event) {
+                override fun eventOccurred(event: Event, dataContext: DataContext?) {
                     (eventStaticForms[event]!!.getComponent(2) as JLabel).text =
                         StringUtil.numberToStringWithCommas(codeXPService.state.getEventCount(event))
 
-                    val currentChallenge = codeXPService.state.challenges[event]!!
-                    val beforeChallengeForm = challengeForms[event]!!
+                    codeXPService.state.challenges[event]?.let { currentChallenge ->
+                        val beforeChallengeForm = challengeForms[event]!!
 
-                    if (currentChallenge.id == beforeChallengeForm.challengeID) { // Challenge is not completed
-                        updateChallengeProgress(currentChallenge, beforeChallengeForm)
-                    } else {  // Before challenge is completed
-                        if (codeXPService.state.showCompletedChallenges) {
-                            gridBagConstraints.gridy = codeXPDashboardForm.pCompletedChallenges.componentCount
-                            codeXPService.state.completedChallenges.find { it.id == beforeChallengeForm.challengeID }
-                                ?.let { createOrUpdateChallengeForm(it).pChallenge }?.let {
-                                    codeXPDashboardForm.pCompletedChallenges.add(
-                                        it,
-                                        gridBagConstraints
-                                    )
-                                }
+                        if (currentChallenge.id == beforeChallengeForm.challengeID) { // Challenge is not completed
+                            updateChallengeProgress(currentChallenge, beforeChallengeForm)
+                        } else {  // Before challenge is completed
+                            if (codeXPService.state.showCompletedChallenges) {
+                                gridBagConstraints.gridy = codeXPDashboardForm.pCompletedChallenges.componentCount
+                                codeXPService.state.completedChallenges.find { it.id == beforeChallengeForm.challengeID }
+                                    ?.let { createOrUpdateChallengeForm(it).pChallenge }?.let {
+                                        codeXPDashboardForm.pCompletedChallenges.add(
+                                            it,
+                                            gridBagConstraints
+                                        )
+                                    }
+                            }
+
+                            createOrUpdateChallengeForm(currentChallenge, challengeForms[event]!!)
+                            codeXPDashboardForm.lblCompletedChallengesCount.text =
+                                StringUtil.numberToStringWithCommas(codeXPService.state.completedChallenges.size.toLong())
                         }
-
-                        createOrUpdateChallengeForm(currentChallenge, challengeForms[event]!!)
-                        codeXPDashboardForm.lblCompletedChallengesCount.text =
-                            StringUtil.numberToStringWithCommas(codeXPService.state.completedChallenges.size.toLong())
                     }
 
                     updateXPInfo()
@@ -235,7 +240,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         )
 
         val beforeLevel = codeXPDashboardForm.lblCurrentLevel.text.toInt()
-        if (beforeLevel != currentLevel && beforeLevel != 0 && codeXPService.codeXPConfiguration.showLevelUpNotification) {
+        if (beforeLevel != currentLevel && beforeLevel != 0 && codeXPService.state.codeXPConfiguration.showLevelUpNotification) {
             CodeXPNotificationManager.notifyLevelUp(codeXPService.state.nickname, currentLevel, xpToNextLevel)
         }
 

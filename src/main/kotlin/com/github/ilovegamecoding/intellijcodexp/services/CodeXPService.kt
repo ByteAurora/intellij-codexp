@@ -1,8 +1,13 @@
 package com.github.ilovegamecoding.intellijcodexp.services
 
+import com.github.ilovegamecoding.intellijcodexp.enums.Event
+import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
-import com.github.ilovegamecoding.intellijcodexp.manager.CodeXPNotificationManager
-import com.github.ilovegamecoding.intellijcodexp.model.CodeXPChallenge
+import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPNotificationManager
+import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPUIManager
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallengeFactory
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.*
 import com.intellij.util.messages.MessageBus
@@ -20,22 +25,6 @@ import com.intellij.util.messages.MessageBusConnection
     storages = [Storage("CodeXP.xml")]
 )
 class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeXPListener {
-    /**
-     * Event enum for the plugin events.
-     */
-    enum class Event(val xpValue: Long) {
-        NONE(0),
-        TYPING(2),
-        PASTE(1),
-        BACKSPACE(1),
-        TAB(1),
-        SAVE(10),
-        BUILD(5),
-        RUN(10),
-        DEBUG(20),
-        ACTION(5);
-    }
-
     /**
      * The state of the CodeXP plugin.
      */
@@ -73,7 +62,12 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         /**
          * Show completed challenges in the dashboard.
          */
-        var showCompletedChallenges: Boolean = true
+        var showCompletedChallenges: Boolean = true,
+
+        /**
+         * The configuration of the CodeXP plugin
+         */
+        var codeXPConfiguration: CodeXPConfiguration = CodeXPConfiguration()
     ) {
         /**
          * Increment the event count for a specific event.
@@ -103,7 +97,17 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         /**
          * Show a notification when the user completes a challenge.
          */
-        var showCompleteChallengeNotification: Boolean = true
+        var showCompleteChallengeNotification: Boolean = true,
+
+        /**
+         * Show a notification when the user gains XP.
+         */
+        var showGainedXP: Boolean = true,
+
+        /**
+         * Gained XP display position.
+         */
+        var positionToDisplayGainedXP: PositionToDisplayGainedXP = PositionToDisplayGainedXP.TOP_RIGHT
     )
 
     /**
@@ -112,147 +116,39 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
     private var codeXPState: CodeXPState = CodeXPState()
 
     /**
-     * The configuration of the CodeXP plugin
-     */
-    var codeXPConfiguration: CodeXPConfiguration = CodeXPConfiguration()
-
-    /**
      * The message bus for the plugin
      */
-    private var messageBus: MessageBus? = null
+    private var messageBus: MessageBus = ApplicationManager.getApplication().messageBus
 
     /**
      * The connection to the message bus
      */
-    private var connection: MessageBusConnection? = null
+    private var connection: MessageBusConnection = messageBus.connect()
 
     init {
-        // Connect to the application message bus
-        messageBus = ApplicationManager.getApplication().messageBus
-        connection = messageBus?.connect()
-        connection?.subscribe(CodeXPListener.CODEXP_EVENT, this)
+        // Call manager to register the UI and notification managers
+        CodeXPUIManager
+        CodeXPNotificationManager
 
-        initialize {
-            addChallenge(
-                CodeXPChallenge(
-                    event = Event.TYPING,
-                    name = "Typing Challenge",
-                    description = "Typing [goal] times.",
-                    progress = 0,
-                    goal = 100,
-                    goalIncrement = 100,
-                    rewardXP = 100,
-                    rewardXPIncrement = 200
-                )
-            )
-            addChallenge(
-                CodeXPChallenge(
-                    event = Event.PASTE,
-                    name = "Paste Challenge",
-                    description = "Paste [goal] times.",
-                    progress = 0,
-                    goal = 10,
-                    goalIncrement = 10,
-                    rewardXP = 100,
-                    rewardXPIncrement = 150
-                )
-            )
-            addChallenge(
-                CodeXPChallenge(
-                    event = Event.BACKSPACE,
-                    name = "Backspace Challenge",
-                    description = "Press the backspace key [goal] times.",
-                    progress = 0,
-                    goal = 50,
-                    goalIncrement = 50,
-                    rewardXP = 100,
-                    rewardXPIncrement = 150
-                )
-            )
-            addChallenge(
-                CodeXPChallenge(
-                    event = Event.TAB,
-                    name = "Tab Challenge",
-                    description = "Press the tab key [goal] times.",
-                    progress = 0,
-                    goal = 50,
-                    goalIncrement = 50,
-                    rewardXP = 100,
-                    rewardXPIncrement = 150
-                )
-            )
-            addChallenge(
-                CodeXPChallenge(
-                    event = Event.SAVE,
-                    name = "Save Challenge",
-                    description = "Save [goal] times.",
-                    progress = 0,
-                    goal = 10,
-                    goalIncrement = 10,
-                    rewardXP = 300,
-                    rewardXPIncrement = 400
-                )
-            )
-            addChallenge(
-                CodeXPChallenge(
-                    event = Event.BUILD,
-                    name = "Build Challenge",
-                    description = "Build [goal] times.",
-                    progress = 0,
-                    goal = 10,
-                    goalIncrement = 10,
-                    rewardXP = 150,
-                    rewardXPIncrement = 200
-                )
-            )
-            addChallenge(
-                CodeXPChallenge(
-                    event = Event.RUN,
-                    name = "Run Challenge",
-                    description = "Run [goal] times.",
-                    progress = 0,
-                    goal = 10,
-                    goalIncrement = 10,
-                    rewardXP = 200,
-                    rewardXPIncrement = 250
-                )
-            )
-            addChallenge(
-                CodeXPChallenge(
-                    event = Event.DEBUG,
-                    name = "Debug Challenge",
-                    description = "Debug [goal] times.",
-                    progress = 0,
-                    goal = 10,
-                    goalIncrement = 10,
-                    rewardXP = 300,
-                    rewardXPIncrement = 400
-                )
-            )
-            addChallenge(
-                CodeXPChallenge(
-                    event = Event.ACTION,
-                    name = "Action Challenge",
-                    description = "Perform [goal] actions.",
-                    progress = 0,
-                    goal = 20,
-                    goalIncrement = 20,
-                    rewardXP = 100,
-                    rewardXPIncrement = 120
-                )
-            )
-        }
+        // Connect to the application message bus
+        connection.subscribe(CodeXPListener.CODEXP_EVENT, this)
     }
 
     override fun getState(): CodeXPState {
         return codeXPState
     }
 
-    override fun loadState(codeXPState: CodeXPState) {
-        this.codeXPState = codeXPState
+    override fun noStateLoaded() {
+        super.noStateLoaded()
+        initialize { }
     }
 
-    override fun eventOccurred(event: Event) {
+    override fun loadState(codeXPState: CodeXPState) {
+        this.codeXPState = codeXPState
+        initialize { }
+    }
+
+    override fun eventOccurred(event: Event, dataContext: DataContext?) {
         codeXPState.incrementEventCount(event)
         checkChallenge(event)
     }
@@ -267,6 +163,16 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
             initializeCallback()
             codeXPState.hasExecuted = true
         }
+
+        Event.values().forEach { event ->
+            if (!codeXPState.eventCounts.containsKey(event)) {
+                codeXPState.eventCounts[event] = 0
+            }
+        }
+
+        CodeXPChallengeFactory.createEventDefaultChallenges().forEach { challenge ->
+            addChallenge(challenge)
+        }
     }
 
     /**
@@ -275,7 +181,9 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
      * @param challenge The challenge to add.
      */
     fun addChallenge(challenge: CodeXPChallenge) {
-        codeXPState.challenges[challenge.event] = challenge
+        if (!codeXPState.challenges.containsKey(challenge.event)) {
+            codeXPState.challenges[challenge.event] = challenge
+        }
     }
 
     /**
@@ -291,7 +199,7 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
                 codeXPState.xp += challenge.rewardXP
                 replaceChallengeWithNew(challenge, event)
 
-                if (codeXPConfiguration.showCompleteChallengeNotification)
+                if (codeXPState.codeXPConfiguration.showCompleteChallengeNotification)
                     CodeXPNotificationManager.notifyChallengeComplete(challenge)
             }
         }
