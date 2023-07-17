@@ -4,8 +4,10 @@ import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPNotificationManager
+import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPUIManager
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallengeFactory
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.*
 import com.intellij.util.messages.MessageBus
@@ -116,18 +118,20 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
     /**
      * The message bus for the plugin
      */
-    private var messageBus: MessageBus? = null
+    private var messageBus: MessageBus = ApplicationManager.getApplication().messageBus
 
     /**
      * The connection to the message bus
      */
-    private var connection: MessageBusConnection? = null
+    private var connection: MessageBusConnection = messageBus.connect()
 
     init {
+        // Call manager to register the UI and notification managers
+        CodeXPUIManager
+        CodeXPNotificationManager
+
         // Connect to the application message bus
-        messageBus = ApplicationManager.getApplication().messageBus
-        connection = messageBus?.connect()
-        connection?.subscribe(CodeXPListener.CODEXP_EVENT, this)
+        connection.subscribe(CodeXPListener.CODEXP_EVENT, this)
     }
 
     override fun getState(): CodeXPState {
@@ -144,7 +148,7 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         initialize { }
     }
 
-    override fun eventOccurred(event: Event) {
+    override fun eventOccurred(event: Event, dataContext: DataContext?) {
         codeXPState.incrementEventCount(event)
         checkChallenge(event)
     }

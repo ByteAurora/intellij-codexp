@@ -8,6 +8,7 @@ import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPNotificationMana
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
 import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
@@ -189,7 +190,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         // Update the dashboard when events occur
         ApplicationManager.getApplication().messageBus.connect()
             .subscribe(CodeXPListener.CODEXP_EVENT, object : CodeXPListener {
-                override fun eventOccurred(event: Event) {
+                override fun eventOccurred(event: Event, dataContext: DataContext?) {
                     (eventStaticForms[event]!!.getComponent(2) as JLabel).text =
                         StringUtil.numberToStringWithCommas(codeXPService.state.getEventCount(event))
 
