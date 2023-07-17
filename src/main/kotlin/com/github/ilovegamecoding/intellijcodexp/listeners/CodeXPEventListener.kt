@@ -80,6 +80,13 @@ internal class CodeXPEventListener : AnActionListener {
      * @param dataContext The data context of the event.
      */
     private fun displayXPLabel(event: CodeXPService.Event, dataContext: DataContext) {
+        val codeXPConfiguration =
+            ApplicationManager.getApplication().getService(CodeXPService::class.java).state.codeXPConfiguration
+
+        if (!codeXPConfiguration.showGainedXP) {
+            return
+        }
+
         val editor = CommonDataKeys.EDITOR.getData(dataContext) ?: return
         val caretModel = editor.caretModel
         val fadingLabelPosition = editor.visualPositionToXY(caretModel.visualPosition)
@@ -99,9 +106,13 @@ internal class CodeXPEventListener : AnActionListener {
         val newFadingLabel = FadingLabel(currentXPGainValue).apply {
             font = Font(font.fontName, Font.BOLD, 14)
             size = preferredSize
-            fadingLabelPosition.let { p ->
-                p.translate(4, -(height / 2))
-                location = p
+            fadingLabelPosition.let { point ->
+                val position = codeXPConfiguration.positionToDisplayGainedXP
+                point.translate(
+                    (position.x * 4) + if (position.name.contains("LEFT")) -width else 0,
+                    position.y * (height / 2)
+                )
+                location = point
             }
             startFadeOut()
         }
