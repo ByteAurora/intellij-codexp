@@ -45,6 +45,8 @@ internal class CodeXPEventListener : AnActionListener {
             "Debug" -> fireEvent(Event.DEBUG)
             "Build Project" -> fireEvent(Event.BUILD)
             "Rebuild Project" -> fireEvent(Event.BUILD)
+            "Cut" -> fireEventAndDisplayXPLabel(Event.CUT, event.dataContext)
+            "Copy" -> fireEventAndDisplayXPLabel(Event.COPY, event.dataContext)
             "Paste" -> fireEventAndDisplayXPLabel(Event.PASTE, event.dataContext)
             "Backspace" -> fireEventAndDisplayXPLabel(Event.BACKSPACE, event.dataContext)
             "Tab" -> fireEventAndDisplayXPLabel(Event.TAB, event.dataContext)

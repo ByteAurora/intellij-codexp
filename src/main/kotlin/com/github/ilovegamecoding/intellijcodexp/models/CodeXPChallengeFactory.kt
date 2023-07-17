@@ -11,6 +11,16 @@ object CodeXPChallengeFactory {
                 goal = 100, rewardXP = 100, rewardXPIncrement = 200
             ),
             createChallenge(
+                event = Event.CUT,
+                name = "Cut Challenge", description = "Cut [goal] times.",
+                goal = 10, rewardXP = 100, rewardXPIncrement = 150
+            ),
+            createChallenge(
+                event = Event.COPY,
+                name = "Copy Challenge", description = "Copy [goal] times.",
+                goal = 10, rewardXP = 100, rewardXPIncrement = 150
+            ),
+            createChallenge(
                 event = Event.PASTE,
                 name = "Paste Challenge", description = "Paste [goal] times.",
                 goal = 10, rewardXP = 100, rewardXPIncrement = 150
