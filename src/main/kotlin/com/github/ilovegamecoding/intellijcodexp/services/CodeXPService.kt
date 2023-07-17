@@ -38,6 +38,21 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         ACTION(5);
     }
 
+
+    /**
+     * Position enum for the gained XP label.
+     */
+    enum class PositionToDisplayGainedXP(val x: Int, val y: Int) {
+        TOP(0, -1),
+        TOP_LEFT(-1, -1),
+        LEFT(-1, 0),
+        BOTTOM_LEFT(-1, 1),
+        BOTTOM(0, 1),
+        BOTTOM_RIGHT(1, 1),
+        RIGHT(1, 0),
+        TOP_RIGHT(1, -1)
+    }
+
     /**
      * The state of the CodeXP plugin.
      */
@@ -75,7 +90,12 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         /**
          * Show completed challenges in the dashboard.
          */
-        var showCompletedChallenges: Boolean = true
+        var showCompletedChallenges: Boolean = true,
+
+        /**
+         * The configuration of the CodeXP plugin
+         */
+        var codeXPConfiguration: CodeXPConfiguration = CodeXPConfiguration()
     ) {
         /**
          * Increment the event count for a specific event.
@@ -105,18 +125,23 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         /**
          * Show a notification when the user completes a challenge.
          */
-        var showCompleteChallengeNotification: Boolean = true
+        var showCompleteChallengeNotification: Boolean = true,
+
+        /**
+         * Show a notification when the user gains XP.
+         */
+        var showGainedXP: Boolean = true,
+
+        /**
+         * Gained XP display position.
+         */
+        var positionToDisplayGainedXP: PositionToDisplayGainedXP = PositionToDisplayGainedXP.TOP_RIGHT
     )
 
     /**
      * The state of the CodeXP plugin
      */
     private var codeXPState: CodeXPState = CodeXPState()
-
-    /**
-     * The configuration of the CodeXP plugin
-     */
-    var codeXPConfiguration: CodeXPConfiguration = CodeXPConfiguration()
 
     /**
      * The message bus for the plugin
@@ -200,7 +225,7 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
                 codeXPState.xp += challenge.rewardXP
                 replaceChallengeWithNew(challenge, event)
 
-                if (codeXPConfiguration.showCompleteChallengeNotification)
+                if (codeXPState.codeXPConfiguration.showCompleteChallengeNotification)
                     CodeXPNotificationManager.notifyChallengeComplete(challenge)
             }
         }

@@ -238,7 +238,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         )
 
         val beforeLevel = codeXPDashboardForm.lblCurrentLevel.text.toInt()
-        if (beforeLevel != currentLevel && beforeLevel != 0 && codeXPService.codeXPConfiguration.showLevelUpNotification) {
+        if (beforeLevel != currentLevel && beforeLevel != 0 && codeXPService.state.codeXPConfiguration.showLevelUpNotification) {
             CodeXPNotificationManager.notifyLevelUp(codeXPService.state.nickname, currentLevel, xpToNextLevel)
         }
 
