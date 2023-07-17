@@ -15,33 +15,46 @@ class CodeXPConfigurable : Configurable {
     /**
      * CodeXP configuration form.
      */
-    private var codeXPConfigurationForm: CodeXPConfigurationForm? = null
+    private lateinit var codeXPConfigurationForm: CodeXPConfigurationForm
 
     /**
      * CodeXP service.
      */
-    private val codeXPService = ApplicationManager.getApplication().getService(CodeXPService::class.java)
+    private val config =
+        ApplicationManager.getApplication().getService(CodeXPService::class.java).state.codeXPConfiguration
 
     override fun createComponent(): JComponent? {
         // Create the configuration form and set the values to the current configuration.
-        codeXPConfigurationForm = CodeXPConfigurationForm().also { form ->
-            form.cbShowLevelUpNotification.isSelected = codeXPService.codeXPConfiguration.showLevelUpNotification
-            form.cbShowCompleteChallengeNotification.isSelected =
-                codeXPService.codeXPConfiguration.showCompleteChallengeNotification
+        codeXPConfigurationForm = CodeXPConfigurationForm().apply {
+            cbShowLevelUpNotification.isSelected = config.showLevelUpNotification
+            cbShowCompleteChallengeNotification.isSelected = config.showCompleteChallengeNotification
+            cbShowGainedXP.isSelected = config.showGainedXP
+            CodeXPService.PositionToDisplayGainedXP.values().map { it.name }
+                .forEach { cbPositionToDisplayGainedXP.addItem(it) }
+            cbPositionToDisplayGainedXP.isEnabled = config.showGainedXP
+            cbPositionToDisplayGainedXP.selectedItem = config.positionToDisplayGainedXP.name
         }
-        return codeXPConfigurationForm!!.pMain
+        return codeXPConfigurationForm.pMain
     }
 
     override fun isModified(): Boolean {
-        return codeXPConfigurationForm!!.cbShowLevelUpNotification.isSelected != codeXPService.codeXPConfiguration.showLevelUpNotification ||
-                codeXPConfigurationForm!!.cbShowCompleteChallengeNotification.isSelected != codeXPService.codeXPConfiguration.showCompleteChallengeNotification
+        return with(codeXPConfigurationForm) {
+            cbPositionToDisplayGainedXP.isEnabled = cbShowGainedXP.isSelected
+            cbShowLevelUpNotification.isSelected != config.showLevelUpNotification ||
+                    cbShowCompleteChallengeNotification.isSelected != config.showCompleteChallengeNotification ||
+                    cbShowGainedXP.isSelected != config.showGainedXP ||
+                    cbPositionToDisplayGainedXP.selectedItem != config.positionToDisplayGainedXP.name
+        }
     }
 
     override fun apply() {
-        codeXPService.codeXPConfiguration.showLevelUpNotification =
-            codeXPConfigurationForm!!.cbShowLevelUpNotification.isSelected
-        codeXPService.codeXPConfiguration.showCompleteChallengeNotification =
-            codeXPConfigurationForm!!.cbShowCompleteChallengeNotification.isSelected
+        with(codeXPConfigurationForm) {
+            config.showLevelUpNotification = cbShowLevelUpNotification.isSelected
+            config.showCompleteChallengeNotification = cbShowCompleteChallengeNotification.isSelected
+            config.showGainedXP = cbShowGainedXP.isSelected
+            config.positionToDisplayGainedXP =
+                CodeXPService.PositionToDisplayGainedXP.valueOf(cbPositionToDisplayGainedXP.selectedItem as String)
+        }
     }
 
     override fun getDisplayName(): String {
