@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>com.github.ilovegamecoding.intellijcodexp</id>
     <name>CodeXP</name>
-    <vendor>ilovegamecoding</vendor>
+    <vendor>ByteAurora</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 
