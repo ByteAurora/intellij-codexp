@@ -6,19 +6,26 @@
 
 ### Added
 
-- Add 'Enter' event statistic and challenge
-- Display gained experience point from keyboard event into typed position
-- Add configurations for show gained experience and gained experience display position
-
 ### Changed
 
 ### Removed
 
 ### Fixed
+- Fix plugin initialization issue of CodeXP plugin at IDE startup
+
+## [1.2.0] - 2023-07-18
+
+### Added
+
+- Add 'Enter', 'Cut', 'Copy' event statistic and challenge
+- Display gained experience point from keyboard event into typed position
+- Add configurations for show gained experience and gained experience display position
+
+### Fixed
 
 - Fix an issue where settings applied in the CodeXP configuration window were not being saved
 
-## [1.1.0] - 2023-07-16
+## [1.1.0] - 2023-06-18
 
 ### Added
 
@@ -34,7 +41,9 @@
 - Define events to detect and add challenges for each event
 - Implement notification alert feature for leveling up or completing challenges
 
-[Unreleased]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v1.2.0...HEAD
+
+[1.2.0]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v1.1.0...v1.2.0
 
 [1.1.0]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v1.0.0...v1.1.0
 

@@ -2,13 +2,15 @@
 <idea-plugin>
     <id>com.github.ilovegamecoding.intellijcodexp</id>
     <name>CodeXP</name>
-    <vendor>ilovegamecoding</vendor>
+    <vendor>ByteAurora</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 
     <resource-bundle>messages.CodeXPBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity
+                implementation="com.github.ilovegamecoding.intellijcodexp.activities.CodeXPStartupActivity"/>
         <toolWindow factoryClass="com.github.ilovegamecoding.intellijcodexp.toolWindow.CodeXPToolWindowFactory"
                     anchor="right"
                     id="CodeXP Dashboard" icon="icons/toolWindowIcon.svg"/>
@@ -17,9 +19,6 @@
         <applicationConfigurable parentId="tools"
                                  instance="com.github.ilovegamecoding.intellijcodexp.toolWindow.CodeXPConfigurable"/>
     </extensions>
-
-    <application-components>
-    </application-components>
 
     <applicationListeners>
         <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener"
