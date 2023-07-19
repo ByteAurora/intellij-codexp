@@ -35,8 +35,18 @@ The CodeXP plugin is designed to gamify your coding experience in IntelliJ IDEs.
 
 - Manually:
 
-  Download the [latest release](https://github.com/ILoveGameCoding/intellij-codexp/releases/latest) and install it manually using
+  Download the [latest release](https://github.com/ILoveGameCoding/intellij-codexp/releases/latest) and install it
+  manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+
+<br>
+
+## Gained XP Effect on Editor
+
+Displays the XP gained from tasks related to the keyboard and editor (typing, copying, pasting, cutting, etc.) at the
+caret position.
+
+![Effect](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/gained_xp_effect.gif)
 
 <br>
 
