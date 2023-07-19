@@ -11,6 +11,7 @@
 ### Removed
 
 ### Fixed
+- Fix plugin initialization issue of CodeXP plugin at IDE startup
 
 ## [1.2.0] - 2023-07-18
 
