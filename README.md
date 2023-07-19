@@ -13,10 +13,10 @@ The CodeXP plugin is designed to gamify your coding experience in IntelliJ IDEs.
 
 - Awards experience points (xp) for various actions such as:
   - Typing
-  - Paste
-  - Backspace / Tab
+  - Cut, Copy, Paste
+  - Backspace, Tab, Enter
   - Save
-  - Build / Run / Debug
+  - Build, Run, Debug
   - Other actions
 - Provides periodic challenges to keep the coding experience engaging.
 - Displays your level based on the accumulated xp, providing a fun and engaging way to track your coding activities.
