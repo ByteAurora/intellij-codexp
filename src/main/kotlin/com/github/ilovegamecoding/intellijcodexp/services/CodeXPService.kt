@@ -158,7 +158,7 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
      *
      * @param initializeCallback The callback to execute when the plugin is initialized.
      */
-    fun initialize(initializeCallback: () -> Unit) {
+    private fun initialize(initializeCallback: () -> Unit) {
         if (!codeXPState.hasExecuted) {
             initializeCallback()
             codeXPState.hasExecuted = true
@@ -180,7 +180,7 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
      *
      * @param challenge The challenge to add.
      */
-    fun addChallenge(challenge: CodeXPChallenge) {
+    private fun addChallenge(challenge: CodeXPChallenge) {
         if (!codeXPState.challenges.containsKey(challenge.event)) {
             codeXPState.challenges[challenge.event] = challenge
         }
