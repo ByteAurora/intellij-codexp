@@ -6,11 +6,11 @@ import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 
 object CodeXPNotificationManager {
-    private val notifiationGroup: NotificationGroup =
+    private val notificationGroup: NotificationGroup =
         NotificationGroupManager.getInstance().getNotificationGroup("CodeXP")
 
-    fun notify(title: String, content: String) {
-        notifiationGroup.createNotification(title, content, NotificationType.INFORMATION).notify(null)
+    private fun notify(title: String, content: String) {
+        notificationGroup.createNotification(title, content, NotificationType.INFORMATION).notify(null)
     }
 
     fun notifyChallengeComplete(codeXPChallenge: CodeXPChallenge) {
