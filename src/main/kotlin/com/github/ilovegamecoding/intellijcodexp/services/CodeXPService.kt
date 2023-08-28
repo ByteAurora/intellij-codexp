@@ -1,15 +1,20 @@
 package com.github.ilovegamecoding.intellijcodexp.services
 
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
-import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
+import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPNotificationManager
 import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPUIManager
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallengeFactory
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPState
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.*
+import com.intellij.openapi.components.PersistentStateComponent
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.State
+import com.intellij.openapi.components.Storage
 import com.intellij.util.messages.MessageBus
 import com.intellij.util.messages.MessageBusConnection
 
@@ -24,92 +29,7 @@ import com.intellij.util.messages.MessageBusConnection
     name = "com.github.ilovegamecoding.intellijcodexp.services.CodeXP",
     storages = [Storage("CodeXP.xml")]
 )
-class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeXPListener {
-    /**
-     * The state of the CodeXP plugin.
-     */
-    data class CodeXPState(
-        /**
-         * Whether the plugin has been executed before.
-         */
-        var hasExecuted: Boolean = false,
-
-        /**
-         * User's nickname.
-         */
-        var nickname: String = "",
-
-        /**
-         * User's total XP.
-         */
-        var xp: Long = 0,
-
-        /**
-         * Save the number of times an event has occurred based on the [Event] enum.
-         */
-        var eventCounts: MutableMap<Event, Long> = mutableMapOf(),
-
-        /**
-         * Challenges that not yet been completed.
-         */
-        var challenges: MutableMap<Event, CodeXPChallenge> = mutableMapOf(),
-
-        /**
-         * Challenges that have been completed.
-         */
-        var completedChallenges: MutableList<CodeXPChallenge> = mutableListOf(),
-
-        /**
-         * Show completed challenges in the dashboard.
-         */
-        var showCompletedChallenges: Boolean = true,
-
-        /**
-         * The configuration of the CodeXP plugin
-         */
-        var codeXPConfiguration: CodeXPConfiguration = CodeXPConfiguration()
-    ) {
-        /**
-         * Increment the event count for a specific event.
-         */
-        fun incrementEventCount(event: Event, incrementValue: Long = 1) {
-            eventCounts[event] = eventCounts.getOrDefault(event, 0) + incrementValue
-            xp += event.xpValue
-        }
-
-        /**
-         * Get the number of times an event has occurred.
-         */
-        fun getEventCount(event: Event): Long {
-            return eventCounts[event] ?: 0
-        }
-    }
-
-    /**
-     * The configuration of the CodeXP plugin
-     */
-    data class CodeXPConfiguration(
-        /**
-         * Show a notification when the user levels up.
-         */
-        var showLevelUpNotification: Boolean = true,
-
-        /**
-         * Show a notification when the user completes a challenge.
-         */
-        var showCompleteChallengeNotification: Boolean = true,
-
-        /**
-         * Show a notification when the user gains XP.
-         */
-        var showGainedXP: Boolean = true,
-
-        /**
-         * Gained XP display position.
-         */
-        var positionToDisplayGainedXP: PositionToDisplayGainedXP = PositionToDisplayGainedXP.TOP_RIGHT
-    )
-
+class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener {
     /**
      * The state of the CodeXP plugin
      */
@@ -131,7 +51,7 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
         CodeXPNotificationManager
 
         // Connect to the application message bus
-        connection.subscribe(CodeXPListener.CODEXP_EVENT, this)
+        connection.subscribe(CodeXPEventListener.CODEXP_EVENT, this)
     }
 
     override fun getState(): CodeXPState {
@@ -149,8 +69,8 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
     }
 
     override fun eventOccurred(event: Event, dataContext: DataContext?) {
-        codeXPState.incrementEventCount(event)
-        checkChallenge(event)
+        increaseEventCount(event)
+        increaseChallengeProgress(event)
     }
 
     /**
@@ -187,20 +107,58 @@ class CodeXPService : PersistentStateComponent<CodeXPService.CodeXPState>, CodeX
     }
 
     /**
-     * Checks if the user has completed any challenges for the given event
+     * Increase the event count for a specific event.
      *
-     * @param event The event to check for challenges
+     * @param event The event to increase the count for.
+     * @param incrementValue The amount to increase the count by.
      */
-    fun checkChallenge(event: Event) {
+    private fun increaseEventCount(event: Event, incrementValue: Long = 1) {
+        codeXPState.eventCounts[event] = codeXPState.eventCounts.getOrDefault(event, 0) + incrementValue
+        increaseXP(event.xpValue)
+    }
+
+    /**
+     * Increase the user's XP by a specific amount.
+     *
+     * @param incrementAmount The amount to increase the user's XP by.
+     */
+    private fun increaseXP(incrementAmount: Long) {
+        val beforeLevelInfo = CodeXPLevel.createLevelInfo(codeXPState.xp)
+        codeXPState.xp += incrementAmount
+        val currentLevelInfo = CodeXPLevel.createLevelInfo(codeXPState.xp)
+
+        if (beforeLevelInfo.level != currentLevelInfo.level && beforeLevelInfo.level != 0 && codeXPState.codeXPConfiguration.showLevelUpNotification) {
+            CodeXPNotificationManager.notifyLevelUp(
+                codeXPState.nickname,
+                currentLevelInfo.level,
+                currentLevelInfo.totalXPForNextLevel
+            )
+        }
+
+        messageBus.syncPublisher(CodeXPListener.CODEXP).xpUpdated(currentLevelInfo)
+    }
+
+    /**
+     * Increase the progress of a challenge.
+     *
+     * @param event The type of the challenge.
+     */
+    private fun increaseChallengeProgress(event: Event) {
         codeXPState.challenges[event]?.let { challenge ->
             challenge.progress += 1
 
             if (challenge.progress >= challenge.goal) {
-                codeXPState.xp += challenge.rewardXP
+                increaseXP(challenge.rewardXP)
                 replaceChallengeWithNew(challenge, event)
+                CodeXPUIManager.showCodeXPDialog()
 
                 if (codeXPState.codeXPConfiguration.showCompleteChallengeNotification)
                     CodeXPNotificationManager.notifyChallengeComplete(challenge)
+
+                messageBus.syncPublisher(CodeXPListener.CODEXP)
+                    .challengeUpdated(event, challenge, state.challenges[event])
+            } else {
+                messageBus.syncPublisher(CodeXPListener.CODEXP).challengeUpdated(event, challenge, null)
             }
         }
     }
