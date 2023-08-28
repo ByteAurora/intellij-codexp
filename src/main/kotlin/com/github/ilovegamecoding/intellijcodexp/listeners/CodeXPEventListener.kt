@@ -7,9 +7,9 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.util.messages.Topic
 
 /**
- * CodeXPListener interface
+ * CodeXPEventListener interface
  *
- * This interface is used to listen to events from the CodeXP plugin.
+ * This interface is used to manage events from the CodeXP plugin.
  */
 interface CodeXPEventListener {
     companion object {
