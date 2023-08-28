@@ -53,7 +53,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         initializeUI()
 
         // Add the dashboard to the tool window
-        val contentFactory = ContentFactory.SERVICE.getInstance()
+        val contentFactory = ContentFactory.getInstance()
         val scrollPane = JBScrollPane(codeXPDashboardForm.pMain)
         val rootPanel = JPanel(BorderLayout())
         rootPanel.add(BorderLayout.CENTER, scrollPane)
