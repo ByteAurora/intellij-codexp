@@ -7,6 +7,6 @@ import com.intellij.openapi.startup.StartupActivity
 
 class CodeXPStartupActivity : StartupActivity {
     override fun runActivity(project: Project) {
-        val codeXPService = ApplicationManager.getApplication().getService(CodeXPService::class.java)
+        ApplicationManager.getApplication().getService(CodeXPService::class.java)
     }
 }
