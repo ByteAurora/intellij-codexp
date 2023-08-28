@@ -5,6 +5,11 @@ import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
 import com.intellij.util.messages.Topic
 
+/**
+ * CodeXPListener interface
+ *
+ * This interface is used to manage xp and challenge update from the CodeXP plugin.
+ */
 interface CodeXPListener {
     companion object {
         /**
@@ -14,16 +19,16 @@ interface CodeXPListener {
     }
 
     /**
-     * Function that is called when level up.
+     * Function that is called when xp updated.
      *
-     * @param levelInfo The new level.
+     * @param levelInfo Level info.
      */
     fun xpUpdated(levelInfo: CodeXPLevel)
 
     /**
-     * Function that is called when challenge completed.
+     * Function that is called when challenge updated.
      *
-     * @param challenge The completed challenge.
+     * @param challenge Updated challenge.
      */
     fun challengeUpdated(event: Event, challenge: CodeXPChallenge, newChallenge: CodeXPChallenge? = null)
 }
