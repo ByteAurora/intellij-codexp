@@ -1,8 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.listeners
 
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
-import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
-import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.util.messages.Topic
 
