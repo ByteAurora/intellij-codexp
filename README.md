@@ -69,12 +69,20 @@ Completed challenges are added under the "Completed Challenges" section. Also, m
 
 ![Completed Challenges](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/completed_challenges.png)
 
+You can toggle the visibility of completed challenges in the CodeXP tool window.
+
+![Toggle Completed Challenges](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/toggle_completed_challenges.gif)
+
 <br>
 
 ## Notification
-Whenever a challenge is completed or a level up occurs, a notification is provided to inform you of the details.
+Whenever a challenge is completed or a level up occurs, a notification is provided to inform you of the details. You can choose to display the notification as an IntelliJ notification or a CodeXP notification.
 
-![Notification](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/notification.jpg)
+#### IntelliJ Notification
+![IntelliJ Notification](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/intellij_notification.jpg)
+
+#### CodeXP Notification
+![CodeXP Notification](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/codexp_notification.png)
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].

@@ -3,9 +3,10 @@ package com.github.ilovegamecoding.intellijcodexp.toolWindow
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPChallengeForm
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPDashboardForm
+import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
-import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPNotificationManager
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
 import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
 import com.intellij.openapi.actionSystem.DataContext
@@ -53,7 +54,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         initializeUI()
 
         // Add the dashboard to the tool window
-        val contentFactory = ContentFactory.SERVICE.getInstance()
+        val contentFactory = ContentFactory.getInstance()
         val scrollPane = JBScrollPane(codeXPDashboardForm.pMain)
         val rootPanel = JPanel(BorderLayout())
         rootPanel.add(BorderLayout.CENTER, scrollPane)
@@ -75,7 +76,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         initializeCompletedChallenges()
         initializeConnection(eventStaticForms, challengeForms)
 
-        updateXPInfo()
+        updateXPInfo(CodeXPLevel.createLevelInfo(codeXPService.state.xp))
     }
 
     /**
@@ -189,35 +190,47 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
 
         // Update the dashboard when events occur
         ApplicationManager.getApplication().messageBus.connect()
-            .subscribe(CodeXPListener.CODEXP_EVENT, object : CodeXPListener {
+            .subscribe(CodeXPEventListener.CODEXP_EVENT, object : CodeXPEventListener {
                 override fun eventOccurred(event: Event, dataContext: DataContext?) {
                     (eventStaticForms[event]!!.getComponent(2) as JLabel).text =
                         StringUtil.numberToStringWithCommas(codeXPService.state.getEventCount(event))
+                }
+            })
 
-                    codeXPService.state.challenges[event]?.let { currentChallenge ->
-                        val beforeChallengeForm = challengeForms[event]!!
+        ApplicationManager.getApplication().messageBus.connect()
+            .subscribe(CodeXPListener.CODEXP, object : CodeXPListener {
+                override fun xpUpdated(levelInfo: CodeXPLevel) {
+                    updateXPInfo(levelInfo)
+                }
 
-                        if (currentChallenge.id == beforeChallengeForm.challengeID) { // Challenge is not completed
-                            updateChallengeProgress(currentChallenge, beforeChallengeForm)
-                        } else {  // Before challenge is completed
-                            if (codeXPService.state.showCompletedChallenges) {
-                                gridBagConstraints.gridy = codeXPDashboardForm.pCompletedChallenges.componentCount
-                                codeXPService.state.completedChallenges.find { it.id == beforeChallengeForm.challengeID }
-                                    ?.let { createOrUpdateChallengeForm(it).pChallenge }?.let {
-                                        codeXPDashboardForm.pCompletedChallenges.add(
-                                            it,
-                                            gridBagConstraints
-                                        )
-                                    }
-                            }
+                override fun levelUp(levelInfo: CodeXPLevel) {
 
-                            createOrUpdateChallengeForm(currentChallenge, challengeForms[event]!!)
-                            codeXPDashboardForm.lblCompletedChallengesCount.text =
-                                StringUtil.numberToStringWithCommas(codeXPService.state.completedChallenges.size.toLong())
+                }
+
+                override fun challengeUpdated(
+                    event: Event,
+                    challenge: CodeXPChallenge,
+                    newChallenge: CodeXPChallenge?
+                ) {
+                    if (newChallenge != null) {
+                        codeXPDashboardForm.lblCompletedChallengesCount.text =
+                            StringUtil.numberToStringWithCommas(codeXPService.state.completedChallenges.size.toLong())
+
+                        if (codeXPService.state.showCompletedChallenges) {
+                            gridBagConstraints.gridy = codeXPDashboardForm.pCompletedChallenges.componentCount
+                            codeXPDashboardForm.pCompletedChallenges.add(
+                                createOrUpdateChallengeForm(challenge).pChallenge,
+                                gridBagConstraints
+                            )
                         }
+                        createOrUpdateChallengeForm(newChallenge, challengeForms[event]!!)
+                    } else {
+                        updateChallengeProgress(challenge, challengeForms[event]!!)
                     }
+                }
 
-                    updateXPInfo()
+                override fun challengeCompleted(event: Event, challenge: CodeXPChallenge) {
+
                 }
             })
     }
@@ -232,17 +245,9 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
     /**
      * Updates the XP info on the dashboard.
      */
-    private fun updateXPInfo() {
-        val totalXP = codeXPService.state.xp
-        codeXPDashboardForm.lblTotalXP.text = StringUtil.numberToStringWithCommas(totalXP)
-        val (currentLevel, xpIntoCurrentLevel, progressToNextLevel, xpToNextLevel) = calculateLevelAndProgress(
-            totalXP
-        )
-
-        val beforeLevel = codeXPDashboardForm.lblCurrentLevel.text.toInt()
-        if (beforeLevel != currentLevel && beforeLevel != 0 && codeXPService.state.codeXPConfiguration.showLevelUpNotification) {
-            CodeXPNotificationManager.notifyLevelUp(codeXPService.state.nickname, currentLevel, xpToNextLevel)
-        }
+    private fun updateXPInfo(levelInfo: CodeXPLevel) {
+        codeXPDashboardForm.lblTotalXP.text = StringUtil.numberToStringWithCommas(codeXPService.state.xp)
+        val (currentLevel, xpIntoCurrentLevel, progressToNextLevel) = levelInfo
 
         codeXPDashboardForm.lblCurrentLevel.text = StringUtil.numberToStringWithCommas(currentLevel.toLong())
         codeXPDashboardForm.lblNextLevel.text = StringUtil.numberToStringWithCommas((currentLevel + 1).toLong())
@@ -312,54 +317,6 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
             form.pbChallengeProgress.value = progressPercentage
         }
         return form
-    }
-
-    /**
-     * Level info data class.
-     */
-    data class LevelInfo(
-        /**
-         * Current level.
-         */
-        val currentLevel: Int,
-
-        /**
-         * XP into the current level.
-         */
-        val xpIntoCurrentLevel: Long,
-
-        /**
-         * Progress to the next level.
-         */
-        val progressToNextLevel: Int,
-
-        /**
-         * XP needed to reach the next level.
-         */
-        val xpToNextLevel: Long
-    )
-
-    /**
-     * Calculates the level and progress to the next level.
-     *
-     * @param totalXP Total XP.
-     * @return Level info data class.
-     */
-    private fun calculateLevelAndProgress(totalXP: Long): LevelInfo {
-        var level = 1
-        var currentLevelXP = 300.0
-        var xp = 300.0
-
-        while (totalXP >= xp) {
-            level++
-            currentLevelXP *= 1.05
-            xp += currentLevelXP
-        }
-
-        val xpIntoCurrentLevel = totalXP - (xp - currentLevelXP)
-        val progress = (xpIntoCurrentLevel / currentLevelXP) * 100
-
-        return LevelInfo(level, xpIntoCurrentLevel.toLong(), progress.toInt(), currentLevelXP.toLong())
     }
 }
 

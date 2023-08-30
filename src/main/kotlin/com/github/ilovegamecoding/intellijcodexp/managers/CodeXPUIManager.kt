@@ -1,24 +1,37 @@
 package com.github.ilovegamecoding.intellijcodexp.managers
 
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
+import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
+import com.github.ilovegamecoding.intellijcodexp.views.CodeXPDialog
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
+import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.thisLogger
+import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
 import java.awt.Color
+import java.awt.Dimension
 import java.awt.Font
-import javax.swing.JComponent
-import javax.swing.JLabel
+import java.awt.Point
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseMotionAdapter
+import javax.swing.*
 import kotlin.math.max
+
 
 /**
  * CodeXPUIManager class
  *
  * This class manages the UI of the CodeXP plugin.
  */
-object CodeXPUIManager : CodeXPListener {
+object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
     /**
      * Fading labels in each swing component.
      */
@@ -30,21 +43,70 @@ object CodeXPUIManager : CodeXPListener {
     private var currentXPGainValue: Int = 0
 
     /**
-     * The message bus for the plugin
+     * The message bus for the plugin.
      */
     private val messageBus = ApplicationManager.getApplication().messageBus
 
     /**
-     * The connection to the message bus
+     * The connection to the message bus.
      */
     private val connection = messageBus.connect()
 
+    /**
+     * The IDE frame.
+     */
+    private lateinit var ide: JLayeredPane
+
+    /**
+     * Dialog area for displaying dialogs in the IDE.
+     */
+    private lateinit var dialogArea: JPanel
+
+    /**
+     * Timers for each dialog.
+     */
+    private val dialogTimers: MutableMap<CodeXPDialog, Timer> = mutableMapOf()
+
+    /**
+     * Dialog duration.
+     */
+    private val dialogDuration: Int = 4000
+
     init {
-        connection.subscribe(CodeXPListener.CODEXP_EVENT, this)
+        connection.subscribe(CodeXPEventListener.CODEXP_EVENT, this)
+        connection.subscribe(CodeXPListener.CODEXP, this)
     }
 
     override fun eventOccurred(event: Event, dataContext: DataContext?) {
         displayXPLabel(event, dataContext)
+    }
+
+    override fun xpUpdated(levelInfo: CodeXPLevel) {
+
+    }
+
+    override fun levelUp(levelInfo: CodeXPLevel) {
+        showDialog(
+            CodeXPDialog.createDialog(
+                "Level Up!",
+                "Congratulations! You are now level ${StringUtil.numberToStringWithCommas(levelInfo.level.toLong())}!",
+                "XP to next level: ${StringUtil.numberToStringWithCommas(levelInfo.totalXPForNextLevel)} xp"
+            )
+        )
+    }
+
+    override fun challengeUpdated(event: Event, challenge: CodeXPChallenge, newChallenge: CodeXPChallenge?) {
+
+    }
+
+    override fun challengeCompleted(event: Event, challenge: CodeXPChallenge) {
+        showDialog(
+            CodeXPDialog.createDialog(
+                "Challenge Completed!",
+                "Congratulations! You have completed ${challenge.name.lowercase()}!",
+                "XP earned: ${StringUtil.numberToStringWithCommas(challenge.rewardXP)} xp"
+            )
+        )
     }
 
     /**
@@ -54,7 +116,7 @@ object CodeXPUIManager : CodeXPListener {
      * @param dataContext The data context of the event.
      */
     private fun displayXPLabel(event: Event, dataContext: DataContext?) {
-        if (dataContext == null) return
+        dataContext ?: return
 
         val codeXPConfiguration =
             ApplicationManager.getApplication().getService(CodeXPService::class.java).state.codeXPConfiguration
@@ -72,9 +134,11 @@ object CodeXPUIManager : CodeXPListener {
         fadingLabels[component]?.let { fadingLabel ->
             fadingLabel.cancelFadeOut()
             currentXPGainValue = fadingLabel.value
-            component.remove(fadingLabel)
-            component.revalidate()
-            component.repaint()
+            with(component) {
+                remove(fadingLabel)
+                revalidate()
+                repaint()
+            }
         }
 
         currentXPGainValue += event.xpValue.toInt()
@@ -83,40 +147,48 @@ object CodeXPUIManager : CodeXPListener {
             font = Font(font.fontName, Font.BOLD, editor.colorsScheme.editorFontSize)
             size = preferredSize
             val caretHeight = editor.lineHeight
-            fadingLabelPosition.let { point ->
-                val position = codeXPConfiguration.positionToDisplayGainedXP
-                val xOffset = when {
-                    position.name.contains("LEFT") -> -width
-                    position.name.contains("RIGHT") -> 0
-                    else -> -width / 2
-                }
-                point.translate(
-                    (position.x * 4) + xOffset,
-                    position.y * (caretHeight / 2)
-                )
-                location = point
-            }
+            location =
+                calculateLabelLocation(codeXPConfiguration, fadingLabelPosition, caretHeight, preferredSize.width)
             startFadeOut()
         }
 
         fadingLabels[component] = newFadingLabel
 
-        component.add(newFadingLabel)
-        component.revalidate()
-        component.repaint()
+        with(component) {
+            add(newFadingLabel)
+            revalidate()
+            repaint()
+        }
+    }
+
+    private fun calculateLabelLocation(
+        config: CodeXPConfiguration,
+        point: Point,
+        caretHeight: Int,
+        labelWidth: Int
+    ): Point {
+        with(config.positionToDisplayGainedXP) {
+            val xOffset = when {
+                name.contains("LEFT") -> -labelWidth
+                name.contains("RIGHT") -> 0
+                else -> -labelWidth / 2
+            }
+            point.translate((x * 4) + xOffset, y * (caretHeight / 2))
+        }
+        return point
     }
 
     /**
      * Fading label class for displaying XP gain.
      */
     internal class FadingLabel(initialValue: Int) : JLabel(if (initialValue == 0) "0 xp" else "+$initialValue XP") {
-        private lateinit var timer: javax.swing.Timer
+        private lateinit var timer: Timer
 
         /**
          * Start fade out animation.
          */
         fun startFadeOut() {
-            timer = javax.swing.Timer(100, null)
+            timer = Timer(100, null)
             timer.addActionListener {
                 val newAlpha = max(foreground.alpha - 255 / 10, 0)
                 if (newAlpha <= 0) {
@@ -124,7 +196,20 @@ object CodeXPUIManager : CodeXPListener {
                     value = 0
                 } else {
                     foreground =
-                        Color(JBColor.foreground().red, JBColor.foreground().green, JBColor.foreground().blue, newAlpha)
+                        JBColor(
+                            Color(
+                                JBColor.foreground().red,
+                                JBColor.foreground().green,
+                                JBColor.foreground().blue,
+                                newAlpha
+                            ),
+                            Color(
+                                JBColor.foreground().red,
+                                JBColor.foreground().green,
+                                JBColor.foreground().blue,
+                                newAlpha
+                            )
+                        )
                 }
             }
             timer.start()
@@ -148,5 +233,66 @@ object CodeXPUIManager : CodeXPListener {
                     timer.stop()
                 }
             }
+    }
+
+    /**
+     * Create a dialog.
+     */
+    fun createDialogArea() {
+        dialogArea = JPanel()
+        with(dialogArea) {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            isVisible = false
+            background = JBColor(Color(255, 255, 255, 0), Color(255, 255, 255, 0))
+            isOpaque = false
+
+            addMouseListener(object : MouseAdapter() {})
+            addMouseMotionListener(object : MouseMotionAdapter() {})
+        }
+
+        WindowManager.getInstance()
+            .getIdeFrame(ProjectManager.getInstance().openProjects.firstOrNull())?.component?.rootPane?.layeredPane?.let {
+                ide = it
+                ide.add(dialogArea, JLayeredPane.POPUP_LAYER, 0)
+            } ?: run {
+            thisLogger().warn("Could not find IDE frame.")
+        }
+    }
+
+    /**
+     * Show the progress window for 3 seconds.
+     */
+    private fun showDialog(dialog: CodeXPDialog) {
+        dialogTimers[dialog] = Timer(dialogDuration) { hideDialog(dialog) }
+        dialogTimers[dialog]?.start()
+        dialog.show()
+
+        with(dialogArea) {
+            add(dialog.frame, 0)
+            size = Dimension(480, preferredSize.height)
+            location = Point(ide.width / 2 - width / 2, (ide.height * 0.05).toInt())
+            revalidate()
+            repaint()
+            isVisible = true
+        }
+    }
+
+    /**
+     * Hide the progress window immediately.
+     */
+    private fun hideDialog(dialog: CodeXPDialog) {
+        SwingUtilities.invokeLater {
+            dialogTimers[dialog]?.stop()
+            dialogTimers.remove(dialog)
+
+            with(dialogArea) {
+                remove(dialog.frame)
+                size = Dimension(480, preferredSize.height)
+            }
+
+            if (dialogArea.components.isEmpty()) {
+                dialogArea.isVisible = false
+            }
+        }
     }
 }
