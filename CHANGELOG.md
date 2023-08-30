@@ -7,7 +7,7 @@
 ### Added
 - Organize CodeXP configuration options by type for easier readability.
 - Add a new notification type: CodeXP notification
-- Add configuration for notification type (Intellij notification or CodeXP notification)
+- Add configuration for notification type (IntelliJ notification or CodeXP notification)
 
 ### Changed
 

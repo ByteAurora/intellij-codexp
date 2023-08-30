@@ -27,10 +27,10 @@ class CodeXPConfigurable : Configurable {
     override fun createComponent(): JComponent? {
         // Create the configuration form and set the values to the current configuration.
         codeXPConfigurationForm = CodeXPConfigurationForm().apply {
-            cbNotificationType.addItem("Intellij Notification")
+            cbNotificationType.addItem("IntelliJ Notification")
             cbNotificationType.addItem("CodeXP Notification")
             cbNotificationType.selectedItem = config.notificationType
-            if(cbNotificationType.selectedItem == "Intellij Notification") {
+            if(cbNotificationType.selectedItem == "IntelliJ Notification") {
                 lblTypeDescription.text =
                     "Default notification will appear in the bottom-right of the IDE and IDE notification tool window."
             } else {
@@ -49,7 +49,7 @@ class CodeXPConfigurable : Configurable {
 
     override fun isModified(): Boolean {
         return with(codeXPConfigurationForm) {
-            if(cbNotificationType.selectedItem == "Intellij Notification") {
+            if(cbNotificationType.selectedItem == "IntelliJ Notification") {
                 lblTypeDescription.text =
                     "Default notification will appear in the bottom-right of the IDE and IDE notification tool window."
             } else {

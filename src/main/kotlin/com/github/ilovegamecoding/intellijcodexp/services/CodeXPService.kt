@@ -130,7 +130,7 @@ class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener
         if (beforeLevelInfo.level != currentLevelInfo.level && beforeLevelInfo.level != 0 && codeXPState.codeXPConfiguration.showLevelUpNotification) {
             if (codeXPState.codeXPConfiguration.showLevelUpNotification) {
                 when (codeXPState.codeXPConfiguration.notificationType) {
-                    "Intellij Notification" ->
+                    "IntelliJ Notification" ->
                         CodeXPNotificationManager.notifyLevelUp(
                             codeXPState.nickname,
                             currentLevelInfo.level,
@@ -161,7 +161,7 @@ class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener
 
                 if (codeXPState.codeXPConfiguration.showCompleteChallengeNotification) {
                     when (codeXPState.codeXPConfiguration.notificationType) {
-                        "Intellij Notification" -> CodeXPNotificationManager.notifyChallengeComplete(
+                        "IntelliJ Notification" -> CodeXPNotificationManager.notifyChallengeComplete(
                             challenge
                         )
 
