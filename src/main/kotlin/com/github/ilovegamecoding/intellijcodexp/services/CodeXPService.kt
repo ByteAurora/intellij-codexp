@@ -128,11 +128,19 @@ class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener
         val currentLevelInfo = CodeXPLevel.createLevelInfo(codeXPState.xp)
 
         if (beforeLevelInfo.level != currentLevelInfo.level && beforeLevelInfo.level != 0 && codeXPState.codeXPConfiguration.showLevelUpNotification) {
-            CodeXPNotificationManager.notifyLevelUp(
-                codeXPState.nickname,
-                currentLevelInfo.level,
-                currentLevelInfo.totalXPForNextLevel
-            )
+            if (codeXPState.codeXPConfiguration.showLevelUpNotification) {
+                when (codeXPState.codeXPConfiguration.notificationType) {
+                    "Intellij Notification" ->
+                        CodeXPNotificationManager.notifyLevelUp(
+                            codeXPState.nickname,
+                            currentLevelInfo.level,
+                            currentLevelInfo.totalXPForNextLevel
+                        )
+
+                    "CodeXP Notification" ->
+                        messageBus.syncPublisher(CodeXPListener.CODEXP).levelUp(currentLevelInfo)
+                }
+            }
         }
 
         messageBus.syncPublisher(CodeXPListener.CODEXP).xpUpdated(currentLevelInfo)
@@ -150,11 +158,17 @@ class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener
             if (challenge.progress >= challenge.goal) {
                 increaseXP(challenge.rewardXP)
                 replaceChallengeWithNew(challenge, event)
-                CodeXPUIManager.showCodeXPDialog()
 
-                if (codeXPState.codeXPConfiguration.showCompleteChallengeNotification)
-                    CodeXPNotificationManager.notifyChallengeComplete(challenge)
+                if (codeXPState.codeXPConfiguration.showCompleteChallengeNotification) {
+                    when (codeXPState.codeXPConfiguration.notificationType) {
+                        "Intellij Notification" -> CodeXPNotificationManager.notifyChallengeComplete(
+                            challenge
+                        )
 
+                        "CodeXP Notification" ->
+                            messageBus.syncPublisher(CodeXPListener.CODEXP).challengeCompleted(event, challenge)
+                    }
+                }
                 messageBus.syncPublisher(CodeXPListener.CODEXP)
                     .challengeUpdated(event, challenge, state.challenges[event])
             } else {
