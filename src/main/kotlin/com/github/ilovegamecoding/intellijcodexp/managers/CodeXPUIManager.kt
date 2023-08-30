@@ -8,6 +8,7 @@ import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPDialog
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
+import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -19,7 +20,6 @@ import java.awt.Color
 import java.awt.Dimension
 import java.awt.Font
 import java.awt.Point
-import java.awt.event.ActionListener
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseMotionAdapter
 import javax.swing.*
@@ -43,18 +43,34 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
     private var currentXPGainValue: Int = 0
 
     /**
-     * The message bus for the plugin
+     * The message bus for the plugin.
      */
     private val messageBus = ApplicationManager.getApplication().messageBus
 
     /**
-     * The connection to the message bus
+     * The connection to the message bus.
      */
     private val connection = messageBus.connect()
 
+    /**
+     * The IDE frame.
+     */
     private lateinit var ide: JLayeredPane
+
+    /**
+     * Dialog area for displaying dialogs in the IDE.
+     */
     private lateinit var dialogArea: JPanel
+
+    /**
+     * Timers for each dialog.
+     */
     private val dialogTimers: MutableMap<CodeXPDialog, Timer> = mutableMapOf()
+
+    /**
+     * Dialog duration.
+     */
+    private val dialogDuration: Int = 4000
 
     init {
         connection.subscribe(CodeXPEventListener.CODEXP_EVENT, this)
@@ -73,8 +89,8 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
         showDialog(
             CodeXPDialog.createDialog(
                 "Level Up!",
-                "Congratulations! You have reached level ${levelInfo.level}!",
-                "XP to next level: ${levelInfo.totalXPForNextLevel}xp"
+                "Congratulations! You are now level ${StringUtil.numberToStringWithCommas(levelInfo.level.toLong())}!",
+                "XP to next level: ${StringUtil.numberToStringWithCommas(levelInfo.totalXPForNextLevel)} xp"
             )
         )
     }
@@ -87,8 +103,8 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
         showDialog(
             CodeXPDialog.createDialog(
                 "Challenge Completed!",
-                "Congratulations! You have completed '${challenge.name}'!",
-                "XP gained: ${challenge.rewardXP}xp"
+                "Congratulations! You have completed ${challenge.name.lowercase()}!",
+                "XP earned: ${StringUtil.numberToStringWithCommas(challenge.rewardXP)} xp"
             )
         )
     }
@@ -247,7 +263,7 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
      * Show the progress window for 3 seconds.
      */
     private fun showDialog(dialog: CodeXPDialog) {
-        dialogTimers[dialog] = Timer(3000, ActionListener { hideDialog(dialog) })
+        dialogTimers[dialog] = Timer(dialogDuration) { hideDialog(dialog) }
         dialogTimers[dialog]?.start()
         dialog.show()
 

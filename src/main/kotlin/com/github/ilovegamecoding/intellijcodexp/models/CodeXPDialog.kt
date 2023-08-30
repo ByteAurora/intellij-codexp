@@ -5,6 +5,11 @@ import com.intellij.util.ui.JBUI
 import java.awt.*
 import javax.swing.*
 
+/**
+ * CodeXPDialog class
+ *
+ * This class is used to create a dialog that is shown in the dialog area.
+ */
 class CodeXPDialog(
     /**
      * Dialog title.
@@ -32,9 +37,14 @@ class CodeXPDialog(
     private var content: JPanel
 
     /**
+     * Show dialog duration.
+     */
+    private val showDuration = 2000
+
+    /**
      * Fade animation duration.
      */
-    private val fadeDurationMillis = 1000
+    private val fadeDuration = 1000
 
     /**
      * Animation step millis.
@@ -44,7 +54,7 @@ class CodeXPDialog(
     /**
      * Animation fade step.
      */
-    private val fadeStep = 192.0 * stepMillis / fadeDurationMillis
+    private val fadeStep = 192.0 * stepMillis / fadeDuration
 
     init {
         val lblTitle = JLabel().apply {
@@ -142,7 +152,7 @@ class CodeXPDialog(
 
                 if (alpha >= 192) {
                     (event.source as Timer).stop()
-                    Timer(1000) { hide() }.apply {
+                    Timer(showDuration) { hide() }.apply {
                         isRepeats = false
                         start()
                     }
