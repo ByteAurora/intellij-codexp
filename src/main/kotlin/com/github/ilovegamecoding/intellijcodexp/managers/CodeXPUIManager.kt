@@ -255,7 +255,7 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
                 ide = it
                 ide.add(dialogArea, JLayeredPane.POPUP_LAYER, 0)
             } ?: run {
-            thisLogger().error("Could not find IDE frame.")
+            thisLogger().warn("Could not find IDE frame.")
         }
     }
 
