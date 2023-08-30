@@ -26,9 +26,23 @@ interface CodeXPListener {
     fun xpUpdated(levelInfo: CodeXPLevel)
 
     /**
+     * Function that is called when level up.
+     *
+     * @param levelInfo Level info.
+     */
+    fun levelUp(levelInfo: CodeXPLevel)
+
+    /**
      * Function that is called when challenge updated.
      *
      * @param challenge Updated challenge.
      */
     fun challengeUpdated(event: Event, challenge: CodeXPChallenge, newChallenge: CodeXPChallenge? = null)
+
+    /**
+     * Function that is called when challenge completed.
+     *
+     * @param challenge Completed challenge.
+     */
+    fun challengeCompleted(event: Event, challenge: CodeXPChallenge)
 }

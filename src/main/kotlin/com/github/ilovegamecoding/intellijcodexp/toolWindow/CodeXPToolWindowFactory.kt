@@ -203,6 +203,10 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
                     updateXPInfo(levelInfo)
                 }
 
+                override fun levelUp(levelInfo: CodeXPLevel) {
+
+                }
+
                 override fun challengeUpdated(
                     event: Event,
                     challenge: CodeXPChallenge,
@@ -223,6 +227,10 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
                     } else {
                         updateChallengeProgress(challenge, challengeForms[event]!!)
                     }
+                }
+
+                override fun challengeCompleted(event: Event, challenge: CodeXPChallenge) {
+
                 }
             })
     }
