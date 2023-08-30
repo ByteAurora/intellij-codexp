@@ -9,6 +9,11 @@ import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
  */
 data class CodeXPConfiguration(
     /**
+     * Notification type.
+     */
+    var notificationType: String = "CodeXP Notification",
+
+    /**
      * Show a notification when the user levels up.
      */
     var showLevelUpNotification: Boolean = true,
