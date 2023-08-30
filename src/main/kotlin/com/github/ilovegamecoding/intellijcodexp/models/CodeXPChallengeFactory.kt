@@ -2,7 +2,17 @@ package com.github.ilovegamecoding.intellijcodexp.models
 
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 
+/**
+ * CodeXPChallenge class
+ *
+ * CodeXPChallenge is a class that represents a challenge. Challenges are used to track the progress of the user.
+ */
 object CodeXPChallengeFactory {
+    /**
+     * Creates a list of default challenges.
+     *
+     * @return List of default challenges.
+     */
     fun createEventDefaultChallenges(): List<CodeXPChallenge> {
         return listOf(
             createChallenge(
@@ -69,6 +79,17 @@ object CodeXPChallengeFactory {
         )
     }
 
+    /**
+     * Creates a challenge with the given parameters.
+     *
+     * @param event Event of challenge.
+     * @param name Name of challenge.
+     * @param description Description of challenge.
+     * @param goal Goal of challenge.
+     * @param rewardXP Reward XP of challenge when completed.
+     * @param rewardXPIncrement Increment of reward XP of challenge when completed.
+     * @return Challenge with the given parameters.
+     */
     private fun createChallenge(
         event: Event,
         name: String,

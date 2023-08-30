@@ -9,4 +9,6 @@ public class CodeXPConfigurationForm {
     public JPanel pMain;
     public JCheckBox cbShowGainedXP;
     public JComboBox cbPositionToDisplayGainedXP;
+    public JComboBox cbNotificationType;
+    public JLabel lblTypeDescription;
 }

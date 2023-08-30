@@ -27,6 +27,15 @@ class CodeXPConfigurable : Configurable {
     override fun createComponent(): JComponent? {
         // Create the configuration form and set the values to the current configuration.
         codeXPConfigurationForm = CodeXPConfigurationForm().apply {
+            cbNotificationType.addItem("Intellij Notification")
+            cbNotificationType.addItem("CodeXP Notification")
+            cbNotificationType.selectedItem = config.notificationType
+            if(cbNotificationType.selectedItem == "Intellij Notification") {
+                lblTypeDescription.text =
+                    "Default notification will appear in the bottom-right of the IDE and IDE notification tool window."
+            } else {
+                lblTypeDescription.text = "Customized notification will appear in the top-center of the IDE."
+            }
             cbShowLevelUpNotification.isSelected = config.showLevelUpNotification
             cbShowCompleteChallengeNotification.isSelected = config.showCompleteChallengeNotification
             cbShowGainedXP.isSelected = config.showGainedXP
@@ -40,8 +49,15 @@ class CodeXPConfigurable : Configurable {
 
     override fun isModified(): Boolean {
         return with(codeXPConfigurationForm) {
+            if(cbNotificationType.selectedItem == "Intellij Notification") {
+                lblTypeDescription.text =
+                    "Default notification will appear in the bottom-right of the IDE and IDE notification tool window."
+            } else {
+                lblTypeDescription.text = "Customized notification will appear in the top-center of the IDE."
+            }
             cbPositionToDisplayGainedXP.isEnabled = cbShowGainedXP.isSelected
-            cbShowLevelUpNotification.isSelected != config.showLevelUpNotification ||
+            cbNotificationType.selectedItem != config.notificationType ||
+                    cbShowLevelUpNotification.isSelected != config.showLevelUpNotification ||
                     cbShowCompleteChallengeNotification.isSelected != config.showCompleteChallengeNotification ||
                     cbShowGainedXP.isSelected != config.showGainedXP ||
                     cbPositionToDisplayGainedXP.selectedItem != config.positionToDisplayGainedXP.name
@@ -50,6 +66,7 @@ class CodeXPConfigurable : Configurable {
 
     override fun apply() {
         with(codeXPConfigurationForm) {
+            config.notificationType = cbNotificationType.selectedItem as String
             config.showLevelUpNotification = cbShowLevelUpNotification.isSelected
             config.showCompleteChallengeNotification = cbShowCompleteChallengeNotification.isSelected
             config.showGainedXP = cbShowGainedXP.isSelected
