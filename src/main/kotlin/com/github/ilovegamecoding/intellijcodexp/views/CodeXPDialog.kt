@@ -1,4 +1,4 @@
-package com.github.ilovegamecoding.intellijcodexp.models
+package com.github.ilovegamecoding.intellijcodexp.views
 
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI

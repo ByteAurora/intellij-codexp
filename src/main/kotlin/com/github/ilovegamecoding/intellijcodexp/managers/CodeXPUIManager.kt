@@ -5,7 +5,7 @@ import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
-import com.github.ilovegamecoding.intellijcodexp.models.CodeXPDialog
+import com.github.ilovegamecoding.intellijcodexp.views.CodeXPDialog
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
 import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
