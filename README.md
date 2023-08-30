@@ -69,6 +69,10 @@ Completed challenges are added under the "Completed Challenges" section. Also, m
 
 ![Completed Challenges](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/completed_challenges.png)
 
+You can toggle the visibility of completed challenges in the CodeXP tool window.
+
+![Toggle Completed Challenges](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/toggle_completed_challenges.gif)
+
 <br>
 
 ## Notification
