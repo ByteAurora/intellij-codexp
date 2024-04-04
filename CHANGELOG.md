@@ -5,13 +5,20 @@
 ## [Unreleased]
 
 ### Added
+
+### Fixed
+
+### Changed
+- Expand the plugin's compatible IDE build versions from `232.*` to `241.*`.
+
+### Removed
+
+## [2.0.0] - 2023-08-30
+
+### Added
 - Organize CodeXP configuration options by type for easier readability.
 - Add a new notification type: CodeXP notification
 - Add configuration for notification type (IntelliJ notification or CodeXP notification)
-
-### Changed
-
-### Removed
 
 ### Fixed
 - Fix plugin compatibility issue after IntelliJ IDEA version 2023.2
@@ -49,7 +56,9 @@
 - Define events to detect and add challenges for each event
 - Implement notification alert feature for leveling up or completing challenges
 
-[Unreleased]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v2.0.0...HEAD
+
+[2.0.0]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v1.2.1...v2.0.0
 
 [1.2.1]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v1.2.0...v1.2.1
 
