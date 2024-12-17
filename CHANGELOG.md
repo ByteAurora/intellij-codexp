@@ -9,9 +9,13 @@
 ### Fixed
 
 ### Changed
-- Expand the plugin's compatible IDE build versions from `232.*` to `241.*`.
+- Expand the plugin's compatible IDE build versions from `241.*` to `243.*`.
 
 ### Removed
+
+## [2.0.1] - 2024-04-04
+### Fixed
+- Fix plugin compatibility issue after IntelliJ IDEA version 2023.2
 
 ## [2.0.0] - 2023-08-30
 
@@ -56,7 +60,9 @@
 - Define events to detect and add challenges for each event
 - Implement notification alert feature for leveling up or completing challenges
 
-[Unreleased]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v2.0.1...HEAD
+
+[2.0.1]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v2.0.0...v2.0.1
 
 [2.0.0]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v1.2.1...v2.0.0
 
