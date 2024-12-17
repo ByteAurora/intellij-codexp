@@ -5,6 +5,7 @@
 ## [Unreleased]
 
 ### Added
+- Added LICENSE file with MIT License to clarify the terms of use.
 
 ### Fixed
 
