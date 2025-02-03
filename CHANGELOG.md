@@ -13,7 +13,7 @@
 
 ### Removed
 
-## [2.0.2] - 2024-04-04
+## [2.0.2] - 2024-12-18
 ### Added
 - Added LICENSE file with MIT License to clarify the terms of use.
 
