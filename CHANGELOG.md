@@ -67,7 +67,9 @@
 - Define events to detect and add challenges for each event
 - Implement notification alert feature for leveling up or completing challenges
 
-[Unreleased]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v2.0.2...HEAD
+
+[2.0.2]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v2.0.1...v2.0.2
 
 [2.0.1]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v2.0.0...v2.0.1
 
