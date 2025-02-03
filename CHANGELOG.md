@@ -5,14 +5,20 @@
 ## [Unreleased]
 
 ### Added
-- Added LICENSE file with MIT License to clarify the terms of use.
 
 ### Fixed
 
 ### Changed
-- Expand the plugin's compatible IDE build versions from `241.*` to `243.*`.
+- Expand the plugin's compatible IDE build versions from `243.*` to `251.*`.
 
 ### Removed
+
+## [2.0.2] - 2024-04-04
+### Added
+- Added LICENSE file with MIT License to clarify the terms of use.
+
+### Changed
+- Expand the plugin's compatible IDE build versions from `241.*` to `243.*`.
 
 ## [2.0.1] - 2024-04-04
 ### Fixed
