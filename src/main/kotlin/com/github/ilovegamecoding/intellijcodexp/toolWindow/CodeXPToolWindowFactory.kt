@@ -62,8 +62,6 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         toolWindow.contentManager.addContent(content)
     }
 
-    override fun shouldBeAvailable(project: Project) = true
-
     /**
      * Initializes the UI of the dashboard.
      */
@@ -319,4 +317,3 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         return form
     }
 }
-
