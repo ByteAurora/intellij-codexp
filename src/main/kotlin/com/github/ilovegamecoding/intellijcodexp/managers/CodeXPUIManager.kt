@@ -5,10 +5,10 @@ import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
-import com.github.ilovegamecoding.intellijcodexp.views.CodeXPDialog
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
 import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
+import com.github.ilovegamecoding.intellijcodexp.views.CodeXPDialog
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -22,9 +22,14 @@ import java.awt.Font
 import java.awt.Point
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseMotionAdapter
-import javax.swing.*
+import javax.swing.BoxLayout
+import javax.swing.JComponent
+import javax.swing.JLabel
+import javax.swing.JLayeredPane
+import javax.swing.JPanel
+import javax.swing.SwingUtilities
+import javax.swing.Timer
 import kotlin.math.max
-
 
 /**
  * CodeXPUIManager class
@@ -77,12 +82,14 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
         connection.subscribe(CodeXPListener.CODEXP, this)
     }
 
-    override fun eventOccurred(event: Event, dataContext: DataContext?) {
+    override fun eventOccurred(
+        event: Event,
+        dataContext: DataContext?,
+    ) {
         displayXPLabel(event, dataContext)
     }
 
     override fun xpUpdated(levelInfo: CodeXPLevel) {
-
     }
 
     override fun levelUp(levelInfo: CodeXPLevel) {
@@ -90,22 +97,28 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
             CodeXPDialog.createDialog(
                 "Level Up!",
                 "Congratulations! You are now level ${StringUtil.numberToStringWithCommas(levelInfo.level.toLong())}!",
-                "XP to next level: ${StringUtil.numberToStringWithCommas(levelInfo.totalXPForNextLevel)} xp"
-            )
+                "XP to next level: ${StringUtil.numberToStringWithCommas(levelInfo.totalXPForNextLevel)} xp",
+            ),
         )
     }
 
-    override fun challengeUpdated(event: Event, challenge: CodeXPChallenge, newChallenge: CodeXPChallenge?) {
-
+    override fun challengeUpdated(
+        event: Event,
+        challenge: CodeXPChallenge,
+        newChallenge: CodeXPChallenge?,
+    ) {
     }
 
-    override fun challengeCompleted(event: Event, challenge: CodeXPChallenge) {
+    override fun challengeCompleted(
+        event: Event,
+        challenge: CodeXPChallenge,
+    ) {
         showDialog(
             CodeXPDialog.createDialog(
                 "Challenge Completed!",
                 "Congratulations! You have completed ${challenge.name.lowercase()}!",
-                "XP earned: ${StringUtil.numberToStringWithCommas(challenge.rewardXP)} xp"
-            )
+                "XP earned: ${StringUtil.numberToStringWithCommas(challenge.rewardXP)} xp",
+            ),
         )
     }
 
@@ -115,11 +128,17 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
      * @param event The event to fire.
      * @param dataContext The data context of the event.
      */
-    private fun displayXPLabel(event: Event, dataContext: DataContext?) {
+    private fun displayXPLabel(
+        event: Event,
+        dataContext: DataContext?,
+    ) {
         dataContext ?: return
 
         val codeXPConfiguration =
-            ApplicationManager.getApplication().getService(CodeXPService::class.java).state.codeXPConfiguration
+            ApplicationManager
+                .getApplication()
+                .getService(CodeXPService::class.java)
+                .state.codeXPConfiguration
 
         if (!codeXPConfiguration.showGainedXP) {
             return
@@ -143,14 +162,15 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
 
         currentXPGainValue += event.xpValue.toInt()
 
-        val newFadingLabel = FadingLabel(currentXPGainValue).apply {
-            font = Font(font.fontName, Font.BOLD, editor.colorsScheme.editorFontSize)
-            size = preferredSize
-            val caretHeight = editor.lineHeight
-            location =
-                calculateLabelLocation(codeXPConfiguration, fadingLabelPosition, caretHeight, preferredSize.width)
-            startFadeOut()
-        }
+        val newFadingLabel =
+            FadingLabel(currentXPGainValue).apply {
+                font = Font(font.fontName, Font.BOLD, editor.colorsScheme.editorFontSize)
+                size = preferredSize
+                val caretHeight = editor.lineHeight
+                location =
+                    calculateLabelLocation(codeXPConfiguration, fadingLabelPosition, caretHeight, preferredSize.width)
+                startFadeOut()
+            }
 
         fadingLabels[component] = newFadingLabel
 
@@ -165,14 +185,15 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
         config: CodeXPConfiguration,
         point: Point,
         caretHeight: Int,
-        labelWidth: Int
+        labelWidth: Int,
     ): Point {
         with(config.positionToDisplayGainedXP) {
-            val xOffset = when {
-                name.contains("LEFT") -> -labelWidth
-                name.contains("RIGHT") -> 0
-                else -> -labelWidth / 2
-            }
+            val xOffset =
+                when {
+                    name.contains("LEFT") -> -labelWidth
+                    name.contains("RIGHT") -> 0
+                    else -> -labelWidth / 2
+                }
             point.translate((x * 4) + xOffset, y * (caretHeight / 2))
         }
         return point
@@ -181,7 +202,9 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
     /**
      * Fading label class for displaying XP gain.
      */
-    internal class FadingLabel(initialValue: Int) : JLabel(if (initialValue == 0) "0 xp" else "+$initialValue XP") {
+    internal class FadingLabel(
+        initialValue: Int,
+    ) : JLabel(if (initialValue == 0) "0 xp" else "+$initialValue XP") {
         private lateinit var timer: Timer
 
         /**
@@ -201,14 +224,14 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
                                 JBColor.foreground().red,
                                 JBColor.foreground().green,
                                 JBColor.foreground().blue,
-                                newAlpha
+                                newAlpha,
                             ),
                             Color(
                                 JBColor.foreground().red,
                                 JBColor.foreground().green,
                                 JBColor.foreground().blue,
-                                newAlpha
-                            )
+                                newAlpha,
+                            ),
                         )
                 }
             }
@@ -250,8 +273,13 @@ object CodeXPUIManager : CodeXPEventListener, CodeXPListener {
             addMouseMotionListener(object : MouseMotionAdapter() {})
         }
 
-        WindowManager.getInstance()
-            .getIdeFrame(ProjectManager.getInstance().openProjects.firstOrNull())?.component?.rootPane?.layeredPane?.let {
+        WindowManager
+            .getInstance()
+            .getIdeFrame(ProjectManager.getInstance().openProjects.firstOrNull())
+            ?.component
+            ?.rootPane
+            ?.layeredPane
+            ?.let {
                 ide = it
                 ide.add(dialogArea, JLayeredPane.POPUP_LAYER, 0)
             } ?: run {

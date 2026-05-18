@@ -9,7 +9,10 @@ object CodeXPNotificationManager {
     private val notificationGroup: NotificationGroup =
         NotificationGroupManager.getInstance().getNotificationGroup("CodeXP")
 
-    private fun notify(title: String, content: String) {
+    private fun notify(
+        title: String,
+        content: String,
+    ) {
         notificationGroup.createNotification(title, content, NotificationType.INFORMATION).notify(null)
     }
 
@@ -17,10 +20,14 @@ object CodeXPNotificationManager {
         notify("${codeXPChallenge.name} completed!", "Reward: ${codeXPChallenge.rewardXP} XP")
     }
 
-    fun notifyLevelUp(nickname: String, level: Int, xpToNextLevel: Long) {
+    fun notifyLevelUp(
+        nickname: String,
+        level: Int,
+        xpToNextLevel: Long,
+    ) {
         notify(
             "Level up!",
-            "Congratulations $nickname! You are now level $level. You need $xpToNextLevel XP to reach the next level."
+            "Congratulations $nickname! You are now level $level. You need $xpToNextLevel XP to reach the next level.",
         )
     }
 }

@@ -23,5 +23,8 @@ interface CodeXPEventListener {
      * @param event The event that occurred.
      * @param dataContext The data context of the event.
      */
-    fun eventOccurred(event: Event, dataContext: DataContext? = null)
+    fun eventOccurred(
+        event: Event,
+        dataContext: DataContext? = null,
+    )
 }

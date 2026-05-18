@@ -10,21 +10,18 @@ data class CodeXPLevel(
      * Current level.
      */
     val level: Int,
-
     /**
      * XP into the current level.
      */
     val xpIntoCurrentLevel: Long,
-
     /**
      * Progress to the next level.
      */
     val progressPercentage: Int,
-
     /**
      * XP needed to reach the next level.
      */
-    val totalXPForNextLevel: Long
+    val totalXPForNextLevel: Long,
 ) {
     companion object {
         /**
