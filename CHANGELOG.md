@@ -5,13 +5,22 @@
 ## [Unreleased]
 
 ### Added
+- Add contributor documentation, issue templates, pull request template, security policy, and CODEOWNERS.
+- Add focused domain tests for level calculation and challenge definitions.
 
 ### Fixed
+- Fix Kotlin bytecode generation for IntelliJ `ToolWindowFactory` default methods so Plugin Verifier no longer reports internal API usages.
 
 ### Changed
-- Expand the plugin's compatible IDE build versions from `243.*` to `251.*`.
+- Modernize the build to IntelliJ Platform Gradle Plugin 2.x, Kotlin 2.3, Gradle 9, and Java 17 bytecode.
+- Consolidate CI around build, tests, coverage, Plugin Verifier, release drafts, signing, and Marketplace publishing.
+- Restrict Marketplace publishing workflow to the maintainer and a protected deployment environment.
+- Remove repository-tracked local IntelliJ Gradle JDK settings.
+- Expand the plugin's compatible IDE build versions from `243.*` to `261.*`.
 
 ### Removed
+- Remove the obsolete UI test workflow and legacy template service test.
+- Remove stale IntelliJ run configurations for removed UI test and Qodana tasks.
 
 ## [2.0.2] - 2024-12-18
 ### Added
@@ -67,18 +76,18 @@
 - Define events to detect and add challenges for each event
 - Implement notification alert feature for leveling up or completing challenges
 
-[Unreleased]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v2.0.2...HEAD
+[Unreleased]: https://github.com/ByteAurora/intellij-codexp/compare/v2.0.2...HEAD
 
-[2.0.2]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v2.0.1...v2.0.2
+[2.0.2]: https://github.com/ByteAurora/intellij-codexp/compare/v2.0.1...v2.0.2
 
-[2.0.1]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v2.0.0...v2.0.1
+[2.0.1]: https://github.com/ByteAurora/intellij-codexp/compare/v2.0.0...v2.0.1
 
-[2.0.0]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v1.2.1...v2.0.0
+[2.0.0]: https://github.com/ByteAurora/intellij-codexp/compare/v1.2.1...v2.0.0
 
-[1.2.1]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v1.2.0...v1.2.1
+[1.2.1]: https://github.com/ByteAurora/intellij-codexp/compare/v1.2.0...v1.2.1
 
-[1.2.0]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v1.1.0...v1.2.0
+[1.2.0]: https://github.com/ByteAurora/intellij-codexp/compare/v1.1.0...v1.2.0
 
-[1.1.0]: https://github.com/ILoveGameCoding/intellij-codexp/compare/v1.0.0...v1.1.0
+[1.1.0]: https://github.com/ByteAurora/intellij-codexp/compare/v1.0.0...v1.1.0
 
-[1.0.0]: https://github.com/ILoveGameCoding/intellij-codexp/commits/v1.0.0
+[1.0.0]: https://github.com/ByteAurora/intellij-codexp/commits/v1.0.0

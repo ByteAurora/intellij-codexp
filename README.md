@@ -1,6 +1,6 @@
-# <img src="https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/codexp.png" alt="CodeXP" width="32" height="32"/>  CodeXP
+# <img src="https://github.com/ByteAurora/intellij-codexp/blob/main/images/codexp.png" alt="CodeXP" width="32" height="32"/>  CodeXP
 
-![Build](https://github.com/ILoveGameCoding/intellij-codexp/workflows/Build/badge.svg)
+![Build](https://github.com/ByteAurora/intellij-codexp/actions/workflows/ci.yml/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/21896-codexp.svg)](https://plugins.jetbrains.com/plugin/21896-codexp)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/21896-codexp.svg)](https://plugins.jetbrains.com/plugin/21896-codexp)
 
@@ -35,9 +35,15 @@ The CodeXP plugin is designed to gamify your coding experience in IntelliJ IDEs.
 
 - Manually:
 
-  Download the [latest release](https://github.com/ILoveGameCoding/intellij-codexp/releases/latest) and install it
+  Download the [latest release](https://github.com/ByteAurora/intellij-codexp/releases/latest) and install it
   manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+
+<br>
+
+## Contributing
+
+CodeXP is open source and welcomes focused contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, validation commands, and release policy.
 
 <br>
 
@@ -46,19 +52,19 @@ The CodeXP plugin is designed to gamify your coding experience in IntelliJ IDEs.
 Displays the XP gained from tasks related to the keyboard and editor (typing, copying, pasting, cutting, etc.) at the
 caret position.
 
-![Effect](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/gained_xp_effect.gif)
+![Effect](https://github.com/ByteAurora/intellij-codexp/blob/main/images/gained_xp_effect.gif)
 
 <br>
 
 ## Dashboard in Light/Dark Theme
 
 <p float="left">
-  <img src="https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/dashboard_light_1.png" width="400" />
-  <img src="https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/dashboard_light_2.png" width="400" />
+  <img src="https://github.com/ByteAurora/intellij-codexp/blob/main/images/dashboard_light_1.png" width="400" />
+  <img src="https://github.com/ByteAurora/intellij-codexp/blob/main/images/dashboard_light_2.png" width="400" />
 </p>
 <p float="left">
-  <img src="https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/dashboard_dark_1.png" width="400" />
-  <img src="https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/dashboard_dark_2.png" width="400" />
+  <img src="https://github.com/ByteAurora/intellij-codexp/blob/main/images/dashboard_dark_1.png" width="400" />
+  <img src="https://github.com/ByteAurora/intellij-codexp/blob/main/images/dashboard_dark_2.png" width="400" />
 </p>
 
 <br>
@@ -67,11 +73,11 @@ caret position.
 
 Completed challenges are added under the "Completed Challenges" section. Also, more difficult challenges are automatically added after you complete a challenge.
 
-![Completed Challenges](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/completed_challenges.png)
+![Completed Challenges](https://github.com/ByteAurora/intellij-codexp/blob/main/images/completed_challenges.png)
 
 You can toggle the visibility of completed challenges in the CodeXP tool window.
 
-![Toggle Completed Challenges](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/toggle_completed_challenges.gif)
+![Toggle Completed Challenges](https://github.com/ByteAurora/intellij-codexp/blob/main/images/toggle_completed_challenges.gif)
 
 <br>
 
@@ -79,10 +85,10 @@ You can toggle the visibility of completed challenges in the CodeXP tool window.
 Whenever a challenge is completed or a level up occurs, a notification is provided to inform you of the details. You can choose to display the notification as an IntelliJ notification or a CodeXP notification.
 
 #### IntelliJ Notification
-![IntelliJ Notification](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/intellij_notification.jpg)
+![IntelliJ Notification](https://github.com/ByteAurora/intellij-codexp/blob/main/images/intellij_notification.jpg)
 
 #### CodeXP Notification
-![CodeXP Notification](https://github.com/ILoveGameCoding/intellij-codexp/blob/main/images/codexp_notification.png)
+![CodeXP Notification](https://github.com/ByteAurora/intellij-codexp/blob/main/images/codexp_notification.png)
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].
