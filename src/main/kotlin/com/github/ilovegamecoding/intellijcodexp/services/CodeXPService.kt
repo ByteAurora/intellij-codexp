@@ -27,9 +27,11 @@ import com.intellij.util.messages.MessageBusConnection
 @Service(Service.Level.APP)
 @State(
     name = "com.github.ilovegamecoding.intellijcodexp.services.CodeXP",
-    storages = [Storage("CodeXP.xml")]
+    storages = [Storage("CodeXP.xml")],
 )
-class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener {
+class CodeXPService :
+    PersistentStateComponent<CodeXPState>,
+    CodeXPEventListener {
     /**
      * The state of the CodeXP plugin
      */
@@ -54,9 +56,7 @@ class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener
         connection.subscribe(CodeXPEventListener.CODEXP_EVENT, this)
     }
 
-    override fun getState(): CodeXPState {
-        return codeXPState
-    }
+    override fun getState(): CodeXPState = codeXPState
 
     override fun noStateLoaded() {
         super.noStateLoaded()
@@ -68,7 +68,10 @@ class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener
         initialize { }
     }
 
-    override fun eventOccurred(event: Event, dataContext: DataContext?) {
+    override fun eventOccurred(
+        event: Event,
+        dataContext: DataContext?,
+    ) {
         increaseEventCount(event)
         increaseChallengeProgress(event)
     }
@@ -112,7 +115,10 @@ class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener
      * @param event The event to increase the count for.
      * @param incrementValue The amount to increase the count by.
      */
-    private fun increaseEventCount(event: Event, incrementValue: Long = 1) {
+    private fun increaseEventCount(
+        event: Event,
+        incrementValue: Long = 1,
+    ) {
         codeXPState.eventCounts[event] = codeXPState.eventCounts.getOrDefault(event, 0) + incrementValue
         increaseXP(event.xpValue)
     }
@@ -130,15 +136,17 @@ class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener
         if (beforeLevelInfo.level != currentLevelInfo.level && beforeLevelInfo.level != 0 && codeXPState.codeXPConfiguration.showLevelUpNotification) {
             if (codeXPState.codeXPConfiguration.showLevelUpNotification) {
                 when (codeXPState.codeXPConfiguration.notificationType) {
-                    "IntelliJ Notification" ->
+                    "IntelliJ Notification" -> {
                         CodeXPNotificationManager.notifyLevelUp(
                             codeXPState.nickname,
                             currentLevelInfo.level,
-                            currentLevelInfo.totalXPForNextLevel
+                            currentLevelInfo.totalXPForNextLevel,
                         )
+                    }
 
-                    "CodeXP Notification" ->
+                    "CodeXP Notification" -> {
                         messageBus.syncPublisher(CodeXPListener.CODEXP).levelUp(currentLevelInfo)
+                    }
                 }
             }
         }
@@ -161,15 +169,19 @@ class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener
 
                 if (codeXPState.codeXPConfiguration.showCompleteChallengeNotification) {
                     when (codeXPState.codeXPConfiguration.notificationType) {
-                        "IntelliJ Notification" -> CodeXPNotificationManager.notifyChallengeComplete(
-                            challenge
-                        )
+                        "IntelliJ Notification" -> {
+                            CodeXPNotificationManager.notifyChallengeComplete(
+                                challenge,
+                            )
+                        }
 
-                        "CodeXP Notification" ->
+                        "CodeXP Notification" -> {
                             messageBus.syncPublisher(CodeXPListener.CODEXP).challengeCompleted(event, challenge)
+                        }
                     }
                 }
-                messageBus.syncPublisher(CodeXPListener.CODEXP)
+                messageBus
+                    .syncPublisher(CodeXPListener.CODEXP)
                     .challengeUpdated(event, challenge, state.challenges[event])
             } else {
                 messageBus.syncPublisher(CodeXPListener.CODEXP).challengeUpdated(event, challenge, null)
@@ -183,11 +195,15 @@ class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener
      * @param completedChallenge The completed challenge.
      * @param event The type of the completed challenge.
      */
-    private fun replaceChallengeWithNew(completedChallenge: CodeXPChallenge, event: Event) {
+    private fun replaceChallengeWithNew(
+        completedChallenge: CodeXPChallenge,
+        event: Event,
+    ) {
         codeXPState.completedChallenges.add(completedChallenge)
-        codeXPState.challenges[event] = createNextChallenge(
-            completedChallenge
-        )
+        codeXPState.challenges[event] =
+            createNextChallenge(
+                completedChallenge,
+            )
     }
 
     /**
@@ -195,8 +211,8 @@ class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener
      *
      * @param completedChallenge The completed challenge.
      */
-    private fun createNextChallenge(completedChallenge: CodeXPChallenge): CodeXPChallenge {
-        return CodeXPChallenge(
+    private fun createNextChallenge(completedChallenge: CodeXPChallenge): CodeXPChallenge =
+        CodeXPChallenge(
             event = completedChallenge.event,
             name = completedChallenge.name,
             description = completedChallenge.description,
@@ -204,7 +220,6 @@ class CodeXPService : PersistentStateComponent<CodeXPState>, CodeXPEventListener
             rewardXPIncrement = completedChallenge.rewardXPIncrement,
             progress = 0,
             goal = completedChallenge.goal + completedChallenge.goalIncrement,
-            goalIncrement = completedChallenge.goalIncrement
+            goalIncrement = completedChallenge.goalIncrement,
         )
-    }
 }

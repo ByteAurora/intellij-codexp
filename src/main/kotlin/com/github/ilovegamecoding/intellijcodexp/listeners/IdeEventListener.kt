@@ -14,13 +14,20 @@ import com.intellij.openapi.application.ApplicationManager
  * This class listens to events from the IDE and fires them to the message bus.
  */
 internal class IdeEventListener : AnActionListener {
-    override fun afterEditorTyping(c: Char, dataContext: DataContext) {
+    override fun afterEditorTyping(
+        c: Char,
+        dataContext: DataContext,
+    ) {
         super.afterEditorTyping(c, dataContext)
 
         fireEvent(Event.TYPING, dataContext)
     }
 
-    override fun afterActionPerformed(action: AnAction, event: AnActionEvent, result: AnActionResult) {
+    override fun afterActionPerformed(
+        action: AnAction,
+        event: AnActionEvent,
+        result: AnActionResult,
+    ) {
         super.afterActionPerformed(action, event, result)
 
         when (action.templateText) {
@@ -45,8 +52,14 @@ internal class IdeEventListener : AnActionListener {
      * @param event The event to fire.
      * @param dataContext The data context of the event.
      */
-    private fun fireEvent(event: Event, dataContext: DataContext? = null) {
-        ApplicationManager.getApplication().messageBus.syncPublisher(CodeXPEventListener.CODEXP_EVENT)
+    private fun fireEvent(
+        event: Event,
+        dataContext: DataContext? = null,
+    ) {
+        ApplicationManager
+            .getApplication()
+            .messageBus
+            .syncPublisher(CodeXPEventListener.CODEXP_EVENT)
             .eventOccurred(event, dataContext)
     }
 }

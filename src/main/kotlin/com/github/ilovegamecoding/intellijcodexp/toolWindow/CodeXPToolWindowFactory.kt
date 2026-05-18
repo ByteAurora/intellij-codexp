@@ -27,7 +27,6 @@ import javax.swing.JPanel
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
-
 /**
  * CodeXPToolWindowFactory class
  *
@@ -44,7 +43,10 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      */
     private lateinit var codeXPDashboardForm: CodeXPDashboardForm
 
-    override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+    override fun createToolWindowContent(
+        project: Project,
+        toolWindow: ToolWindow,
+    ) {
         // Get the CodeXP service
         codeXPService = ApplicationManager.getApplication().getService(CodeXPService::class.java)
 
@@ -83,19 +85,21 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
     private fun initializeNickname() {
         // Set nickname and listen changes from the text field
         codeXPDashboardForm.tfNickname.text = codeXPService.state.nickname
-        codeXPDashboardForm.tfNickname.document.addDocumentListener(object : DocumentListener {
-            override fun insertUpdate(e: DocumentEvent) {
-                updateNickname()
-            }
+        codeXPDashboardForm.tfNickname.document.addDocumentListener(
+            object : DocumentListener {
+                override fun insertUpdate(e: DocumentEvent) {
+                    updateNickname()
+                }
 
-            override fun removeUpdate(e: DocumentEvent) {
-                updateNickname()
-            }
+                override fun removeUpdate(e: DocumentEvent) {
+                    updateNickname()
+                }
 
-            override fun changedUpdate(e: DocumentEvent) {
-                updateNickname()
-            }
-        })
+                override fun changedUpdate(e: DocumentEvent) {
+                    updateNickname()
+                }
+            },
+        )
     }
 
     /**
@@ -103,13 +107,14 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      */
     private fun initializeEventStatisticsAndChallenges(
         eventStaticForms: HashMap<Event, JPanel>,
-        challengeForms: HashMap<Event, CodeXPChallengeForm>
+        challengeForms: HashMap<Event, CodeXPChallengeForm>,
     ) {
         val gridBagConstraints = GridBagConstraints()
         gridBagConstraints.weightx = 1.0
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL
 
-        Event.values().forEachIndexed { index, event -> // Add ui for each event
+        Event.values().forEachIndexed { index, event ->
+            // Add ui for each event
             if (event != Event.NONE) { // Ignore the NONE event type
                 // Initialize event statistics
                 gridBagConstraints.gridy = index
@@ -153,7 +158,10 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL
 
         codeXPDashboardForm.lblCompletedChallengesCount.text =
-            StringUtil.numberToStringWithCommas(codeXPService.state.completedChallenges.size.toLong())
+            StringUtil.numberToStringWithCommas(
+                codeXPService.state.completedChallenges.size
+                    .toLong(),
+            )
 
         if (codeXPService.state.showCompletedChallenges) {
             updateCompletedChallenges()
@@ -180,57 +188,76 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      */
     private fun initializeConnection(
         eventStaticForms: HashMap<Event, JPanel>,
-        challengeForms: HashMap<Event, CodeXPChallengeForm>
+        challengeForms: HashMap<Event, CodeXPChallengeForm>,
     ) {
         val gridBagConstraints = GridBagConstraints()
         gridBagConstraints.weightx = 1.0
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL
 
         // Update the dashboard when events occur
-        ApplicationManager.getApplication().messageBus.connect()
-            .subscribe(CodeXPEventListener.CODEXP_EVENT, object : CodeXPEventListener {
-                override fun eventOccurred(event: Event, dataContext: DataContext?) {
-                    (eventStaticForms[event]!!.getComponent(2) as JLabel).text =
-                        StringUtil.numberToStringWithCommas(codeXPService.state.getEventCount(event))
-                }
-            })
-
-        ApplicationManager.getApplication().messageBus.connect()
-            .subscribe(CodeXPListener.CODEXP, object : CodeXPListener {
-                override fun xpUpdated(levelInfo: CodeXPLevel) {
-                    updateXPInfo(levelInfo)
-                }
-
-                override fun levelUp(levelInfo: CodeXPLevel) {
-
-                }
-
-                override fun challengeUpdated(
-                    event: Event,
-                    challenge: CodeXPChallenge,
-                    newChallenge: CodeXPChallenge?
-                ) {
-                    if (newChallenge != null) {
-                        codeXPDashboardForm.lblCompletedChallengesCount.text =
-                            StringUtil.numberToStringWithCommas(codeXPService.state.completedChallenges.size.toLong())
-
-                        if (codeXPService.state.showCompletedChallenges) {
-                            gridBagConstraints.gridy = codeXPDashboardForm.pCompletedChallenges.componentCount
-                            codeXPDashboardForm.pCompletedChallenges.add(
-                                createOrUpdateChallengeForm(challenge).pChallenge,
-                                gridBagConstraints
-                            )
-                        }
-                        createOrUpdateChallengeForm(newChallenge, challengeForms[event]!!)
-                    } else {
-                        updateChallengeProgress(challenge, challengeForms[event]!!)
+        ApplicationManager
+            .getApplication()
+            .messageBus
+            .connect()
+            .subscribe(
+                CodeXPEventListener.CODEXP_EVENT,
+                object : CodeXPEventListener {
+                    override fun eventOccurred(
+                        event: Event,
+                        dataContext: DataContext?,
+                    ) {
+                        (eventStaticForms[event]!!.getComponent(2) as JLabel).text =
+                            StringUtil.numberToStringWithCommas(codeXPService.state.getEventCount(event))
                     }
-                }
+                },
+            )
 
-                override fun challengeCompleted(event: Event, challenge: CodeXPChallenge) {
+        ApplicationManager
+            .getApplication()
+            .messageBus
+            .connect()
+            .subscribe(
+                CodeXPListener.CODEXP,
+                object : CodeXPListener {
+                    override fun xpUpdated(levelInfo: CodeXPLevel) {
+                        updateXPInfo(levelInfo)
+                    }
 
-                }
-            })
+                    override fun levelUp(levelInfo: CodeXPLevel) {
+                    }
+
+                    override fun challengeUpdated(
+                        event: Event,
+                        challenge: CodeXPChallenge,
+                        newChallenge: CodeXPChallenge?,
+                    ) {
+                        if (newChallenge != null) {
+                            codeXPDashboardForm.lblCompletedChallengesCount.text =
+                                StringUtil.numberToStringWithCommas(
+                                    codeXPService.state.completedChallenges.size
+                                        .toLong(),
+                                )
+
+                            if (codeXPService.state.showCompletedChallenges) {
+                                gridBagConstraints.gridy = codeXPDashboardForm.pCompletedChallenges.componentCount
+                                codeXPDashboardForm.pCompletedChallenges.add(
+                                    createOrUpdateChallengeForm(challenge).pChallenge,
+                                    gridBagConstraints,
+                                )
+                            }
+                            createOrUpdateChallengeForm(newChallenge, challengeForms[event]!!)
+                        } else {
+                            updateChallengeProgress(challenge, challengeForms[event]!!)
+                        }
+                    }
+
+                    override fun challengeCompleted(
+                        event: Event,
+                        challenge: CodeXPChallenge,
+                    ) {
+                    }
+                },
+            )
     }
 
     /**
@@ -268,7 +295,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
             gridBagConstraints.gridy = codeXPDashboardForm.pCompletedChallenges.componentCount
             codeXPDashboardForm.pCompletedChallenges.add(
                 createOrUpdateChallengeForm(completedChallenge).pChallenge,
-                gridBagConstraints
+                gridBagConstraints,
             )
         }
     }
@@ -279,7 +306,10 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      * @param challenge Challenge.
      * @param challengeForm Challenge form.
      */
-    private fun updateChallengeProgress(challenge: CodeXPChallenge, challengeForm: CodeXPChallengeForm) {
+    private fun updateChallengeProgress(
+        challenge: CodeXPChallenge,
+        challengeForm: CodeXPChallengeForm,
+    ) {
         val progressPercentage = ((challenge.progress.toDouble() / challenge.goal) * 100).toInt()
         challengeForm.lblChallengeProgress.text = progressPercentage.toString()
         challengeForm.pbChallengeProgress.value = progressPercentage
@@ -294,7 +324,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      */
     private fun createOrUpdateChallengeForm(
         challenge: CodeXPChallenge,
-        challengeForm: CodeXPChallengeForm? = null
+        challengeForm: CodeXPChallengeForm? = null,
     ): CodeXPChallengeForm {
         val form = challengeForm ?: CodeXPChallengeForm()
 

@@ -13,71 +13,105 @@ object CodeXPChallengeFactory {
      *
      * @return List of default challenges.
      */
-    fun createEventDefaultChallenges(): List<CodeXPChallenge> {
-        return listOf(
+    fun createEventDefaultChallenges(): List<CodeXPChallenge> =
+        listOf(
             createChallenge(
                 event = Event.TYPING,
-                name = "Typing Challenge", description = "Typing [goal] times.",
-                goal = 100, rewardXP = 100, rewardXPIncrement = 200
+                name = "Typing Challenge",
+                description = "Typing [goal] times.",
+                goal = 100,
+                rewardXP = 100,
+                rewardXPIncrement = 200,
             ),
             createChallenge(
                 event = Event.CUT,
-                name = "Cut Challenge", description = "Cut [goal] times.",
-                goal = 10, rewardXP = 100, rewardXPIncrement = 150
+                name = "Cut Challenge",
+                description = "Cut [goal] times.",
+                goal = 10,
+                rewardXP = 100,
+                rewardXPIncrement = 150,
             ),
             createChallenge(
                 event = Event.COPY,
-                name = "Copy Challenge", description = "Copy [goal] times.",
-                goal = 10, rewardXP = 100, rewardXPIncrement = 150
+                name = "Copy Challenge",
+                description = "Copy [goal] times.",
+                goal = 10,
+                rewardXP = 100,
+                rewardXPIncrement = 150,
             ),
             createChallenge(
                 event = Event.PASTE,
-                name = "Paste Challenge", description = "Paste [goal] times.",
-                goal = 10, rewardXP = 100, rewardXPIncrement = 150
+                name = "Paste Challenge",
+                description = "Paste [goal] times.",
+                goal = 10,
+                rewardXP = 100,
+                rewardXPIncrement = 150,
             ),
             createChallenge(
                 event = Event.BACKSPACE,
-                name = "Backspace Challenge", description = "Press the backspace key [goal] times.",
-                goal = 50, rewardXP = 100, rewardXPIncrement = 150
+                name = "Backspace Challenge",
+                description = "Press the backspace key [goal] times.",
+                goal = 50,
+                rewardXP = 100,
+                rewardXPIncrement = 150,
             ),
             createChallenge(
                 event = Event.TAB,
                 name = "Tab Challenge",
                 description = "Press the tab key [goal] times.",
-                goal = 50, rewardXP = 100, rewardXPIncrement = 150
+                goal = 50,
+                rewardXP = 100,
+                rewardXPIncrement = 150,
             ),
             createChallenge(
                 event = Event.ENTER,
-                name = "Enter Challenge", description = "Press the enter key [goal] times.",
-                goal = 10, rewardXP = 100, rewardXPIncrement = 200
+                name = "Enter Challenge",
+                description = "Press the enter key [goal] times.",
+                goal = 10,
+                rewardXP = 100,
+                rewardXPIncrement = 200,
             ),
             createChallenge(
                 event = Event.SAVE,
-                name = "Save Challenge", description = "Save [goal] times.",
-                goal = 10, rewardXP = 300, rewardXPIncrement = 400
+                name = "Save Challenge",
+                description = "Save [goal] times.",
+                goal = 10,
+                rewardXP = 300,
+                rewardXPIncrement = 400,
             ),
             createChallenge(
                 event = Event.BUILD,
-                name = "Build Challenge", description = "Build [goal] times.",
-                goal = 10, rewardXP = 150, rewardXPIncrement = 200
+                name = "Build Challenge",
+                description = "Build [goal] times.",
+                goal = 10,
+                rewardXP = 150,
+                rewardXPIncrement = 200,
             ),
             createChallenge(
                 event = Event.RUN,
-                name = "Run Challenge", description = "Run [goal] times.",
-                goal = 10, rewardXP = 200, rewardXPIncrement = 250
+                name = "Run Challenge",
+                description = "Run [goal] times.",
+                goal = 10,
+                rewardXP = 200,
+                rewardXPIncrement = 250,
             ),
             createChallenge(
                 event = Event.DEBUG,
-                name = "Debug Challenge", description = "Debug [goal] times.",
-                goal = 10, rewardXP = 300, rewardXPIncrement = 400
+                name = "Debug Challenge",
+                description = "Debug [goal] times.",
+                goal = 10,
+                rewardXP = 300,
+                rewardXPIncrement = 400,
             ),
             createChallenge(
                 event = Event.ACTION,
-                name = "Action Challenge", description = "Perform [goal] actions.",
-                goal = 20, rewardXP = 100, rewardXPIncrement = 120
-            )
+                name = "Action Challenge",
+                description = "Perform [goal] actions.",
+                goal = 20,
+                rewardXP = 100,
+                rewardXPIncrement = 120,
+            ),
         )
-    }
 
     /**
      * Creates a challenge with the given parameters.
@@ -96,9 +130,9 @@ object CodeXPChallengeFactory {
         description: String,
         goal: Long,
         rewardXP: Long,
-        rewardXPIncrement: Long
-    ): CodeXPChallenge {
-        return CodeXPChallenge(
+        rewardXPIncrement: Long,
+    ): CodeXPChallenge =
+        CodeXPChallenge(
             event = event,
             name = name,
             description = description,
@@ -106,7 +140,6 @@ object CodeXPChallengeFactory {
             goal = goal,
             goalIncrement = goal,
             rewardXP = rewardXP,
-            rewardXPIncrement = rewardXPIncrement
+            rewardXPIncrement = rewardXPIncrement,
         )
-    }
 }

@@ -37,12 +37,19 @@ interface CodeXPListener {
      *
      * @param challenge Updated challenge.
      */
-    fun challengeUpdated(event: Event, challenge: CodeXPChallenge, newChallenge: CodeXPChallenge? = null)
+    fun challengeUpdated(
+        event: Event,
+        challenge: CodeXPChallenge,
+        newChallenge: CodeXPChallenge? = null,
+    )
 
     /**
      * Function that is called when challenge completed.
      *
      * @param challenge Completed challenge.
      */
-    fun challengeCompleted(event: Event, challenge: CodeXPChallenge)
+    fun challengeCompleted(
+        event: Event,
+        challenge: CodeXPChallenge,
+    )
 }
