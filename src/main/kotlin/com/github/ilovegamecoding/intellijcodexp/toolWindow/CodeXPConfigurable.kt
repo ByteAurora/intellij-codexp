@@ -1,5 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.toolWindow
 
+import com.github.ilovegamecoding.intellijcodexp.CodeXPBundle
 import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPConfigurationForm
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
@@ -87,5 +88,5 @@ class CodeXPConfigurable : Configurable {
         }
     }
 
-    override fun getDisplayName(): String = "CodeXP"
+    override fun getDisplayName(): String = CodeXPBundle.message("configurable.codexp.display.name")
 }
