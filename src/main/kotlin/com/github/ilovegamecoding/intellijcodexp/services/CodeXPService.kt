@@ -6,9 +6,9 @@ import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPNotificationManager
-import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPUIManager
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPState
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
@@ -16,7 +16,6 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.util.messages.MessageBus
-import com.intellij.util.messages.MessageBusConnection
 
 /**
  * CodeXPService class
@@ -31,7 +30,8 @@ import com.intellij.util.messages.MessageBusConnection
 )
 class CodeXPService :
     PersistentStateComponent<CodeXPState>,
-    CodeXPEventListener {
+    CodeXPEventListener,
+    Disposable {
     /**
      * The state of the CodeXP plugin
      */
@@ -45,15 +45,11 @@ class CodeXPService :
     /**
      * The connection to the message bus
      */
-    private var connection: MessageBusConnection = messageBus.connect()
+    private var connection = messageBus.connect(this)
 
     private val progressEngine = CodeXPProgressEngine()
 
     init {
-        // Call manager to register the UI and notification managers
-        CodeXPUIManager
-        CodeXPNotificationManager
-
         // Connect to the application message bus
         connection.subscribe(CodeXPEventListener.CODEXP_EVENT, this)
     }
@@ -70,11 +66,14 @@ class CodeXPService :
         initialize { }
     }
 
+    override fun dispose() {
+    }
+
     override fun eventOccurred(
         event: Event,
         dataContext: DataContext?,
     ) {
-        handleProgressResult(progressEngine.recordEvent(codeXPState, event))
+        handleProgressResult(progressEngine.recordEvent(codeXPState, event), dataContext)
     }
 
     fun updateNickname(nickname: String) {
@@ -104,7 +103,10 @@ class CodeXPService :
         progressEngine.initialize(codeXPState)
     }
 
-    private fun handleProgressResult(result: CodeXPProgressResult) {
+    private fun handleProgressResult(
+        result: CodeXPProgressResult,
+        dataContext: DataContext?,
+    ) {
         result.xpChanges.forEach { change ->
             if (change.isLevelUp && codeXPState.codeXPConfiguration.showLevelUpNotification) {
                 when (codeXPState.codeXPConfiguration.notificationType) {
@@ -117,7 +119,7 @@ class CodeXPService :
                     }
 
                     "CodeXP Notification" -> {
-                        messageBus.syncPublisher(CodeXPListener.CODEXP).levelUp(change.currentLevelInfo)
+                        messageBus.syncPublisher(CodeXPListener.CODEXP).levelUp(change.currentLevelInfo, dataContext)
                     }
                 }
             }
@@ -135,7 +137,7 @@ class CodeXPService :
                     }
 
                     "CodeXP Notification" -> {
-                        messageBus.syncPublisher(CodeXPListener.CODEXP).challengeCompleted(result.event, challenge)
+                        messageBus.syncPublisher(CodeXPListener.CODEXP).challengeCompleted(result.event, challenge, dataContext)
                     }
                 }
             }
