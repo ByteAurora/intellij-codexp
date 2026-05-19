@@ -113,7 +113,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         gridBagConstraints.weightx = 1.0
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL
 
-        Event.values().forEachIndexed { index, event ->
+        Event.entries.forEachIndexed { index, event ->
             // Add ui for each event
             if (event != Event.NONE) { // Ignore the NONE event type
                 // Initialize event statistics
@@ -169,10 +169,10 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
         codeXPDashboardForm.cbShowCompletedChallenges.isSelected = codeXPService.state.showCompletedChallenges
         codeXPDashboardForm.cbShowCompletedChallenges.addItemListener { e ->
             if (e.stateChange == ItemEvent.SELECTED) {
-                codeXPService.state.showCompletedChallenges = true
+                codeXPService.setCompletedChallengesVisible(true)
                 updateCompletedChallenges()
             } else {
-                codeXPService.state.showCompletedChallenges = false
+                codeXPService.setCompletedChallengesVisible(false)
                 codeXPDashboardForm.pCompletedChallenges.removeAll()
             }
             codeXPDashboardForm.pCompletedChallenges.revalidate()
@@ -264,7 +264,7 @@ class CodeXPToolWindowFactory : ToolWindowFactory {
      * Updates user nickname on the dashboard.
      */
     private fun updateNickname() {
-        codeXPService.state.nickname = codeXPDashboardForm.tfNickname.text
+        codeXPService.updateNickname(codeXPDashboardForm.tfNickname.text)
     }
 
     /**

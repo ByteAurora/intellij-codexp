@@ -1,13 +1,13 @@
 package com.github.ilovegamecoding.intellijcodexp.services
 
+import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPProgressEngine
+import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPProgressResult
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPNotificationManager
 import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPUIManager
-import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
-import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallengeFactory
-import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPState
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -47,6 +47,8 @@ class CodeXPService :
      */
     private var connection: MessageBusConnection = messageBus.connect()
 
+    private val progressEngine = CodeXPProgressEngine()
+
     init {
         // Call manager to register the UI and notification managers
         CodeXPUIManager
@@ -72,8 +74,19 @@ class CodeXPService :
         event: Event,
         dataContext: DataContext?,
     ) {
-        increaseEventCount(event)
-        increaseChallengeProgress(event)
+        handleProgressResult(progressEngine.recordEvent(codeXPState, event))
+    }
+
+    fun updateNickname(nickname: String) {
+        codeXPState.nickname = nickname
+    }
+
+    fun setCompletedChallengesVisible(isVisible: Boolean) {
+        codeXPState.showCompletedChallenges = isVisible
+    }
+
+    fun updateConfiguration(configuration: CodeXPConfiguration) {
+        codeXPState.codeXPConfiguration = configuration
     }
 
     /**
@@ -82,144 +95,56 @@ class CodeXPService :
      * @param initializeCallback The callback to execute when the plugin is initialized.
      */
     private fun initialize(initializeCallback: () -> Unit) {
-        if (!codeXPState.hasExecuted) {
+        val shouldRunCallback = !codeXPState.hasExecuted
+
+        if (shouldRunCallback) {
             initializeCallback()
-            codeXPState.hasExecuted = true
         }
 
-        Event.values().forEach { event ->
-            if (!codeXPState.eventCounts.containsKey(event)) {
-                codeXPState.eventCounts[event] = 0
-            }
-        }
-
-        CodeXPChallengeFactory.createEventDefaultChallenges().forEach { challenge ->
-            addChallenge(challenge)
-        }
+        progressEngine.initialize(codeXPState)
     }
 
-    /**
-     * Add a challenge to the list of challenges.
-     *
-     * @param challenge The challenge to add.
-     */
-    private fun addChallenge(challenge: CodeXPChallenge) {
-        if (!codeXPState.challenges.containsKey(challenge.event)) {
-            codeXPState.challenges[challenge.event] = challenge
-        }
-    }
-
-    /**
-     * Increase the event count for a specific event.
-     *
-     * @param event The event to increase the count for.
-     * @param incrementValue The amount to increase the count by.
-     */
-    private fun increaseEventCount(
-        event: Event,
-        incrementValue: Long = 1,
-    ) {
-        codeXPState.eventCounts[event] = codeXPState.eventCounts.getOrDefault(event, 0) + incrementValue
-        increaseXP(event.xpValue)
-    }
-
-    /**
-     * Increase the user's XP by a specific amount.
-     *
-     * @param incrementAmount The amount to increase the user's XP by.
-     */
-    private fun increaseXP(incrementAmount: Long) {
-        val beforeLevelInfo = CodeXPLevel.createLevelInfo(codeXPState.xp)
-        codeXPState.xp += incrementAmount
-        val currentLevelInfo = CodeXPLevel.createLevelInfo(codeXPState.xp)
-
-        if (beforeLevelInfo.level != currentLevelInfo.level && beforeLevelInfo.level != 0 && codeXPState.codeXPConfiguration.showLevelUpNotification) {
-            if (codeXPState.codeXPConfiguration.showLevelUpNotification) {
+    private fun handleProgressResult(result: CodeXPProgressResult) {
+        result.xpChanges.forEach { change ->
+            if (change.isLevelUp && codeXPState.codeXPConfiguration.showLevelUpNotification) {
                 when (codeXPState.codeXPConfiguration.notificationType) {
                     "IntelliJ Notification" -> {
                         CodeXPNotificationManager.notifyLevelUp(
                             codeXPState.nickname,
-                            currentLevelInfo.level,
-                            currentLevelInfo.totalXPForNextLevel,
+                            change.currentLevelInfo.level,
+                            change.currentLevelInfo.totalXPForNextLevel,
                         )
                     }
 
                     "CodeXP Notification" -> {
-                        messageBus.syncPublisher(CodeXPListener.CODEXP).levelUp(currentLevelInfo)
+                        messageBus.syncPublisher(CodeXPListener.CODEXP).levelUp(change.currentLevelInfo)
+                    }
+                }
+            }
+
+            messageBus.syncPublisher(CodeXPListener.CODEXP).xpUpdated(change.currentLevelInfo)
+        }
+
+        result.completedChallenge?.let { challenge ->
+            if (codeXPState.codeXPConfiguration.showCompleteChallengeNotification) {
+                when (codeXPState.codeXPConfiguration.notificationType) {
+                    "IntelliJ Notification" -> {
+                        CodeXPNotificationManager.notifyChallengeComplete(
+                            challenge,
+                        )
+                    }
+
+                    "CodeXP Notification" -> {
+                        messageBus.syncPublisher(CodeXPListener.CODEXP).challengeCompleted(result.event, challenge)
                     }
                 }
             }
         }
 
-        messageBus.syncPublisher(CodeXPListener.CODEXP).xpUpdated(currentLevelInfo)
-    }
-
-    /**
-     * Increase the progress of a challenge.
-     *
-     * @param event The type of the challenge.
-     */
-    private fun increaseChallengeProgress(event: Event) {
-        codeXPState.challenges[event]?.let { challenge ->
-            challenge.progress += 1
-
-            if (challenge.progress >= challenge.goal) {
-                increaseXP(challenge.rewardXP)
-                replaceChallengeWithNew(challenge, event)
-
-                if (codeXPState.codeXPConfiguration.showCompleteChallengeNotification) {
-                    when (codeXPState.codeXPConfiguration.notificationType) {
-                        "IntelliJ Notification" -> {
-                            CodeXPNotificationManager.notifyChallengeComplete(
-                                challenge,
-                            )
-                        }
-
-                        "CodeXP Notification" -> {
-                            messageBus.syncPublisher(CodeXPListener.CODEXP).challengeCompleted(event, challenge)
-                        }
-                    }
-                }
-                messageBus
-                    .syncPublisher(CodeXPListener.CODEXP)
-                    .challengeUpdated(event, challenge, state.challenges[event])
-            } else {
-                messageBus.syncPublisher(CodeXPListener.CODEXP).challengeUpdated(event, challenge, null)
-            }
+        result.updatedChallenge?.let { challenge ->
+            messageBus
+                .syncPublisher(CodeXPListener.CODEXP)
+                .challengeUpdated(result.event, challenge, result.newChallenge)
         }
     }
-
-    /**
-     * Replace a completed challenge with a new challenge with an increased goal.
-     *
-     * @param completedChallenge The completed challenge.
-     * @param event The type of the completed challenge.
-     */
-    private fun replaceChallengeWithNew(
-        completedChallenge: CodeXPChallenge,
-        event: Event,
-    ) {
-        codeXPState.completedChallenges.add(completedChallenge)
-        codeXPState.challenges[event] =
-            createNextChallenge(
-                completedChallenge,
-            )
-    }
-
-    /**
-     * Create a new challenge with an increased goal.
-     *
-     * @param completedChallenge The completed challenge.
-     */
-    private fun createNextChallenge(completedChallenge: CodeXPChallenge): CodeXPChallenge =
-        CodeXPChallenge(
-            event = completedChallenge.event,
-            name = completedChallenge.name,
-            description = completedChallenge.description,
-            rewardXP = completedChallenge.rewardXP + completedChallenge.rewardXPIncrement,
-            rewardXPIncrement = completedChallenge.rewardXPIncrement,
-            progress = 0,
-            goal = completedChallenge.goal + completedChallenge.goalIncrement,
-            goalIncrement = completedChallenge.goalIncrement,
-        )
 }
