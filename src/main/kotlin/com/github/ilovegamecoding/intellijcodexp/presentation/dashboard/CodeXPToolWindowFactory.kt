@@ -1,4 +1,4 @@
-package com.github.ilovegamecoding.intellijcodexp.toolWindow
+package com.github.ilovegamecoding.intellijcodexp.presentation.dashboard
 
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPChallengeForm

@@ -5,9 +5,9 @@ import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPProgressResult
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
-import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPNotificationManager
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPState
+import com.github.ilovegamecoding.intellijcodexp.presentation.notification.CodeXPNotificationNotifier
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -111,7 +111,7 @@ class CodeXPService :
             if (change.isLevelUp && codeXPState.codeXPConfiguration.showLevelUpNotification) {
                 when (codeXPState.codeXPConfiguration.notificationType) {
                     "IntelliJ Notification" -> {
-                        CodeXPNotificationManager.notifyLevelUp(
+                        CodeXPNotificationNotifier.notifyLevelUp(
                             codeXPState.nickname,
                             change.currentLevelInfo.level,
                             change.currentLevelInfo.totalXPForNextLevel,
@@ -131,7 +131,7 @@ class CodeXPService :
             if (codeXPState.codeXPConfiguration.showCompleteChallengeNotification) {
                 when (codeXPState.codeXPConfiguration.notificationType) {
                     "IntelliJ Notification" -> {
-                        CodeXPNotificationManager.notifyChallengeComplete(
+                        CodeXPNotificationNotifier.notifyChallengeComplete(
                             challenge,
                         )
                     }

@@ -11,14 +11,14 @@
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity
                 implementation="com.github.ilovegamecoding.intellijcodexp.activities.CodeXPStartupActivity"/>
-        <toolWindow factoryClass="com.github.ilovegamecoding.intellijcodexp.toolWindow.CodeXPToolWindowFactory"
+        <toolWindow factoryClass="com.github.ilovegamecoding.intellijcodexp.presentation.dashboard.CodeXPToolWindowFactory"
                     anchor="right"
                     id="CodeXP Dashboard" icon="/icons/toolWindowIcon.svg"/>
         <notificationGroup displayType="BALLOON" id="CodeXP"
                            bundle="messages.CodeXPBundle"
                            key="notification.group.codexp"/>
         <applicationConfigurable parentId="tools"
-                                 instance="com.github.ilovegamecoding.intellijcodexp.toolWindow.CodeXPConfigurable"
+                                 instance="com.github.ilovegamecoding.intellijcodexp.presentation.settings.CodeXPConfigurable"
                                  bundle="messages.CodeXPBundle"
                                  key="configurable.codexp.display.name"/>
     </extensions>

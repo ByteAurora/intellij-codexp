@@ -8,7 +8,6 @@ import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
 import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
-import com.github.ilovegamecoding.intellijcodexp.views.CodeXPDialog
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
@@ -48,7 +47,7 @@ class CodeXPOverlayController(
             .getService(CodeXPService::class.java)
 
     private val fadingLabels: MutableMap<JComponent, FadingLabel> = mutableMapOf()
-    private val dialogTimers: MutableMap<CodeXPDialog, Timer> = mutableMapOf()
+    private val dialogTimers: MutableMap<CodeXPOverlayDialog, Timer> = mutableMapOf()
     private val dialogDuration: Int = 4000
     private var ide: JLayeredPane? = null
     private var dialogArea: JPanel? = null
@@ -88,7 +87,7 @@ class CodeXPOverlayController(
         }
 
         showDialog(
-            CodeXPDialog.createDialog(
+            CodeXPOverlayDialog.createDialog(
                 "Level Up!",
                 "Congratulations! You are now level ${StringUtil.numberToStringWithCommas(levelInfo.level.toLong())}!",
                 "XP to next level: ${StringUtil.numberToStringWithCommas(levelInfo.totalXPForNextLevel)} xp",
@@ -113,7 +112,7 @@ class CodeXPOverlayController(
         }
 
         showDialog(
-            CodeXPDialog.createDialog(
+            CodeXPOverlayDialog.createDialog(
                 "Challenge Completed!",
                 "Congratulations! You have completed ${challenge.name.lowercase()}!",
                 "XP earned: ${StringUtil.numberToStringWithCommas(challenge.rewardXP)} xp",
@@ -257,7 +256,7 @@ class CodeXPOverlayController(
         layeredPane.add(area, JLayeredPane.POPUP_LAYER, 0)
     }
 
-    private fun showDialog(dialog: CodeXPDialog) {
+    private fun showDialog(dialog: CodeXPOverlayDialog) {
         val area = dialogArea ?: return
         val layeredPane = ide ?: return
 
@@ -280,7 +279,7 @@ class CodeXPOverlayController(
         }
     }
 
-    private fun hideDialog(dialog: CodeXPDialog) {
+    private fun hideDialog(dialog: CodeXPOverlayDialog) {
         SwingUtilities.invokeLater {
             val area = dialogArea ?: return@invokeLater
             dialogTimers.remove(dialog)?.stop()

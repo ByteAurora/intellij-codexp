@@ -1,4 +1,4 @@
-package com.github.ilovegamecoding.intellijcodexp.views
+package com.github.ilovegamecoding.intellijcodexp.presentation.overlay
 
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
@@ -16,11 +16,11 @@ import javax.swing.SwingUtilities
 import javax.swing.Timer
 
 /**
- * CodeXPDialog class
+ * CodeXPOverlayDialog class
  *
- * This class is used to create a dialog that is shown in the dialog area.
+ * This class is used to create a dialog that is shown in the overlay area.
  */
-class CodeXPDialog(
+class CodeXPOverlayDialog(
     /**
      * Dialog title.
      */
@@ -143,7 +143,7 @@ class CodeXPDialog(
             title: String = "",
             mainDescription: String = "",
             subDescription: String = "",
-        ): CodeXPDialog = CodeXPDialog(title, mainDescription, subDescription)
+        ): CodeXPOverlayDialog = CodeXPOverlayDialog(title, mainDescription, subDescription)
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.github.ilovegamecoding.intellijcodexp.toolWindow
+package com.github.ilovegamecoding.intellijcodexp.presentation.settings
 
 import com.github.ilovegamecoding.intellijcodexp.CodeXPBundle
 import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
