@@ -31,18 +31,18 @@ internal class IdeEventListener : AnActionListener {
         super.afterActionPerformed(action, event, result)
 
         when (action.templateText) {
-            "Run" -> fireEvent(Event.RUN)
-            "Save All" -> fireEvent(Event.SAVE)
-            "Debug" -> fireEvent(Event.DEBUG)
-            "Build Project" -> fireEvent(Event.BUILD)
-            "Rebuild Project" -> fireEvent(Event.BUILD)
+            "Run" -> fireEvent(Event.RUN, event.dataContext)
+            "Save All" -> fireEvent(Event.SAVE, event.dataContext)
+            "Debug" -> fireEvent(Event.DEBUG, event.dataContext)
+            "Build Project" -> fireEvent(Event.BUILD, event.dataContext)
+            "Rebuild Project" -> fireEvent(Event.BUILD, event.dataContext)
             "Cut" -> fireEvent(Event.CUT, event.dataContext)
             "Copy" -> fireEvent(Event.COPY, event.dataContext)
             "Paste" -> fireEvent(Event.PASTE, event.dataContext)
             "Backspace" -> fireEvent(Event.BACKSPACE, event.dataContext)
             "Tab" -> fireEvent(Event.TAB, event.dataContext)
             "Enter" -> fireEvent(Event.ENTER, event.dataContext)
-            else -> fireEvent(Event.ACTION)
+            else -> fireEvent(Event.ACTION, event.dataContext)
         }
     }
 

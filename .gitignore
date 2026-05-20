@@ -18,6 +18,15 @@ local.properties
 .env.*
 !.env.example
 
+# Local AI assistant files
+.codex/
+.claude/
+.cursor/
+.windsurf/
+.continue/
+.aider*
+.ai/
+
 secrets/
 .codexp-signing/
 *.pem

@@ -1,7 +1,9 @@
-package com.github.ilovegamecoding.intellijcodexp.toolWindow
+package com.github.ilovegamecoding.intellijcodexp.presentation.settings
 
+import com.github.ilovegamecoding.intellijcodexp.CodeXPBundle
 import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPConfigurationForm
+import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.options.Configurable
@@ -21,13 +23,14 @@ class CodeXPConfigurable : Configurable {
     /**
      * CodeXP service.
      */
-    private val config =
+    private val codeXPService =
         ApplicationManager
             .getApplication()
             .getService(CodeXPService::class.java)
-            .state.codeXPConfiguration
 
     override fun createComponent(): JComponent? {
+        val config = codeXPService.state.codeXPConfiguration
+
         // Create the configuration form and set the values to the current configuration.
         codeXPConfigurationForm =
             CodeXPConfigurationForm().apply {
@@ -43,8 +46,7 @@ class CodeXPConfigurable : Configurable {
                 cbShowLevelUpNotification.isSelected = config.showLevelUpNotification
                 cbShowCompleteChallengeNotification.isSelected = config.showCompleteChallengeNotification
                 cbShowGainedXP.isSelected = config.showGainedXP
-                PositionToDisplayGainedXP
-                    .values()
+                PositionToDisplayGainedXP.entries
                     .map { it.name }
                     .forEach { cbPositionToDisplayGainedXP.addItem(it) }
                 cbPositionToDisplayGainedXP.isEnabled = config.showGainedXP
@@ -55,6 +57,8 @@ class CodeXPConfigurable : Configurable {
 
     override fun isModified(): Boolean =
         with(codeXPConfigurationForm) {
+            val config = codeXPService.state.codeXPConfiguration
+
             if (cbNotificationType.selectedItem == "IntelliJ Notification") {
                 lblTypeDescription.text =
                     "Default notification will appear in the bottom-right of the IDE and IDE notification tool window."
@@ -71,14 +75,18 @@ class CodeXPConfigurable : Configurable {
 
     override fun apply() {
         with(codeXPConfigurationForm) {
-            config.notificationType = cbNotificationType.selectedItem as String
-            config.showLevelUpNotification = cbShowLevelUpNotification.isSelected
-            config.showCompleteChallengeNotification = cbShowCompleteChallengeNotification.isSelected
-            config.showGainedXP = cbShowGainedXP.isSelected
-            config.positionToDisplayGainedXP =
-                PositionToDisplayGainedXP.valueOf(cbPositionToDisplayGainedXP.selectedItem as String)
+            codeXPService.updateConfiguration(
+                CodeXPConfiguration(
+                    notificationType = cbNotificationType.selectedItem as String,
+                    showLevelUpNotification = cbShowLevelUpNotification.isSelected,
+                    showCompleteChallengeNotification = cbShowCompleteChallengeNotification.isSelected,
+                    showGainedXP = cbShowGainedXP.isSelected,
+                    positionToDisplayGainedXP =
+                        PositionToDisplayGainedXP.valueOf(cbPositionToDisplayGainedXP.selectedItem as String),
+                ),
+            )
         }
     }
 
-    override fun getDisplayName(): String = "CodeXP"
+    override fun getDisplayName(): String = CodeXPBundle.message("configurable.codexp.display.name")
 }

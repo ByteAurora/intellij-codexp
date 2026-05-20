@@ -1,11 +1,11 @@
-package com.github.ilovegamecoding.intellijcodexp.managers
+package com.github.ilovegamecoding.intellijcodexp.presentation.notification
 
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 
-object CodeXPNotificationManager {
+object CodeXPNotificationNotifier {
     private val notificationGroup: NotificationGroup =
         NotificationGroupManager.getInstance().getNotificationGroup("CodeXP")
 
