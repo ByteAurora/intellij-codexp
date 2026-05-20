@@ -5,7 +5,6 @@ import javax.swing.*;
 public class CodeXPConfigurationForm {
     public JCheckBox cbShowCompleteChallengeNotification;
     public JCheckBox cbShowLevelUpNotification;
-    public JCheckBox cbShowCompletedChallenges;
     public JPanel pMain;
     public JCheckBox cbShowGainedXP;
     public JComboBox cbPositionToDisplayGainedXP;

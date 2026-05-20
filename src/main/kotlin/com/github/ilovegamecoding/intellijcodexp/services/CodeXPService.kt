@@ -58,12 +58,12 @@ class CodeXPService :
 
     override fun noStateLoaded() {
         super.noStateLoaded()
-        initialize { }
+        initialize()
     }
 
     override fun loadState(codeXPState: CodeXPState) {
         this.codeXPState = codeXPState
-        initialize { }
+        initialize()
     }
 
     override fun dispose() {
@@ -90,16 +90,8 @@ class CodeXPService :
 
     /**
      * Initialize the plugin.
-     *
-     * @param initializeCallback The callback to execute when the plugin is initialized.
      */
-    private fun initialize(initializeCallback: () -> Unit) {
-        val shouldRunCallback = !codeXPState.hasExecuted
-
-        if (shouldRunCallback) {
-            initializeCallback()
-        }
-
+    private fun initialize() {
         progressEngine.initialize(codeXPState)
     }
 

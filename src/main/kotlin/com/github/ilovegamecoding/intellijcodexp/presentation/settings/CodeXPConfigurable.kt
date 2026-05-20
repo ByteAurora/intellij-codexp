@@ -16,7 +16,7 @@ class CodeXPConfigurable : Configurable {
     /**
      * CodeXP configuration form.
      */
-    private lateinit var codeXPConfigurationForm: CodeXPConfigurationForm
+    private var codeXPConfigurationForm: CodeXPConfigurationForm? = null
 
     /**
      * CodeXP service.
@@ -29,7 +29,7 @@ class CodeXPConfigurable : Configurable {
     override fun createComponent(): JComponent? {
         val config = codeXPService.state.codeXPConfiguration
 
-        codeXPConfigurationForm =
+        val form =
             CodeXPConfigurationForm().apply {
                 CodeXPNotificationUiOptions.values.forEach(cbNotificationType::addItem)
                 cbNotificationType.selectedItem = config.notificationType
@@ -43,13 +43,14 @@ class CodeXPConfigurable : Configurable {
                 cbPositionToDisplayGainedXP.selectedItem = config.positionToDisplayGainedXP.name
                 cbNotificationType.addActionListener { updateDerivedUiState() }
                 cbShowGainedXP.addActionListener { updateDerivedUiState() }
-                updateDerivedUiState()
             }
-        return codeXPConfigurationForm.pMain
+        codeXPConfigurationForm = form
+        updateDerivedUiState()
+        return form.pMain
     }
 
     override fun isModified(): Boolean =
-        with(codeXPConfigurationForm) {
+        with(codeXPConfigurationForm ?: return false) {
             val config = codeXPService.state.codeXPConfiguration
 
             updateDerivedUiState()
@@ -61,7 +62,7 @@ class CodeXPConfigurable : Configurable {
         }
 
     override fun apply() {
-        with(codeXPConfigurationForm) {
+        with(codeXPConfigurationForm ?: return) {
             codeXPService.updateConfiguration(
                 CodeXPConfiguration(
                     notificationType = cbNotificationType.selectedItem as String,
@@ -77,8 +78,12 @@ class CodeXPConfigurable : Configurable {
 
     override fun getDisplayName(): String = CodeXPBundle.message("configurable.codexp.display.name")
 
+    override fun disposeUIResources() {
+        codeXPConfigurationForm = null
+    }
+
     private fun updateDerivedUiState() {
-        with(codeXPConfigurationForm) {
+        with(codeXPConfigurationForm ?: return) {
             lblTypeDescription.text =
                 CodeXPNotificationUiOptions.descriptionFor(cbNotificationType.selectedItem as String)
             cbPositionToDisplayGainedXP.isEnabled = cbShowGainedXP.isSelected

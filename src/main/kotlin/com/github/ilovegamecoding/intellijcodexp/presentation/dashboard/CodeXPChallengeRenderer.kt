@@ -22,7 +22,6 @@ internal object CodeXPChallengeRenderer {
         challengeForm: CodeXPChallengeForm,
     ): CodeXPChallengeForm {
         with(challengeForm) {
-            challengeID = challenge.id
             pChallenge.border = BorderFactory.createEmptyBorder(16, 32, 0, 32)
             lblChallengeName.text = challenge.name
             lblChallengeReward.text = StringUtil.numberToStringWithCommas(challenge.rewardXP)
