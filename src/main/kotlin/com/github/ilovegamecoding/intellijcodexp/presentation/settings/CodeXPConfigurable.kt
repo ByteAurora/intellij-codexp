@@ -10,9 +10,7 @@ import com.intellij.openapi.options.Configurable
 import javax.swing.JComponent
 
 /**
- * CodeXPConfigurable class
- *
- * CodeXPConfigurable is the class that is used to create the configuration window for the plugin.
+ * Creates and applies the CodeXP settings UI.
  */
 class CodeXPConfigurable : Configurable {
     /**
@@ -31,18 +29,10 @@ class CodeXPConfigurable : Configurable {
     override fun createComponent(): JComponent? {
         val config = codeXPService.state.codeXPConfiguration
 
-        // Create the configuration form and set the values to the current configuration.
         codeXPConfigurationForm =
             CodeXPConfigurationForm().apply {
-                cbNotificationType.addItem("IntelliJ Notification")
-                cbNotificationType.addItem("CodeXP Notification")
+                CodeXPNotificationUiOptions.values.forEach(cbNotificationType::addItem)
                 cbNotificationType.selectedItem = config.notificationType
-                if (cbNotificationType.selectedItem == "IntelliJ Notification") {
-                    lblTypeDescription.text =
-                        "Default notification will appear in the bottom-right of the IDE and IDE notification tool window."
-                } else {
-                    lblTypeDescription.text = "Customized notification will appear in the top-center of the IDE."
-                }
                 cbShowLevelUpNotification.isSelected = config.showLevelUpNotification
                 cbShowCompleteChallengeNotification.isSelected = config.showCompleteChallengeNotification
                 cbShowGainedXP.isSelected = config.showGainedXP
@@ -51,6 +41,9 @@ class CodeXPConfigurable : Configurable {
                     .forEach { cbPositionToDisplayGainedXP.addItem(it) }
                 cbPositionToDisplayGainedXP.isEnabled = config.showGainedXP
                 cbPositionToDisplayGainedXP.selectedItem = config.positionToDisplayGainedXP.name
+                cbNotificationType.addActionListener { updateDerivedUiState() }
+                cbShowGainedXP.addActionListener { updateDerivedUiState() }
+                updateDerivedUiState()
             }
         return codeXPConfigurationForm.pMain
     }
@@ -59,13 +52,7 @@ class CodeXPConfigurable : Configurable {
         with(codeXPConfigurationForm) {
             val config = codeXPService.state.codeXPConfiguration
 
-            if (cbNotificationType.selectedItem == "IntelliJ Notification") {
-                lblTypeDescription.text =
-                    "Default notification will appear in the bottom-right of the IDE and IDE notification tool window."
-            } else {
-                lblTypeDescription.text = "Customized notification will appear in the top-center of the IDE."
-            }
-            cbPositionToDisplayGainedXP.isEnabled = cbShowGainedXP.isSelected
+            updateDerivedUiState()
             cbNotificationType.selectedItem != config.notificationType ||
                 cbShowLevelUpNotification.isSelected != config.showLevelUpNotification ||
                 cbShowCompleteChallengeNotification.isSelected != config.showCompleteChallengeNotification ||
@@ -89,4 +76,12 @@ class CodeXPConfigurable : Configurable {
     }
 
     override fun getDisplayName(): String = CodeXPBundle.message("configurable.codexp.display.name")
+
+    private fun updateDerivedUiState() {
+        with(codeXPConfigurationForm) {
+            lblTypeDescription.text =
+                CodeXPNotificationUiOptions.descriptionFor(cbNotificationType.selectedItem as String)
+            cbPositionToDisplayGainedXP.isEnabled = cbShowGainedXP.isSelected
+        }
+    }
 }
