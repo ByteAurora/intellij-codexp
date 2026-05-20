@@ -1,10 +1,10 @@
 package com.github.ilovegamecoding.intellijcodexp.presentation.overlay
 
+import com.github.ilovegamecoding.intellijcodexp.CodeXPBundle
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
-import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
 import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
@@ -19,18 +19,14 @@ import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.JBColor
 import java.awt.Color
 import java.awt.Dimension
-import java.awt.Font
 import java.awt.Point
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseMotionAdapter
 import javax.swing.BoxLayout
-import javax.swing.JComponent
-import javax.swing.JLabel
 import javax.swing.JLayeredPane
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import javax.swing.Timer
-import kotlin.math.max
 
 /**
  * Displays CodeXP overlay effects for a single project window.
@@ -46,7 +42,7 @@ class CodeXPOverlayController(
             .getApplication()
             .getService(CodeXPService::class.java)
 
-    private val fadingLabels: MutableMap<JComponent, FadingLabel> = mutableMapOf()
+    private val xpGainEffectRenderer = XpGainEffectRenderer()
     private val dialogTimers: MutableMap<CodeXPOverlayDialog, Timer> = mutableMapOf()
     private val dialogDuration: Int = 4000
     private var ide: JLayeredPane? = null
@@ -68,11 +64,12 @@ class CodeXPOverlayController(
         event: Event,
         dataContext: DataContext?,
     ) {
-        if (!belongsToProject(dataContext)) {
+        val context = dataContext ?: return
+        if (!belongsToProject(context)) {
             return
         }
 
-        displayXPLabel(event, dataContext)
+        xpGainEffectRenderer.render(event, context, codeXPService.state.codeXPConfiguration)
     }
 
     override fun xpUpdated(levelInfo: CodeXPLevel) {
@@ -88,9 +85,15 @@ class CodeXPOverlayController(
 
         showDialog(
             CodeXPOverlayDialog.createDialog(
-                "Level Up!",
-                "Congratulations! You are now level ${StringUtil.numberToStringWithCommas(levelInfo.level.toLong())}!",
-                "XP to next level: ${StringUtil.numberToStringWithCommas(levelInfo.totalXPForNextLevel)} xp",
+                CodeXPBundle.message("overlay.level.up.title"),
+                CodeXPBundle.message(
+                    "overlay.level.up.main",
+                    StringUtil.numberToStringWithCommas(levelInfo.level.toLong()),
+                ),
+                CodeXPBundle.message(
+                    "overlay.level.up.sub",
+                    StringUtil.numberToStringWithCommas(levelInfo.totalXPForNextLevel),
+                ),
             ),
         )
     }
@@ -113,9 +116,12 @@ class CodeXPOverlayController(
 
         showDialog(
             CodeXPOverlayDialog.createDialog(
-                "Challenge Completed!",
-                "Congratulations! You have completed ${challenge.name.lowercase()}!",
-                "XP earned: ${StringUtil.numberToStringWithCommas(challenge.rewardXP)} xp",
+                CodeXPBundle.message("overlay.challenge.completed.title"),
+                CodeXPBundle.message("overlay.challenge.completed.main", challenge.name.lowercase()),
+                CodeXPBundle.message(
+                    "overlay.challenge.completed.sub",
+                    StringUtil.numberToStringWithCommas(challenge.rewardXP),
+                ),
             ),
         )
     }
@@ -142,13 +148,7 @@ class CodeXPOverlayController(
     }
 
     private fun disposeUi() {
-        fadingLabels.forEach { (component, fadingLabel) ->
-            fadingLabel.cancelFadeOut()
-            component.remove(fadingLabel)
-            component.revalidate()
-            component.repaint()
-        }
-        fadingLabels.clear()
+        xpGainEffectRenderer.dispose()
         dialogArea?.let { area ->
             area.removeAll()
             ide?.remove(area)
@@ -157,73 +157,6 @@ class CodeXPOverlayController(
         }
         dialogArea = null
         ide = null
-    }
-
-    private fun displayXPLabel(
-        event: Event,
-        dataContext: DataContext?,
-    ) {
-        dataContext ?: return
-
-        val codeXPConfiguration = codeXPService.state.codeXPConfiguration
-        if (!codeXPConfiguration.showGainedXP) {
-            return
-        }
-
-        val editor = CommonDataKeys.EDITOR.getData(dataContext) ?: return
-        val component = editor.contentComponent
-        val previousValue =
-            fadingLabels.remove(component)?.let { fadingLabel ->
-                fadingLabel.cancelFadeOut()
-                component.remove(fadingLabel)
-                component.revalidate()
-                component.repaint()
-                fadingLabel.value
-            } ?: 0
-
-        val caretModel = editor.caretModel
-        val fadingLabelPosition = editor.visualPositionToXY(caretModel.visualPosition)
-        val caretHeight = editor.lineHeight
-        val newFadingLabel =
-            FadingLabel(previousValue + event.xpValue.toInt()).apply {
-                font = Font(font.fontName, Font.BOLD, editor.colorsScheme.editorFontSize)
-                size = preferredSize
-                location =
-                    calculateLabelLocation(
-                        config = codeXPConfiguration,
-                        point = fadingLabelPosition,
-                        caretHeight = caretHeight,
-                        labelWidth = preferredSize.width,
-                    )
-                startFadeOut()
-            }
-
-        fadingLabels[component] = newFadingLabel
-
-        with(component) {
-            add(newFadingLabel)
-            revalidate()
-            repaint()
-        }
-    }
-
-    private fun calculateLabelLocation(
-        config: CodeXPConfiguration,
-        point: Point,
-        caretHeight: Int,
-        labelWidth: Int,
-    ): Point {
-        val location = Point(point)
-        with(config.positionToDisplayGainedXP) {
-            val xOffset =
-                when {
-                    name.contains("LEFT") -> -labelWidth
-                    name.contains("RIGHT") -> 0
-                    else -> -labelWidth / 2
-                }
-            location.translate((x * 4) + xOffset, y * (caretHeight / 2))
-        }
-        return location
     }
 
     private fun createDialogArea() {
@@ -293,68 +226,6 @@ class CodeXPOverlayController(
             if (area.components.isEmpty()) {
                 area.isVisible = false
             }
-        }
-    }
-
-    /**
-     * Label that fades out after displaying gained XP beside an editor caret.
-     */
-    internal class FadingLabel(
-        initialValue: Int,
-    ) : JLabel(if (initialValue == 0) "0 xp" else "+$initialValue XP") {
-        private var timer: Timer? = null
-
-        /**
-         * Current XP value displayed by this label.
-         */
-        var value: Int = initialValue
-            set(newValue) {
-                field = newValue
-                text = if (newValue == 0) "0 xp" else "+$newValue xp"
-                if (newValue == 0) {
-                    timer?.stop()
-                }
-            }
-
-        /**
-         * Starts the fade-out animation.
-         */
-        fun startFadeOut() {
-            timer =
-                Timer(100, null).apply {
-                    addActionListener {
-                        val newAlpha = max(foreground.alpha - 255 / 10, 0)
-                        if (newAlpha <= 0) {
-                            stop()
-                            value = 0
-                        } else {
-                            foreground =
-                                JBColor(
-                                    Color(
-                                        JBColor.foreground().red,
-                                        JBColor.foreground().green,
-                                        JBColor.foreground().blue,
-                                        newAlpha,
-                                    ),
-                                    Color(
-                                        JBColor.foreground().red,
-                                        JBColor.foreground().green,
-                                        JBColor.foreground().blue,
-                                        newAlpha,
-                                    ),
-                                )
-                        }
-                    }
-                    start()
-                }
-        }
-
-        /**
-         * Stops the fade-out animation.
-         */
-        fun cancelFadeOut() {
-            timer?.stop()
-            timer = null
         }
     }
 }
