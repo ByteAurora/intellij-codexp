@@ -3,7 +3,7 @@ junit = "4.13.2"
 
 changelog = "2.5.0"
 intellijPlatform = "2.16.0"
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 kover = "0.9.8"
 ktlint = "1.8.0"
 ktlintGradle = "14.2.0"
