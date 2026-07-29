@@ -2,7 +2,6 @@ package com.github.ilovegamecoding.intellijcodexp.presentation.dashboard
 
 import com.github.ilovegamecoding.intellijcodexp.form.CodeXPChallengeForm
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
-import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
 import javax.swing.BorderFactory
 
 /**
@@ -21,14 +20,15 @@ internal object CodeXPChallengeRenderer {
         challenge: CodeXPChallenge,
         challengeForm: CodeXPChallengeForm,
     ): CodeXPChallengeForm {
+        val viewModel = CodeXPDashboardViewModels.challenge(challenge)
+
         with(challengeForm) {
             pChallenge.border = BorderFactory.createEmptyBorder(16, 32, 0, 32)
-            lblChallengeName.text = challenge.name
-            lblChallengeReward.text = StringUtil.numberToStringWithCommas(challenge.rewardXP)
-            lblChallengeDescription.text =
-                challenge.description.replace("[goal]", StringUtil.numberToStringWithCommas(challenge.goal))
+            lblChallengeName.text = viewModel.name
+            lblChallengeReward.text = viewModel.rewardXP
+            lblChallengeDescription.text = viewModel.description
 
-            if (challenge.progress >= challenge.goal) {
+            if (viewModel.isCompleted) {
                 lblChallengeProgress.isVisible = false
                 pbChallengeProgress.isVisible = false
                 lblChallengePercentageIcon.isVisible = false
@@ -49,8 +49,8 @@ internal object CodeXPChallengeRenderer {
         challenge: CodeXPChallenge,
         challengeForm: CodeXPChallengeForm,
     ) {
-        val progressPercentage = ((challenge.progress.toDouble() / challenge.goal) * 100).toInt()
-        challengeForm.lblChallengeProgress.text = progressPercentage.toString()
-        challengeForm.pbChallengeProgress.value = progressPercentage
+        val viewModel = CodeXPDashboardViewModels.challenge(challenge)
+        challengeForm.lblChallengeProgress.text = viewModel.progressPercentage.toString()
+        challengeForm.pbChallengeProgress.value = viewModel.progressPercentage
     }
 }

@@ -8,7 +8,6 @@ import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
-import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -95,12 +94,11 @@ internal class CodeXPDashboardController(
 
     private fun initializeCompletedChallenges() {
         dashboardForm.lblCompletedChallengesCount.text =
-            StringUtil.numberToStringWithCommas(
+            CodeXPDashboardViewModels.completedChallengeCount(
                 codeXPService
                     .state
                     .completedChallenges
-                    .size
-                    .toLong(),
+                    .size,
             )
         dashboardForm.cbShowCompletedChallenges.isSelected = codeXPService.state.showCompletedChallenges
 
@@ -194,15 +192,15 @@ internal class CodeXPDashboardController(
     }
 
     private fun updateXPInfo(levelInfo: CodeXPLevel) {
-        val (currentLevel, xpIntoCurrentLevel, progressToNextLevel) = levelInfo
+        val levelSummary = CodeXPDashboardViewModels.levelSummary(codeXPService.state.xp, levelInfo)
 
-        dashboardForm.lblTotalXP.text = StringUtil.numberToStringWithCommas(codeXPService.state.xp)
-        dashboardForm.lblCurrentLevel.text = StringUtil.numberToStringWithCommas(currentLevel.toLong())
-        dashboardForm.lblNextLevel.text = StringUtil.numberToStringWithCommas((currentLevel + 1).toLong())
-        dashboardForm.lblCurrentLevelXP.text = StringUtil.numberToStringWithCommas(xpIntoCurrentLevel)
-        dashboardForm.pbCurrentLevelProgress.value = progressToNextLevel
-        dashboardForm.pbCurrentLevelProgress.string = "$progressToNextLevel %"
-        dashboardForm.lblLevel.text = StringUtil.numberToStringWithCommas(currentLevel.toLong())
+        dashboardForm.lblTotalXP.text = levelSummary.totalXP
+        dashboardForm.lblCurrentLevel.text = levelSummary.currentLevel
+        dashboardForm.lblNextLevel.text = levelSummary.nextLevel
+        dashboardForm.lblCurrentLevelXP.text = levelSummary.currentLevelXP
+        dashboardForm.pbCurrentLevelProgress.value = levelSummary.progressToNextLevel
+        dashboardForm.pbCurrentLevelProgress.string = levelSummary.progressText
+        dashboardForm.lblLevel.text = levelSummary.currentLevel
     }
 
     private fun renderCompletedChallenges() {
@@ -219,12 +217,11 @@ internal class CodeXPDashboardController(
 
     private fun updateCompletedChallengeCount() {
         dashboardForm.lblCompletedChallengesCount.text =
-            StringUtil.numberToStringWithCommas(
+            CodeXPDashboardViewModels.completedChallengeCount(
                 codeXPService
                     .state
                     .completedChallenges
-                    .size
-                    .toLong(),
+                    .size,
             )
     }
 
