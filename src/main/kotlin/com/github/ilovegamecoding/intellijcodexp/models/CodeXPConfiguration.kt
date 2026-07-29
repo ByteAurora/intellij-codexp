@@ -1,5 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.models
 
+import com.github.ilovegamecoding.intellijcodexp.enums.CodeXPNotificationType
 import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
 
 /**
@@ -11,7 +12,7 @@ data class CodeXPConfiguration(
     /**
      * Notification type.
      */
-    var notificationType: String = "CodeXP Notification",
+    var notificationType: String = CodeXPNotificationType.CODEXP.storedValue,
     /**
      * Show a notification when the user levels up.
      */

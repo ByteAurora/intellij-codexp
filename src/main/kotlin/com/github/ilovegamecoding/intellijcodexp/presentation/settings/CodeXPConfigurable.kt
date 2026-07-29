@@ -2,91 +2,123 @@ package com.github.ilovegamecoding.intellijcodexp.presentation.settings
 
 import com.github.ilovegamecoding.intellijcodexp.CodeXPBundle
 import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
-import com.github.ilovegamecoding.intellijcodexp.form.CodeXPConfigurationForm
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.options.Configurable
+import com.intellij.ui.dsl.builder.panel
+import javax.swing.JCheckBox
+import javax.swing.JComboBox
 import javax.swing.JComponent
+import javax.swing.JLabel
 
 /**
- * CodeXPConfigurable class
- *
- * CodeXPConfigurable is the class that is used to create the configuration window for the plugin.
+ * Creates and applies the CodeXP settings UI.
  */
 class CodeXPConfigurable : Configurable {
-    /**
-     * CodeXP configuration form.
-     */
-    private lateinit var codeXPConfigurationForm: CodeXPConfigurationForm
+    private var notificationTypeComboBox: JComboBox<String>? = null
+    private var typeDescriptionLabel: JLabel? = null
+    private var showLevelUpNotificationCheckBox: JCheckBox? = null
+    private var showCompleteChallengeNotificationCheckBox: JCheckBox? = null
+    private var showGainedXPCheckBox: JCheckBox? = null
+    private var gainedXPPositionComboBox: JComboBox<String>? = null
 
-    /**
-     * CodeXP service.
-     */
     private val codeXPService =
         ApplicationManager
             .getApplication()
             .getService(CodeXPService::class.java)
 
-    override fun createComponent(): JComponent? {
-        val config = codeXPService.state.codeXPConfiguration
-
-        // Create the configuration form and set the values to the current configuration.
-        codeXPConfigurationForm =
-            CodeXPConfigurationForm().apply {
-                cbNotificationType.addItem("IntelliJ Notification")
-                cbNotificationType.addItem("CodeXP Notification")
-                cbNotificationType.selectedItem = config.notificationType
-                if (cbNotificationType.selectedItem == "IntelliJ Notification") {
-                    lblTypeDescription.text =
-                        "Default notification will appear in the bottom-right of the IDE and IDE notification tool window."
-                } else {
-                    lblTypeDescription.text = "Customized notification will appear in the top-center of the IDE."
+    override fun createComponent(): JComponent =
+        panel {
+            group(CodeXPBundle.message("TEXT_NOTIFICATION")) {
+                row(CodeXPBundle.message("TEXT_TYPE")) {
+                    notificationTypeComboBox =
+                        comboBox(CodeXPNotificationUiOptions.values).component.apply {
+                            addActionListener { updateDerivedUiState() }
+                        }
                 }
-                cbShowLevelUpNotification.isSelected = config.showLevelUpNotification
-                cbShowCompleteChallengeNotification.isSelected = config.showCompleteChallengeNotification
-                cbShowGainedXP.isSelected = config.showGainedXP
-                PositionToDisplayGainedXP.entries
-                    .map { it.name }
-                    .forEach { cbPositionToDisplayGainedXP.addItem(it) }
-                cbPositionToDisplayGainedXP.isEnabled = config.showGainedXP
-                cbPositionToDisplayGainedXP.selectedItem = config.positionToDisplayGainedXP.name
+                row {
+                    typeDescriptionLabel = label("").component
+                }
+                row {
+                    showLevelUpNotificationCheckBox =
+                        checkBox(CodeXPBundle.message("TEXT_SHOW_LEVEL_UP_NOTIFICATION")).component
+                }
+                row {
+                    showCompleteChallengeNotificationCheckBox =
+                        checkBox(CodeXPBundle.message("TEXT_SHOW_COMPLETE_CHALLENGE_NOTIFICATION")).component
+                }
             }
-        return codeXPConfigurationForm.pMain
+
+            group(CodeXPBundle.message("TEXT_EFFECT")) {
+                row {
+                    showGainedXPCheckBox =
+                        checkBox(CodeXPBundle.message("TEXT_SHOW_GAINED_XP")).component.apply {
+                            addActionListener { updateDerivedUiState() }
+                        }
+                }
+                row {
+                    label(CodeXPBundle.message("TEXT_SHOW_GAINED_XP_DESCRIPTION"))
+                }
+                row(CodeXPBundle.message("TEXT_CARETS")) {
+                    gainedXPPositionComboBox =
+                        comboBox(PositionToDisplayGainedXP.entries.map { it.name }).component
+                }
+            }
+        }.also {
+            reset()
+        }
+
+    override fun isModified(): Boolean {
+        val config = codeXPService.state.codeXPConfiguration
+        return notificationTypeComboBox.selectedItemOrNull() != config.notificationType ||
+            showLevelUpNotificationCheckBox.isSelectedOrFalse() != config.showLevelUpNotification ||
+            showCompleteChallengeNotificationCheckBox.isSelectedOrFalse() != config.showCompleteChallengeNotification ||
+            showGainedXPCheckBox.isSelectedOrFalse() != config.showGainedXP ||
+            gainedXPPositionComboBox.selectedItemOrNull() != config.positionToDisplayGainedXP.name
     }
 
-    override fun isModified(): Boolean =
-        with(codeXPConfigurationForm) {
-            val config = codeXPService.state.codeXPConfiguration
-
-            if (cbNotificationType.selectedItem == "IntelliJ Notification") {
-                lblTypeDescription.text =
-                    "Default notification will appear in the bottom-right of the IDE and IDE notification tool window."
-            } else {
-                lblTypeDescription.text = "Customized notification will appear in the top-center of the IDE."
-            }
-            cbPositionToDisplayGainedXP.isEnabled = cbShowGainedXP.isSelected
-            cbNotificationType.selectedItem != config.notificationType ||
-                cbShowLevelUpNotification.isSelected != config.showLevelUpNotification ||
-                cbShowCompleteChallengeNotification.isSelected != config.showCompleteChallengeNotification ||
-                cbShowGainedXP.isSelected != config.showGainedXP ||
-                cbPositionToDisplayGainedXP.selectedItem != config.positionToDisplayGainedXP.name
-        }
-
     override fun apply() {
-        with(codeXPConfigurationForm) {
-            codeXPService.updateConfiguration(
-                CodeXPConfiguration(
-                    notificationType = cbNotificationType.selectedItem as String,
-                    showLevelUpNotification = cbShowLevelUpNotification.isSelected,
-                    showCompleteChallengeNotification = cbShowCompleteChallengeNotification.isSelected,
-                    showGainedXP = cbShowGainedXP.isSelected,
-                    positionToDisplayGainedXP =
-                        PositionToDisplayGainedXP.valueOf(cbPositionToDisplayGainedXP.selectedItem as String),
-                ),
-            )
-        }
+        codeXPService.updateConfiguration(
+            CodeXPConfiguration(
+                notificationType = notificationTypeComboBox.selectedItemOrNull() ?: return,
+                showLevelUpNotification = showLevelUpNotificationCheckBox.isSelectedOrFalse(),
+                showCompleteChallengeNotification = showCompleteChallengeNotificationCheckBox.isSelectedOrFalse(),
+                showGainedXP = showGainedXPCheckBox.isSelectedOrFalse(),
+                positionToDisplayGainedXP =
+                    PositionToDisplayGainedXP.valueOf(gainedXPPositionComboBox.selectedItemOrNull() ?: return),
+            ),
+        )
+    }
+
+    override fun reset() {
+        val config = codeXPService.state.codeXPConfiguration
+        notificationTypeComboBox?.selectedItem = config.notificationType
+        showLevelUpNotificationCheckBox?.isSelected = config.showLevelUpNotification
+        showCompleteChallengeNotificationCheckBox?.isSelected = config.showCompleteChallengeNotification
+        showGainedXPCheckBox?.isSelected = config.showGainedXP
+        gainedXPPositionComboBox?.selectedItem = config.positionToDisplayGainedXP.name
+        updateDerivedUiState()
     }
 
     override fun getDisplayName(): String = CodeXPBundle.message("configurable.codexp.display.name")
+
+    override fun disposeUIResources() {
+        notificationTypeComboBox = null
+        typeDescriptionLabel = null
+        showLevelUpNotificationCheckBox = null
+        showCompleteChallengeNotificationCheckBox = null
+        showGainedXPCheckBox = null
+        gainedXPPositionComboBox = null
+    }
+
+    private fun updateDerivedUiState() {
+        val notificationType = notificationTypeComboBox.selectedItemOrNull() ?: return
+        typeDescriptionLabel?.text = CodeXPNotificationUiOptions.descriptionFor(notificationType)
+        gainedXPPositionComboBox?.isEnabled = showGainedXPCheckBox.isSelectedOrFalse()
+    }
+
+    private fun JCheckBox?.isSelectedOrFalse(): Boolean = this?.isSelected == true
+
+    private fun JComboBox<String>?.selectedItemOrNull(): String? = this?.selectedItem as? String
 }

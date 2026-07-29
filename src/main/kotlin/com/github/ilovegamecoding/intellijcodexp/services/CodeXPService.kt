@@ -1,13 +1,10 @@
 package com.github.ilovegamecoding.intellijcodexp.services
 
 import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPProgressEngine
-import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPProgressResult
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener
-import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPState
-import com.github.ilovegamecoding.intellijcodexp.presentation.notification.CodeXPNotificationNotifier
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -40,14 +37,15 @@ class CodeXPService :
     /**
      * The message bus for the plugin
      */
-    private var messageBus: MessageBus = ApplicationManager.getApplication().messageBus
+    private val messageBus: MessageBus = ApplicationManager.getApplication().messageBus
 
     /**
      * The connection to the message bus
      */
-    private var connection = messageBus.connect(this)
+    private val connection = messageBus.connect(this)
 
     private val progressEngine = CodeXPProgressEngine()
+    private val progressCoordinator = CodeXPProgressCoordinator(messageBus)
 
     init {
         // Connect to the application message bus
@@ -58,12 +56,12 @@ class CodeXPService :
 
     override fun noStateLoaded() {
         super.noStateLoaded()
-        initialize { }
+        initialize()
     }
 
     override fun loadState(codeXPState: CodeXPState) {
         this.codeXPState = codeXPState
-        initialize { }
+        initialize()
     }
 
     override fun dispose() {
@@ -73,7 +71,11 @@ class CodeXPService :
         event: Event,
         dataContext: DataContext?,
     ) {
-        handleProgressResult(progressEngine.recordEvent(codeXPState, event), dataContext)
+        progressCoordinator.handleProgressResult(
+            state = codeXPState,
+            result = progressEngine.recordEvent(codeXPState, event),
+            dataContext = dataContext,
+        )
     }
 
     fun updateNickname(nickname: String) {
@@ -90,63 +92,8 @@ class CodeXPService :
 
     /**
      * Initialize the plugin.
-     *
-     * @param initializeCallback The callback to execute when the plugin is initialized.
      */
-    private fun initialize(initializeCallback: () -> Unit) {
-        val shouldRunCallback = !codeXPState.hasExecuted
-
-        if (shouldRunCallback) {
-            initializeCallback()
-        }
-
+    private fun initialize() {
         progressEngine.initialize(codeXPState)
-    }
-
-    private fun handleProgressResult(
-        result: CodeXPProgressResult,
-        dataContext: DataContext?,
-    ) {
-        result.xpChanges.forEach { change ->
-            if (change.isLevelUp && codeXPState.codeXPConfiguration.showLevelUpNotification) {
-                when (codeXPState.codeXPConfiguration.notificationType) {
-                    "IntelliJ Notification" -> {
-                        CodeXPNotificationNotifier.notifyLevelUp(
-                            codeXPState.nickname,
-                            change.currentLevelInfo.level,
-                            change.currentLevelInfo.totalXPForNextLevel,
-                        )
-                    }
-
-                    "CodeXP Notification" -> {
-                        messageBus.syncPublisher(CodeXPListener.CODEXP).levelUp(change.currentLevelInfo, dataContext)
-                    }
-                }
-            }
-
-            messageBus.syncPublisher(CodeXPListener.CODEXP).xpUpdated(change.currentLevelInfo)
-        }
-
-        result.completedChallenge?.let { challenge ->
-            if (codeXPState.codeXPConfiguration.showCompleteChallengeNotification) {
-                when (codeXPState.codeXPConfiguration.notificationType) {
-                    "IntelliJ Notification" -> {
-                        CodeXPNotificationNotifier.notifyChallengeComplete(
-                            challenge,
-                        )
-                    }
-
-                    "CodeXP Notification" -> {
-                        messageBus.syncPublisher(CodeXPListener.CODEXP).challengeCompleted(result.event, challenge, dataContext)
-                    }
-                }
-            }
-        }
-
-        result.updatedChallenge?.let { challenge ->
-            messageBus
-                .syncPublisher(CodeXPListener.CODEXP)
-                .challengeUpdated(result.event, challenge, result.newChallenge)
-        }
     }
 }
