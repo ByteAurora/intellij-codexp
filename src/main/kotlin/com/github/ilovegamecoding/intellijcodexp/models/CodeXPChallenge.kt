@@ -1,7 +1,7 @@
 package com.github.ilovegamecoding.intellijcodexp.models
 
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
-import java.util.*
+import java.util.UUID
 
 /**
  * CodeXPChallenge class
@@ -65,7 +65,7 @@ class CodeXPChallenge() {
         rewardXPIncrement: Long,
         progress: Long,
         goal: Long,
-        goalIncrement: Long
+        goalIncrement: Long,
     ) : this() {
         this.id = UUID.randomUUID().toString()
         this.event = event

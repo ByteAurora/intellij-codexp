@@ -1,14 +1,14 @@
 package com.github.ilovegamecoding.intellijcodexp.activities
 
-import com.github.ilovegamecoding.intellijcodexp.managers.CodeXPUIManager
-import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
-import com.intellij.openapi.application.ApplicationManager
+import com.github.ilovegamecoding.intellijcodexp.presentation.overlay.CodeXPOverlayController
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.startup.StartupActivity
+import com.intellij.openapi.startup.ProjectActivity
 
-class CodeXPStartupActivity : StartupActivity {
-    override fun runActivity(project: Project) {
-        ApplicationManager.getApplication().getService(CodeXPService::class.java)
-        CodeXPUIManager.createDialogArea()
+/**
+ * Initializes project-window CodeXP UI controllers after a project opens.
+ */
+class CodeXPStartupActivity : ProjectActivity {
+    override suspend fun execute(project: Project) {
+        project.getService(CodeXPOverlayController::class.java)
     }
 }

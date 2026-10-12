@@ -3,7 +3,9 @@ package com.github.ilovegamecoding.intellijcodexp.enums
 /**
  * Event enum for the plugin events.
  */
-enum class Event(val xpValue: Long) {
+enum class Event(
+    val xpValue: Long,
+) {
     NONE(0),
     TYPING(2),
     CUT(1),
@@ -16,5 +18,5 @@ enum class Event(val xpValue: Long) {
     BUILD(5),
     RUN(10),
     DEBUG(20),
-    ACTION(5);
+    ACTION(5),
 }

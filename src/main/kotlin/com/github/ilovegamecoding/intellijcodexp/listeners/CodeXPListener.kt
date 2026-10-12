@@ -3,6 +3,7 @@ package com.github.ilovegamecoding.intellijcodexp.listeners
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.util.messages.Topic
 
 /**
@@ -30,19 +31,30 @@ interface CodeXPListener {
      *
      * @param levelInfo Level info.
      */
-    fun levelUp(levelInfo: CodeXPLevel)
+    fun levelUp(
+        levelInfo: CodeXPLevel,
+        dataContext: DataContext? = null,
+    )
 
     /**
      * Function that is called when challenge updated.
      *
      * @param challenge Updated challenge.
      */
-    fun challengeUpdated(event: Event, challenge: CodeXPChallenge, newChallenge: CodeXPChallenge? = null)
+    fun challengeUpdated(
+        event: Event,
+        challenge: CodeXPChallenge,
+        newChallenge: CodeXPChallenge? = null,
+    )
 
     /**
      * Function that is called when challenge completed.
      *
      * @param challenge Completed challenge.
      */
-    fun challengeCompleted(event: Event, challenge: CodeXPChallenge)
+    fun challengeCompleted(
+        event: Event,
+        challenge: CodeXPChallenge,
+        dataContext: DataContext? = null,
+    )
 }

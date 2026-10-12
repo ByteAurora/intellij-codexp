@@ -20,6 +20,8 @@ The CodeXP plugin is designed to gamify your coding experience in IntelliJ IDEs.
   - Other actions
 - Provides periodic challenges to keep the coding experience engaging.
 - Displays your level based on the accumulated xp, providing a fun and engaging way to track your coding activities.
+
+Starting with version 2.1.0, CodeXP is being improved with AI-assisted development. This means the project will gradually refine its internal architecture and prepare for future features such as richer effects, configurable XP rules, cross-IDE progress continuity, and account-based synchronization.
 <!-- Plugin description end -->
 
 <br>

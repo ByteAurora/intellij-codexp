@@ -4,11 +4,45 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: marketplace-release
+  cancel-in-progress: false
+
 jobs:
+  validate:
+    name: Validate release
+    if: ${{ github.repository == 'ByteAurora/intellij-codexp' && github.actor == 'ByteAurora' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      sha: ${{ steps.metadata.outputs.sha }}
+    steps:
+      - name: Fetch release commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate tag, version, and main ancestry
+        id: metadata
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_SHA: ${{ github.sha }}
+          RELEASE_TARGET: ${{ github.event.release.target_commitish }}
+        run: >-
+          python3 .github/scripts/release_metadata.py release
+          --tag "$RELEASE_TAG" --sha "$RELEASE_SHA" --target "$RELEASE_TARGET"
+
   release:
     name: Publish plugin
     if: ${{ github.repository == 'ByteAurora/intellij-codexp' && github.actor == 'ByteAurora' }}
+    needs: validate
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     environment:
       name: jetbrains-marketplace
       url: https://plugins.jetbrains.com/plugin/21896-codexp
@@ -18,7 +52,18 @@ jobs:
       - name: Fetch sources
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ needs.validate.outputs.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Revalidate approved release
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_SHA: ${{ needs.validate.outputs.sha }}
+          RELEASE_TARGET: ${{ github.event.release.target_commitish }}
+        run: >-
+          python3 .github/scripts/release_metadata.py release
+          --tag "$RELEASE_TAG" --sha "$RELEASE_SHA" --target "$RELEASE_TARGET"
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -29,24 +74,14 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Export release notes
-        id: release-notes
-        shell: bash
-        run: |
-          CHANGELOG="$(cat << 'EOM' | sed -e 's/^[[:space:]]*$//g' -e '/./,$!d'
-          ${{ github.event.release.body }}
-          EOM
-          )"
-
-          echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$CHANGELOG" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-
       - name: Patch changelog
-        if: ${{ steps.release-notes.outputs.changelog != '' }}
-        env:
-          CHANGELOG: ${{ steps.release-notes.outputs.changelog }}
-        run: ./gradlew patchChangelog --release-note="$CHANGELOG"
+        run: |
+          CHANGELOG="$(jq -r '.release.body // empty' "$GITHUB_EVENT_PATH")"
+          if [ -z "$CHANGELOG" ]; then
+            echo "Release notes must not be empty."
+            exit 1
+          fi
+          ./gradlew patchChangelog --release-note="$CHANGELOG"
 
       - name: Verify release build
         run: ./gradlew check buildPlugin verifyPlugin
@@ -62,4 +97,5 @@ jobs:
       - name: Upload release asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ github.event.release.tag_name }}" ./build/distributions/*
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$RELEASE_TAG" ./build/distributions/*

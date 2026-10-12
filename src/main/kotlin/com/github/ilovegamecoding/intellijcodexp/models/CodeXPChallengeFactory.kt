@@ -1,5 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.models
 
+import com.github.ilovegamecoding.intellijcodexp.CodeXPBundle
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 
 /**
@@ -13,78 +14,112 @@ object CodeXPChallengeFactory {
      *
      * @return List of default challenges.
      */
-    fun createEventDefaultChallenges(): List<CodeXPChallenge> {
-        return listOf(
+    fun createEventDefaultChallenges(): List<CodeXPChallenge> =
+        listOf(
             createChallenge(
                 event = Event.TYPING,
-                name = "Typing Challenge", description = "Typing [goal] times.",
-                goal = 100, rewardXP = 100, rewardXPIncrement = 200
+                nameKey = "challenge.typing.name",
+                descriptionKey = "challenge.typing.description",
+                goal = 100,
+                rewardXP = 100,
+                rewardXPIncrement = 200,
             ),
             createChallenge(
                 event = Event.CUT,
-                name = "Cut Challenge", description = "Cut [goal] times.",
-                goal = 10, rewardXP = 100, rewardXPIncrement = 150
+                nameKey = "challenge.cut.name",
+                descriptionKey = "challenge.cut.description",
+                goal = 10,
+                rewardXP = 100,
+                rewardXPIncrement = 150,
             ),
             createChallenge(
                 event = Event.COPY,
-                name = "Copy Challenge", description = "Copy [goal] times.",
-                goal = 10, rewardXP = 100, rewardXPIncrement = 150
+                nameKey = "challenge.copy.name",
+                descriptionKey = "challenge.copy.description",
+                goal = 10,
+                rewardXP = 100,
+                rewardXPIncrement = 150,
             ),
             createChallenge(
                 event = Event.PASTE,
-                name = "Paste Challenge", description = "Paste [goal] times.",
-                goal = 10, rewardXP = 100, rewardXPIncrement = 150
+                nameKey = "challenge.paste.name",
+                descriptionKey = "challenge.paste.description",
+                goal = 10,
+                rewardXP = 100,
+                rewardXPIncrement = 150,
             ),
             createChallenge(
                 event = Event.BACKSPACE,
-                name = "Backspace Challenge", description = "Press the backspace key [goal] times.",
-                goal = 50, rewardXP = 100, rewardXPIncrement = 150
+                nameKey = "challenge.backspace.name",
+                descriptionKey = "challenge.backspace.description",
+                goal = 50,
+                rewardXP = 100,
+                rewardXPIncrement = 150,
             ),
             createChallenge(
                 event = Event.TAB,
-                name = "Tab Challenge",
-                description = "Press the tab key [goal] times.",
-                goal = 50, rewardXP = 100, rewardXPIncrement = 150
+                nameKey = "challenge.tab.name",
+                descriptionKey = "challenge.tab.description",
+                goal = 50,
+                rewardXP = 100,
+                rewardXPIncrement = 150,
             ),
             createChallenge(
                 event = Event.ENTER,
-                name = "Enter Challenge", description = "Press the enter key [goal] times.",
-                goal = 10, rewardXP = 100, rewardXPIncrement = 200
+                nameKey = "challenge.enter.name",
+                descriptionKey = "challenge.enter.description",
+                goal = 10,
+                rewardXP = 100,
+                rewardXPIncrement = 200,
             ),
             createChallenge(
                 event = Event.SAVE,
-                name = "Save Challenge", description = "Save [goal] times.",
-                goal = 10, rewardXP = 300, rewardXPIncrement = 400
+                nameKey = "challenge.save.name",
+                descriptionKey = "challenge.save.description",
+                goal = 10,
+                rewardXP = 300,
+                rewardXPIncrement = 400,
             ),
             createChallenge(
                 event = Event.BUILD,
-                name = "Build Challenge", description = "Build [goal] times.",
-                goal = 10, rewardXP = 150, rewardXPIncrement = 200
+                nameKey = "challenge.build.name",
+                descriptionKey = "challenge.build.description",
+                goal = 10,
+                rewardXP = 150,
+                rewardXPIncrement = 200,
             ),
             createChallenge(
                 event = Event.RUN,
-                name = "Run Challenge", description = "Run [goal] times.",
-                goal = 10, rewardXP = 200, rewardXPIncrement = 250
+                nameKey = "challenge.run.name",
+                descriptionKey = "challenge.run.description",
+                goal = 10,
+                rewardXP = 200,
+                rewardXPIncrement = 250,
             ),
             createChallenge(
                 event = Event.DEBUG,
-                name = "Debug Challenge", description = "Debug [goal] times.",
-                goal = 10, rewardXP = 300, rewardXPIncrement = 400
+                nameKey = "challenge.debug.name",
+                descriptionKey = "challenge.debug.description",
+                goal = 10,
+                rewardXP = 300,
+                rewardXPIncrement = 400,
             ),
             createChallenge(
                 event = Event.ACTION,
-                name = "Action Challenge", description = "Perform [goal] actions.",
-                goal = 20, rewardXP = 100, rewardXPIncrement = 120
-            )
+                nameKey = "challenge.action.name",
+                descriptionKey = "challenge.action.description",
+                goal = 20,
+                rewardXP = 100,
+                rewardXPIncrement = 120,
+            ),
         )
-    }
 
     /**
      * Creates a challenge with the given parameters.
      *
      * @param event Event of challenge.
-     * @param name Name of challenge.
-     * @param description Description of challenge.
+     * @param nameKey Resource key for the challenge name.
+     * @param descriptionKey Resource key for the challenge description.
      * @param goal Goal of challenge.
      * @param rewardXP Reward XP of challenge when completed.
      * @param rewardXPIncrement Increment of reward XP of challenge when completed.
@@ -92,21 +127,20 @@ object CodeXPChallengeFactory {
      */
     private fun createChallenge(
         event: Event,
-        name: String,
-        description: String,
+        nameKey: String,
+        descriptionKey: String,
         goal: Long,
         rewardXP: Long,
-        rewardXPIncrement: Long
-    ): CodeXPChallenge {
-        return CodeXPChallenge(
+        rewardXPIncrement: Long,
+    ): CodeXPChallenge =
+        CodeXPChallenge(
             event = event,
-            name = name,
-            description = description,
+            name = CodeXPBundle.message(nameKey),
+            description = CodeXPBundle.message(descriptionKey),
             progress = 0,
             goal = goal,
             goalIncrement = goal,
             rewardXP = rewardXP,
-            rewardXPIncrement = rewardXPIncrement
+            rewardXPIncrement = rewardXPIncrement,
         )
-    }
 }
