@@ -10,6 +10,16 @@ CodeXP uses `develop` for day-to-day work and `main` for stable, release-ready c
 - `main` should receive changes through pull requests from `develop` when those changes are ready to be part of the stable branch.
 - Hotfixes may branch from `main`, merge back into `main`, and then be reconciled with `develop`.
 
+The maintainer is the only person with repository write access. External contributors
+submit pull requests from forks. Both protected branches require a pull request,
+passing CI, and resolved conversations, including for administrators. A separate
+review approval and CODEOWNER approval are not required for this single-maintainer
+project. CODEOWNERS remains useful for requesting the maintainer's review.
+
+`main` requires the source branch to be up to date; `develop` does not. Force pushes
+and branch deletion are disabled. Use merge commits between these long-lived branches;
+do not squash or rebase their synchronization PRs.
+
 ## Branch Naming
 
 Use short, descriptive branch names with one of these prefixes:
@@ -118,11 +128,29 @@ Normal merges do not publish the plugin.
 
 1. Merge release-ready changes into `main`.
 2. Run and verify CI on `main`.
-3. A maintainer prepares the release notes and GitHub Release.
-4. Publishing is performed only by a maintainer.
-5. Confirm the version is listed on JetBrains Marketplace.
+3. Run `Release Draft` from the `main` workflow, selecting `main` or a full commit SHA already merged into `main`.
+4. Review the draft's user-facing notes and fixed commit SHA. Existing published releases and tags must not be replaced.
+5. Publish the GitHub Release. Validation checks the tag, plugin version, fixed target, and membership in `main`.
+6. Approve the `jetbrains-marketplace` deployment. The workflow rechecks the release identity, builds, verifies, signs, and publishes the plugin.
+7. Confirm the version is listed on JetBrains Marketplace.
 
 Release draft creation must be an explicit maintainer action.
+
+The deployment environment requires the maintainer's approval, permits self-approval,
+disallows administrator bypass, and accepts only tags matching `v*`. Signing and
+publishing credentials are stored only in this environment. PR approval and deployment
+approval are separate: removing required PR approvals does not remove the release gate.
+
+The release target must be a full commit SHA, not a branch name. Existing drafts can
+be updated, but tags are never deleted or moved by the draft workflow. A tag already
+pointing to another commit causes validation to fail. Use a new plugin version for
+new published code.
+
+For changes to the release checks, run:
+
+```bash
+python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
+```
 
 ## Version And Compatibility Checks
 
