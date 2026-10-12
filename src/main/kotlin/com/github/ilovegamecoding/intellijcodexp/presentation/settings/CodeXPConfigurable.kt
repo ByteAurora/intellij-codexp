@@ -70,6 +70,9 @@ class CodeXPConfigurable : Configurable {
         }
 
     override fun isModified(): Boolean {
+        if (notificationTypeComboBox == null) {
+            return false
+        }
         val config = codeXPService.state.codeXPConfiguration
         return notificationTypeComboBox.selectedItemOrNull() != config.notificationType ||
             showLevelUpNotificationCheckBox.isSelectedOrFalse() != config.showLevelUpNotification ||
