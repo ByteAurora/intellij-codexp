@@ -1,5 +1,6 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -63,6 +64,13 @@ kotlin {
 
 intellijPlatform {
     buildSearchableOptions = false
+
+    pluginVerification {
+        ides {
+            recommended()
+            create(IntelliJPlatformType.IntellijIdeaUltimate, "2026.2.1")
+        }
+    }
 
     pluginConfiguration {
         name = properties("pluginName")
