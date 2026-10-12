@@ -29,6 +29,11 @@ Before opening a pull request:
 - Update `CHANGELOG.md` when the change affects users, compatibility, build, or release behavior.
 - Do not include private certificates, Marketplace tokens, or local signing files.
 
+External contributors should open pull requests from a fork. The maintainer reviews
+and merges contributions. Required CI checks and resolved review conversations apply
+to every pull request, including the maintainer's own work. A separate approval is
+not required because the project has one maintainer.
+
 ## Kotlin Documentation
 
 Use KDoc for Kotlin documentation comments. KDoc comments use `/** ... */` and should be attached directly to declarations such as classes, interfaces, objects, functions, properties, and enum entries.
@@ -68,7 +73,8 @@ KDoc guidelines:
 - Use `develop` as the integration branch for normal work.
 - Open feature, fix, documentation, and maintenance pull requests against `develop`.
 - Use `main` as the stable release branch.
-- Merge `develop` into `main` only when preparing a release.
+- Merge `develop` into `main` for release preparation or stable maintenance updates.
+- Use merge commits between `develop` and `main` to preserve their shared history.
 - For urgent production fixes, branch from `main`, merge back into `main`, then merge the fix back into `develop`.
 
 ## Release Policy
@@ -77,4 +83,4 @@ CodeXP is open source, but publishing to JetBrains Marketplace is restricted to 
 
 Contributors should not run or request release publishing. Marketplace credentials are stored only in GitHub Secrets or protected GitHub Environments.
 
-Release drafts are created manually from the `Release Draft` workflow after the release changes have been merged into `main`. Publishing the GitHub Release triggers the protected Marketplace deployment workflow.
+Release drafts are created manually from the `Release Draft` workflow after the release changes have been merged into `main`. Publishing the GitHub Release triggers validation, then waits for the maintainer's approval in the `jetbrains-marketplace` environment before publishing. See [the release process](docs/release-process.md) for the full procedure.

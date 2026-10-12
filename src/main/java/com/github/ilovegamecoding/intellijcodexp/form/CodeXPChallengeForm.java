@@ -3,7 +3,6 @@ package com.github.ilovegamecoding.intellijcodexp.form;
 import javax.swing.*;
 
 public class CodeXPChallengeForm {
-    public String challengeID;
     public JProgressBar pbChallengeProgress;
     public JLabel lblChallengeDescription;
     public JLabel lblChallengeName;

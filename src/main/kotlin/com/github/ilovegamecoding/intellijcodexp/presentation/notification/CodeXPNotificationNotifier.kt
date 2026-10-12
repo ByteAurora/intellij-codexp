@@ -1,5 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.presentation.notification
 
+import com.github.ilovegamecoding.intellijcodexp.CodeXPBundle
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
 import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationGroupManager
@@ -17,7 +18,10 @@ object CodeXPNotificationNotifier {
     }
 
     fun notifyChallengeComplete(codeXPChallenge: CodeXPChallenge) {
-        notify("${codeXPChallenge.name} completed!", "Reward: ${codeXPChallenge.rewardXP} XP")
+        notify(
+            CodeXPBundle.message("notification.challenge.completed.title", codeXPChallenge.name),
+            CodeXPBundle.message("notification.challenge.completed.content", codeXPChallenge.rewardXP),
+        )
     }
 
     fun notifyLevelUp(
@@ -26,8 +30,8 @@ object CodeXPNotificationNotifier {
         xpToNextLevel: Long,
     ) {
         notify(
-            "Level up!",
-            "Congratulations $nickname! You are now level $level. You need $xpToNextLevel XP to reach the next level.",
+            CodeXPBundle.message("notification.level.up.title"),
+            CodeXPBundle.message("notification.level.up.content", nickname, level, xpToNextLevel),
         )
     }
 }

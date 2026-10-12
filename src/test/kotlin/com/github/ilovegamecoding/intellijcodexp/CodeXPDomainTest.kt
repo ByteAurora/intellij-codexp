@@ -1,6 +1,7 @@
 package com.github.ilovegamecoding.intellijcodexp
 
 import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPProgressEngine
+import com.github.ilovegamecoding.intellijcodexp.enums.CodeXPNotificationType
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallengeFactory
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
@@ -67,6 +68,18 @@ class CodeXPDomainTest {
             assertEquals(0, state.getEventCount(event))
         }
         assertEquals(Event.entries.filterNot { it == Event.NONE }.size, state.challenges.size)
+    }
+
+    @Test
+    fun `notification type parses persisted display values`() {
+        assertEquals(
+            CodeXPNotificationType.INTELLIJ,
+            CodeXPNotificationType.fromStoredValue("IntelliJ Notification"),
+        )
+        assertEquals(
+            CodeXPNotificationType.CODEXP,
+            CodeXPNotificationType.fromStoredValue("CodeXP Notification"),
+        )
     }
 
     @Test
