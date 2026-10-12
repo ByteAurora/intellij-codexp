@@ -5,22 +5,24 @@
 ## [Unreleased]
 
 ### Added
-- Add contributor documentation, issue templates, pull request template, security policy, and CODEOWNERS.
-- Add focused domain tests for level calculation and challenge definitions.
+- Support IntelliJ IDEA 2026.2.x, including 2026.2.1, while retaining compatibility with IDE builds from 2023.3 onward.
 
 ### Fixed
-- Fix Kotlin bytecode generation for IntelliJ `ToolWindowFactory` default methods so Plugin Verifier no longer reports internal API usages.
+- Restore saved values when resetting CodeXP settings, and avoid incorrectly reporting unsaved changes when the settings page is not open.
+- Keep XP effects and CodeXP notifications associated with the project window where the action occurred, and clean them up when the project closes.
 
 ### Changed
-- Modernize the build to IntelliJ Platform Gradle Plugin 2.x, Kotlin 2.3, Gradle 9, and Java 17 bytecode.
-- Consolidate CI around build, tests, coverage, Plugin Verifier, release drafts, signing, and Marketplace publishing.
-- Restrict Marketplace publishing workflow to the maintainer and a protected deployment environment.
-- Remove repository-tracked local IntelliJ Gradle JDK settings.
-- Expand the plugin's compatible IDE build versions from `243.*` to `261.*`.
+- Refresh the CodeXP settings layout with standard IDE controls. Notification descriptions and XP position controls now update immediately when their related options change.
 
-### Removed
-- Remove the obsolete UI test workflow and legacy template service test.
-- Remove stale IntelliJ run configurations for removed UI test and Qodana tasks.
+## [2.1.0] - 2026-05-18
+
+### Changed
+- Extend IDE compatibility through IntelliJ Platform 2026.1 (`261.*`), while retaining support for 2023.3 and later.
+
+## [2.0.3] - 2025-02-03
+
+### Changed
+- Extend IDE compatibility through IntelliJ Platform 2025.1 (`251.*`).
 
 ## [2.0.2] - 2024-12-18
 ### Added
@@ -76,7 +78,11 @@
 - Define events to detect and add challenges for each event
 - Implement notification alert feature for leveling up or completing challenges
 
-[Unreleased]: https://github.com/ByteAurora/intellij-codexp/compare/v2.0.2...HEAD
+[Unreleased]: https://github.com/ByteAurora/intellij-codexp/compare/v2.1.0...HEAD
+
+[2.1.0]: https://github.com/ByteAurora/intellij-codexp/compare/v2.0.3...v2.1.0
+
+[2.0.3]: https://github.com/ByteAurora/intellij-codexp/compare/v2.0.2...v2.0.3
 
 [2.0.2]: https://github.com/ByteAurora/intellij-codexp/compare/v2.0.1...v2.0.2
 
