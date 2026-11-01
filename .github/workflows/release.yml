@@ -37,10 +37,16 @@ jobs:
           python3 .github/scripts/release_metadata.py release
           --tag "$RELEASE_TAG" --sha "$RELEASE_SHA" --target "$RELEASE_TARGET"
 
+  verify:
+    needs: validate
+    uses: ./.github/workflows/verify.yml
+    with:
+      ref: ${{ needs.validate.outputs.sha }}
+
   release:
     name: Publish plugin
     if: ${{ github.repository == 'ByteAurora/intellij-codexp' && github.actor == 'ByteAurora' }}
-    needs: validate
+    needs: [validate, verify]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment:
@@ -84,7 +90,7 @@ jobs:
           ./gradlew patchChangelog --release-note="$CHANGELOG"
 
       - name: Verify release build
-        run: ./gradlew check buildPlugin verifyPlugin
+        run: ./gradlew check buildPlugin
 
       - name: Publish plugin
         env:

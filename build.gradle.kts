@@ -4,6 +4,7 @@ import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 fun properties(key: String) = providers.gradleProperty(key)
 
@@ -62,13 +63,26 @@ kotlin {
     }
 }
 
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(17)
+}
+
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
+}
+
 intellijPlatform {
     buildSearchableOptions = false
 
     pluginVerification {
         ides {
-            recommended()
-            create(IntelliJPlatformType.IntellijIdeaUltimate, "2026.2.1")
+            val verificationIde = properties("verificationIde").orNull
+            if (verificationIde != null) {
+                create(IntelliJPlatformType.IntellijIdeaUltimate, verificationIde)
+            } else {
+                recommended()
+                create(IntelliJPlatformType.IntellijIdeaUltimate, "2026.2.1")
+            }
         }
     }
 
@@ -151,10 +165,6 @@ ktlint {
 }
 
 tasks {
-    wrapper {
-        gradleVersion = properties("gradleVersion").get()
-    }
-
     publishPlugin {
         dependsOn(patchChangelog)
     }
