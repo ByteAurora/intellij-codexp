@@ -118,14 +118,16 @@ succeed. Failed, cancelled, or skipped dependencies do not satisfy it.
 
 Plugin Verifier runs one IDE per runner to avoid exhausting disk space. The shared
 matrix in `.github/workflows/verify.yml` is used by both CI and releases. Keep its
-pinned builds aligned with the supported IDE branches, including the specifically
-requested 2026.2.1 build. Updating the supported range also requires updating this
+pinned release versions aligned with the supported IDE branches, including the
+specifically requested 2026.2.1 release. Use IDE release versions such as `2023.3.8`,
+not build numbers such as `233.15619.7`, because the installer resolver requires
+release versions. Updating the supported range also requires updating this
 matrix. At most three verifier jobs run concurrently.
 
 To reproduce one matrix entry locally:
 
 ```bash
-./gradlew verifyPlugin -PverificationIde=262.9437.185
+./gradlew verifyPlugin -PverificationIde=2026.2.1
 ```
 
 Without `verificationIde`, local verification still checks the recommended IDEs

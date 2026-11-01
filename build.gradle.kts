@@ -78,6 +78,9 @@ intellijPlatform {
         ides {
             val verificationIde = properties("verificationIde").orNull
             if (verificationIde != null) {
+                require(verificationIde.matches(Regex("20\\d{2}\\.\\d+(\\.\\d+)*"))) {
+                    "verificationIde must be an IDE release version (for example 2026.2.1), not a build number."
+                }
                 create(IntelliJPlatformType.IntellijIdeaUltimate, verificationIde)
             } else {
                 recommended()
