@@ -21,7 +21,7 @@ jobs:
       sha: ${{ steps.metadata.outputs.sha }}
     steps:
       - name: Fetch release commit
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
@@ -37,10 +37,16 @@ jobs:
           python3 .github/scripts/release_metadata.py release
           --tag "$RELEASE_TAG" --sha "$RELEASE_SHA" --target "$RELEASE_TARGET"
 
+  verify:
+    needs: validate
+    uses: ./.github/workflows/verify.yml
+    with:
+      ref: ${{ needs.validate.outputs.sha }}
+
   release:
     name: Publish plugin
     if: ${{ github.repository == 'ByteAurora/intellij-codexp' && github.actor == 'ByteAurora' }}
-    needs: validate
+    needs: [validate, verify]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment:
@@ -50,7 +56,7 @@ jobs:
       contents: write
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.validate.outputs.sha }}
           fetch-depth: 0
@@ -66,7 +72,7 @@ jobs:
           --tag "$RELEASE_TAG" --sha "$RELEASE_SHA" --target "$RELEASE_TARGET"
 
       - name: Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: zulu
           java-version: 21
@@ -84,7 +90,7 @@ jobs:
           ./gradlew patchChangelog --release-note="$CHANGELOG"
 
       - name: Verify release build
-        run: ./gradlew check buildPlugin verifyPlugin
+        run: ./gradlew check buildPlugin
 
       - name: Publish plugin
         env:

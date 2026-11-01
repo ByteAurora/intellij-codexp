@@ -113,7 +113,25 @@ For stable maintenance syncs that are not plugin releases, state that clearly in
 
 The required CI job is `Build, test, and verify`.
 
-It can take several minutes because it builds the plugin and runs IntelliJ Plugin Verifier across multiple IDE versions.
+This is an aggregate check: both `Build and test` and every Plugin Verifier job must
+succeed. Failed, cancelled, or skipped dependencies do not satisfy it.
+
+Plugin Verifier runs one IDE per runner to avoid exhausting disk space. The shared
+matrix in `.github/workflows/verify.yml` is used by both CI and releases. Keep its
+pinned release versions aligned with the supported IDE branches, including the
+specifically requested 2026.2.1 release. Use IDE release versions such as `2023.3.8`,
+not build numbers such as `233.15619.7`, because the installer resolver requires
+release versions. Updating the supported range also requires updating this
+matrix. At most three verifier jobs run concurrently.
+
+To reproduce one matrix entry locally:
+
+```bash
+./gradlew verifyPlugin -PverificationIde=2026.2.1
+```
+
+Without `verificationIde`, local verification still checks the recommended IDEs
+and IntelliJ IDEA 2026.2.1. Full CI can take several minutes.
 
 When waiting on a pull request:
 
@@ -131,7 +149,7 @@ Normal merges do not publish the plugin.
 3. Run `Release Draft` from the `main` workflow, selecting `main` or a full commit SHA already merged into `main`.
 4. Review the draft's user-facing notes and fixed commit SHA. Existing published releases and tags must not be replaced.
 5. Publish the GitHub Release. Validation checks the tag, plugin version, fixed target, and membership in `main`.
-6. Approve the `jetbrains-marketplace` deployment. The workflow rechecks the release identity, builds, verifies, signs, and publishes the plugin.
+6. Wait for the compatibility matrix to pass, then approve the `jetbrains-marketplace` deployment. The workflow rechecks the release identity, builds, tests, signs, and publishes the plugin.
 7. Confirm the version is listed on JetBrains Marketplace.
 
 Release draft creation must be an explicit maintainer action.
