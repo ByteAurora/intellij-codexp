@@ -2,6 +2,7 @@ package com.github.ilovegamecoding.intellijcodexp.services
 
 import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPProgressResult
 import com.github.ilovegamecoding.intellijcodexp.enums.CodeXPNotificationType
+import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEffectListener
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPState
 import com.github.ilovegamecoding.intellijcodexp.presentation.notification.CodeXPNotificationNotifier
@@ -63,5 +64,7 @@ internal class CodeXPProgressCoordinator(
                 .syncPublisher(CodeXPListener.CODEXP)
                 .challengeUpdated(result.event, challenge, result.newChallenge)
         }
+
+        messageBus.syncPublisher(CodeXPEffectListener.EFFECTS).progressRecorded(result, dataContext)
     }
 }

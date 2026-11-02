@@ -14,6 +14,9 @@ class CodeXPChallenge() {
      */
     var id: String = ""
 
+    /** Monotonic event order, not a fabricated wall-clock timestamp. Legacy records remain zero. */
+    var lastUpdatedOrder: Long = 0
+
     /**
      * Event of challenge.
      */

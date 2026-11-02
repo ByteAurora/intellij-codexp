@@ -1,0 +1,15 @@
+{
+  "release": "https://github.com/ByteAurora/intellij-codexp/releases/tag/v2.1.1",
+  "targetCommit": "e4bb59b85f8eb54531ddaab9a15ebf087d0da0e9",
+  "artifact": "intellij-codexp-2.1.1.zip",
+  "artifactSha256": "3a89c56deb2e67d50c547ea380edcd27cad5d4b7dcaa009af718d4c538156b31",
+  "generator": "GenerateLegacyFixtures.java",
+  "classSource": "official release intellij-codexp-2.1.1.jar; no 2.2.0 classes on generation classpath",
+  "serializer": "IntelliJ 2026.1.1 XmlSerializer with SkipDefaultValuesSerializationFilters",
+  "syntheticSetup": "Old engine creates all stages. Fixture retains eight genuine completion records. XP, counts, progress and IDs are deterministic test inputs, not a real user profile.",
+  "fixtures": {
+    "codexp-2.1.1-default.xml": "82b313fae923a3ddaca2cb2adaaba8b7d7b1a8750a950e92724f44a54e23ba9d",
+    "codexp-2.1.1-silent.xml": "27a1288fcd1268ee78ac31577733882bfe46f7f03251fa3546097f6307173a9d",
+    "codexp-2.1.1-intellij.xml": "26c9de7311937d7ca0feb94f59fdf210514dbe5b18baccdc571002b0a8b1c49a"
+  }
+}

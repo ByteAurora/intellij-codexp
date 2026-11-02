@@ -1,8 +1,10 @@
 package com.github.ilovegamecoding.intellijcodexp.services
 
 import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPProgressEngine
+import com.github.ilovegamecoding.intellijcodexp.enums.EffectStyle
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener
+import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPStateListener
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPState
 import com.intellij.openapi.Disposable
@@ -62,6 +64,7 @@ class CodeXPService :
     override fun loadState(codeXPState: CodeXPState) {
         this.codeXPState = codeXPState
         initialize()
+        messageBus.syncPublisher(CodeXPStateListener.STATE).stateChanged()
     }
 
     override fun dispose() {
@@ -79,21 +82,27 @@ class CodeXPService :
     }
 
     fun updateNickname(nickname: String) {
+        if (codeXPState.nickname == nickname) return
         codeXPState.nickname = nickname
+        messageBus.syncPublisher(CodeXPStateListener.STATE).stateChanged()
     }
 
-    fun setCompletedChallengesVisible(isVisible: Boolean) {
-        codeXPState.showCompletedChallenges = isVisible
+    /** Reuse the canonical initial state so future fields cannot accidentally survive a reset. */
+    fun resetAllExceptNickname() {
+        loadState(CodeXPState(nickname = codeXPState.nickname))
     }
 
     fun updateConfiguration(configuration: CodeXPConfiguration) {
+        configuration.effectStyle = EffectStyle.fromStoredValue(configuration.effectStyle).storedValue
         codeXPState.codeXPConfiguration = configuration
+        messageBus.syncPublisher(CodeXPStateListener.STATE).stateChanged()
     }
 
     /**
      * Initialize the plugin.
      */
     private fun initialize() {
+        codeXPState.codeXPConfiguration.effectStyle = EffectStyle.fromStoredValue(codeXPState.codeXPConfiguration.effectStyle).storedValue
         progressEngine.initialize(codeXPState)
     }
 }

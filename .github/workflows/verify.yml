@@ -1,0 +1,68 @@
+name: Plugin compatibility
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify IDE ${{ matrix.ide }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        ide:
+          - '2023.3.8'
+          - '2024.1.7'
+          - '2024.2.6'
+          - '2024.3.7.1'
+          - '2025.1.7.2'
+          - '2025.2.6.3'
+          - '2025.3.6.1'
+          - '2026.1.5'
+          - '2026.2.3'
+          - '2026.2.1'
+    steps:
+      - name: Maximize build space
+        uses: jlumbroso/free-disk-space@v2.0.0
+        with:
+          preinstalled-runtimes: false
+          large-packages: false
+
+      - name: Fetch sources
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: true
+
+      - name: Verify plugin
+        env:
+          VERIFICATION_IDE: ${{ matrix.ide }}
+        run: ./gradlew verifyPlugin -PverificationIde="$VERIFICATION_IDE"
+
+      - name: Upload verifier report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: plugin-verifier-${{ matrix.ide }}
+          path: build/reports/pluginVerifier
+          if-no-files-found: ignore

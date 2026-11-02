@@ -1,6 +1,7 @@
 package com.github.ilovegamecoding.intellijcodexp.models
 
 import com.github.ilovegamecoding.intellijcodexp.enums.CodeXPNotificationType
+import com.github.ilovegamecoding.intellijcodexp.enums.EffectStyle
 import com.github.ilovegamecoding.intellijcodexp.enums.PositionToDisplayGainedXP
 
 /**
@@ -29,4 +30,7 @@ data class CodeXPConfiguration(
      * Gained XP display position.
      */
     var positionToDisplayGainedXP: PositionToDisplayGainedXP = PositionToDisplayGainedXP.TOP_RIGHT,
+    /** Stored as text so unknown values from newer versions can safely fall back. */
+    var effectStyle: String = EffectStyle.CELEBRATORY.storedValue,
+    var reducedMotion: Boolean = false,
 )
