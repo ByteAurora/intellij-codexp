@@ -5,6 +5,23 @@
 ## [Unreleased]
 
 ### Added
+- Show each challenge's own sequence number in Challenges and History, including saved progress from earlier versions.
+- Reset all CodeXP progress and preferences to their initial defaults while keeping your nickname.
+- Keep recently updated challenges at the top with gentle card movement and restrained border highlights; preserve your reading position in long lists.
+- Track real level progress, all challenges, completion history and activity in the new crest dashboard, with immediate values and subtle ambient crest decoration that respects Reduce motion.
+- Celebrate XP gains, completed challenges, and level ups with gold achievement effects and subtle code details. Choose Subtle or Celebratory style, with a Reduce motion option.
+
+### Fixed
+- Match the Activity list, empty space and scroll insets to the dashboard background in light and dark themes.
+- Show challenge rewards once and keep small, translucent XP labels close to the caret. Menu and toolbar actions now show XP in their project window even without an open editor.
+
+### Changed
+- Replace the completed-challenge visibility checkbox with the always-available History tab.
+- Preserve existing 2.1.1 progress and notification preferences when upgrading; new effect options use their defaults and recent-event ordering begins with new activity.
+
+## [2.1.1] - 2026-10-12
+
+### Added
 - Support IntelliJ IDEA 2026.2.x, including 2026.2.1, while retaining compatibility with IDE builds from 2023.3 onward.
 
 ### Fixed
@@ -78,7 +95,9 @@
 - Define events to detect and add challenges for each event
 - Implement notification alert feature for leveling up or completing challenges
 
-[Unreleased]: https://github.com/ByteAurora/intellij-codexp/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/ByteAurora/intellij-codexp/compare/v2.1.1...HEAD
+
+[2.1.1]: https://github.com/ByteAurora/intellij-codexp/compare/v2.1.0...v2.1.1
 
 [2.1.0]: https://github.com/ByteAurora/intellij-codexp/compare/v2.0.3...v2.1.0
 

@@ -1,118 +1,117 @@
 package com.github.ilovegamecoding.intellijcodexp.presentation.overlay
 
-import com.github.ilovegamecoding.intellijcodexp.CodeXPBundle
-import com.github.ilovegamecoding.intellijcodexp.enums.Event
-import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEventListener
-import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
-import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
-import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
+import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPProgressResult
+import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEffectListener
+import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPStateListener
+import com.github.ilovegamecoding.intellijcodexp.listeners.IdeXpOrigin
+import com.github.ilovegamecoding.intellijcodexp.listeners.XpDestination
 import com.github.ilovegamecoding.intellijcodexp.services.CodeXPService
-import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.event.EditorFactoryEvent
+import com.intellij.openapi.editor.event.EditorFactoryListener
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.WindowManager
+import javax.swing.SwingUtilities
 
-/**
- * Displays CodeXP overlay effects for a single project window.
- */
+/** Owns presentation resources for one project, never progress or rewards. */
 @Service(Service.Level.PROJECT)
 class CodeXPOverlayController(
     private val project: Project,
-) : CodeXPEventListener,
-    CodeXPListener,
+) : CodeXPEffectListener,
     Disposable {
-    private val codeXPService: CodeXPService =
-        ApplicationManager
-            .getApplication()
-            .getService(CodeXPService::class.java)
+    private val service = ApplicationManager.getApplication().getService(CodeXPService::class.java)
+    private val xpRenderer = XpGainEffectRenderer()
+    private val presenter = CodeXPOverlayDialogPresenter(project)
+    private var observedState = service.state
 
-    private val xpGainEffectRenderer = XpGainEffectRenderer()
-    private val dialogPresenter = CodeXPOverlayDialogPresenter(project)
+    @Volatile private var disposed = false
 
     init {
         val connection = ApplicationManager.getApplication().messageBus.connect(this)
-        connection.subscribe(CodeXPEventListener.CODEXP_EVENT, this)
-        connection.subscribe(CodeXPListener.CODEXP, this)
-
-        dialogPresenter.initialize()
-    }
-
-    override fun eventOccurred(
-        event: Event,
-        dataContext: DataContext?,
-    ) {
-        val context = dataContext ?: return
-        if (!belongsToProject(context)) {
-            return
-        }
-
-        xpGainEffectRenderer.render(event, context, codeXPService.state.codeXPConfiguration)
-    }
-
-    override fun xpUpdated(levelInfo: CodeXPLevel) {
-    }
-
-    override fun levelUp(
-        levelInfo: CodeXPLevel,
-        dataContext: DataContext?,
-    ) {
-        if (!belongsToProject(dataContext)) {
-            return
-        }
-
-        dialogPresenter.show(
-            CodeXPOverlayDialog.createDialog(
-                CodeXPBundle.message("overlay.level.up.title"),
-                CodeXPBundle.message(
-                    "overlay.level.up.main",
-                    StringUtil.numberToStringWithCommas(levelInfo.level.toLong()),
-                ),
-                CodeXPBundle.message(
-                    "overlay.level.up.sub",
-                    StringUtil.numberToStringWithCommas(levelInfo.totalXPForNextLevel),
-                ),
-            ),
+        connection.subscribe(CodeXPEffectListener.EFFECTS, this)
+        connection.subscribe(
+            CodeXPStateListener.STATE,
+            CodeXPStateListener {
+                val replaced = observedState !== service.state
+                observedState = service.state
+                onEdt {
+                    if (!disposed && (replaced || !service.state.codeXPConfiguration.showGainedXP)) xpRenderer.clear()
+                    if (!disposed && replaced) presenter.cancel()
+                }
+            },
+        )
+        EditorFactory.getInstance().addEditorFactoryListener(
+            object : EditorFactoryListener {
+                override fun editorReleased(event: EditorFactoryEvent) {
+                    onEdt {
+                        xpRenderer.release(event.editor)
+                        presenter.release(event.editor)
+                    }
+                }
+            },
+            this,
         )
     }
 
-    override fun challengeUpdated(
-        event: Event,
-        challenge: CodeXPChallenge,
-        newChallenge: CodeXPChallenge?,
-    ) {
-    }
-
-    override fun challengeCompleted(
-        event: Event,
-        challenge: CodeXPChallenge,
+    override fun progressRecorded(
+        result: CodeXPProgressResult,
         dataContext: DataContext?,
     ) {
-        if (!belongsToProject(dataContext)) {
-            return
+        if (disposed || project.isDisposed || dataContext == null) return
+        val origin = IdeXpOrigin.KEY.getData(dataContext) ?: IdeXpOrigin.unspecified(dataContext)
+        if (origin.project !== project) return
+        // Capture ephemeral DataContext and mutable domain/configuration values before deferring to EDT.
+        val editor = origin.editor?.takeIf { it.project === project }
+        val achievementEditor = CommonDataKeys.EDITOR.getData(dataContext)?.takeIf { it.project === project }
+        val recordedState = service.state
+        val config = recordedState.codeXPConfiguration.copy()
+        val effect = AchievementEffect.from(result, config)
+        val gained = result.event.xpValue
+        onEdt {
+            if (disposed || project.isDisposed || service.state !== recordedState) return@onEdt
+            if (!config.showGainedXP) {
+                xpRenderer.clear()
+            } else {
+                when (origin.destination) {
+                    XpDestination.CARET -> {
+                        if (editor != null && !editor.isDisposed) xpRenderer.render(gained, editor, config)
+                    }
+
+                    XpDestination.WINDOW -> {
+                        val pane =
+                            origin.pane ?: WindowManager
+                                .getInstance()
+                                .getIdeFrame(project)
+                                ?.component
+                                ?.rootPane
+                                ?.layeredPane
+                        if (pane != null) xpRenderer.renderWindow(gained, pane, config)
+                    }
+
+                    XpDestination.NONE -> {
+                        Unit
+                    }
+                }
+            }
+            if (effect != null) presenter.show(effect, achievementEditor ?: FileEditorManager.getInstance(project).selectedTextEditor)
         }
-
-        dialogPresenter.show(
-            CodeXPOverlayDialog.createDialog(
-                CodeXPBundle.message("overlay.challenge.completed.title"),
-                CodeXPBundle.message("overlay.challenge.completed.main", challenge.name.lowercase()),
-                CodeXPBundle.message(
-                    "overlay.challenge.completed.sub",
-                    StringUtil.numberToStringWithCommas(challenge.rewardXP),
-                ),
-            ),
-        )
-    }
-
-    private fun belongsToProject(dataContext: DataContext?): Boolean {
-        dataContext ?: return false
-        return CommonDataKeys.PROJECT.getData(dataContext) == project
     }
 
     override fun dispose() {
-        xpGainEffectRenderer.dispose()
-        dialogPresenter.dispose()
+        disposed = true
+        onEdt {
+            xpRenderer.dispose()
+            presenter.dispose()
+        }
     }
+}
+
+internal fun onEdt(action: () -> Unit) {
+    if (SwingUtilities.isEventDispatchThread()) action() else SwingUtilities.invokeLater(action)
 }

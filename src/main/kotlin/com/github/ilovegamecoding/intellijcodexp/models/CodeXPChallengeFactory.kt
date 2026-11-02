@@ -9,6 +9,33 @@ import com.github.ilovegamecoding.intellijcodexp.enums.Event
  * CodeXPChallenge is a class that represents a challenge. Challenges are used to track the progress of the user.
  */
 object CodeXPChallengeFactory {
+    private data class ProgressionStart(
+        val goal: Long,
+        val reward: Long,
+        val rewardIncrement: Long,
+    )
+
+    private val progressionStarts by lazy {
+        createEventDefaultChallenges().associate { it.event to ProgressionStart(it.goal, it.rewardXP, it.rewardXPIncrement) }
+    }
+
+    /**
+     * Inverts the factory/engine's exact recurrence: goal starts at goalIncrement and both
+     * goal and reward advance once per completed challenge. No history or event count is needed.
+     * Unrecognized/imported records get no number rather than a guessed stage.
+     */
+    fun sequenceNumber(challenge: CodeXPChallenge): Long? {
+        val first = progressionStarts[challenge.event] ?: return null
+        if (challenge.goalIncrement != first.goal || challenge.rewardXPIncrement != first.rewardIncrement) return null
+        if (challenge.goal < first.goal || challenge.rewardXP < first.reward) return null
+        val goalDelta = challenge.goal - first.goal
+        val rewardDelta = challenge.rewardXP - first.reward
+        if (goalDelta % first.goal != 0L || rewardDelta % first.rewardIncrement != 0L) return null
+        val completedStages = goalDelta / first.goal
+        if (rewardDelta / first.rewardIncrement != completedStages) return null
+        return completedStages + 1
+    }
+
     /**
      * Creates a list of default challenges.
      *
