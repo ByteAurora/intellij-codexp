@@ -40,6 +40,7 @@ class CodeXPProgressEngine(
         xpChanges += increaseXP(state, event.xpValue)
 
         val challenge = state.challenges[event] ?: return CodeXPProgressResult(event, xpChanges = xpChanges)
+        challenge.lastUpdatedOrder = nextChallengeOrder(state)
         challenge.progress += 1
 
         if (challenge.progress < challenge.goal) {
@@ -52,6 +53,7 @@ class CodeXPProgressEngine(
 
         xpChanges += increaseXP(state, challenge.rewardXP)
         val newChallenge = createNextChallenge(challenge)
+        newChallenge.lastUpdatedOrder = challenge.lastUpdatedOrder
         state.completedChallenges.add(challenge)
         state.challenges[event] = newChallenge
 
@@ -62,6 +64,18 @@ class CodeXPProgressEngine(
             newChallenge = newChallenge,
             xpChanges = xpChanges,
         )
+    }
+
+    private fun nextChallengeOrder(state: CodeXPState): Long {
+        var latest = state.challenges.values.maxOfOrNull { it.lastUpdatedOrder } ?: 0
+        if (latest == Long.MAX_VALUE) {
+            // Preserve relative order if an imported/corrupted counter reaches its limit.
+            state.challenges.values
+                .sortedWith(compareBy<CodeXPChallenge> { it.lastUpdatedOrder }.thenByDescending { it.event.ordinal })
+                .forEachIndexed { index, item -> item.lastUpdatedOrder = index + 1L }
+            latest = state.challenges.size.toLong()
+        }
+        return latest.coerceAtLeast(0) + 1
     }
 
     private fun increaseXP(

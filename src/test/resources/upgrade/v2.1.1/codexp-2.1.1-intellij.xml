@@ -1,0 +1,308 @@
+<application>
+  <component name="com.github.ilovegamecoding.intellijcodexp.services.CodeXP">
+    <option name="challenges">
+      <map>
+        <entry key="TYPING">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Typing [goal] times." />
+              <option name="event" value="TYPING" />
+              <option name="goal" value="300" />
+              <option name="goalIncrement" value="100" />
+              <option name="id" value="legacy-active-TYPING" />
+              <option name="name" value="Typing Challenge" />
+              <option name="progress" value="3" />
+              <option name="rewardXP" value="500" />
+              <option name="rewardXPIncrement" value="200" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="CUT">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Cut [goal] times." />
+              <option name="event" value="CUT" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="legacy-active-CUT" />
+              <option name="name" value="Cut Challenge" />
+              <option name="progress" value="3" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="150" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="COPY">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Copy [goal] times." />
+              <option name="event" value="COPY" />
+              <option name="goal" value="120" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="legacy-active-COPY" />
+              <option name="name" value="Copy Challenge" />
+              <option name="progress" value="3" />
+              <option name="rewardXP" value="1750" />
+              <option name="rewardXPIncrement" value="150" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="PASTE">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Paste [goal] times." />
+              <option name="event" value="PASTE" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="legacy-active-PASTE" />
+              <option name="name" value="Paste Challenge" />
+              <option name="progress" value="3" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="150" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="BACKSPACE">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Press the backspace key [goal] times." />
+              <option name="event" value="BACKSPACE" />
+              <option name="goal" value="50" />
+              <option name="goalIncrement" value="50" />
+              <option name="id" value="legacy-active-BACKSPACE" />
+              <option name="name" value="Backspace Challenge" />
+              <option name="progress" value="3" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="150" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="TAB">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Press the tab key [goal] times." />
+              <option name="event" value="TAB" />
+              <option name="goal" value="50" />
+              <option name="goalIncrement" value="50" />
+              <option name="id" value="legacy-active-TAB" />
+              <option name="name" value="Tab Challenge" />
+              <option name="progress" value="3" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="150" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="ENTER">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Press the enter key [goal] times." />
+              <option name="event" value="ENTER" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="legacy-active-ENTER" />
+              <option name="name" value="Enter Challenge" />
+              <option name="progress" value="3" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="200" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="SAVE">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Save [goal] times." />
+              <option name="event" value="SAVE" />
+              <option name="goal" value="12340" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="legacy-active-SAVE" />
+              <option name="name" value="Save Challenge" />
+              <option name="progress" value="12339" />
+              <option name="rewardXP" value="493500" />
+              <option name="rewardXPIncrement" value="400" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="BUILD">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Build [goal] times." />
+              <option name="event" value="BUILD" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="legacy-active-BUILD" />
+              <option name="name" value="Build Challenge" />
+              <option name="progress" value="3" />
+              <option name="rewardXP" value="150" />
+              <option name="rewardXPIncrement" value="200" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="RUN">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Run [goal] times." />
+              <option name="event" value="RUN" />
+              <option name="goal" value="20" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="legacy-active-RUN" />
+              <option name="name" value="Run Challenge" />
+              <option name="progress" value="3" />
+              <option name="rewardXP" value="450" />
+              <option name="rewardXPIncrement" value="250" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="DEBUG">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Debug [goal] times." />
+              <option name="event" value="DEBUG" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="legacy-active-DEBUG" />
+              <option name="name" value="Debug Challenge" />
+              <option name="progress" value="3" />
+              <option name="rewardXP" value="300" />
+              <option name="rewardXPIncrement" value="400" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="ACTION">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Perform [goal] actions." />
+              <option name="event" value="ACTION" />
+              <option name="goal" value="20" />
+              <option name="goalIncrement" value="20" />
+              <option name="id" value="legacy-active-ACTION" />
+              <option name="name" value="Action Challenge" />
+              <option name="progress" value="3" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="120" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="codeXPConfiguration">
+      <CodeXPConfiguration>
+        <option name="notificationType" value="IntelliJ Notification" />
+        <option name="positionToDisplayGainedXP" value="BOTTOM_LEFT" />
+        <option name="showGainedXP" value="false" />
+      </CodeXPConfiguration>
+    </option>
+    <option name="completedChallenges">
+      <list>
+        <CodeXPChallenge>
+          <option name="description" value="Copy [goal] times." />
+          <option name="event" value="COPY" />
+          <option name="goal" value="10" />
+          <option name="goalIncrement" value="10" />
+          <option name="id" value="legacy-done-COPY-10" />
+          <option name="name" value="Copy Challenge" />
+          <option name="progress" value="10" />
+          <option name="rewardXP" value="100" />
+          <option name="rewardXPIncrement" value="150" />
+        </CodeXPChallenge>
+        <CodeXPChallenge>
+          <option name="description" value="Copy [goal] times." />
+          <option name="event" value="COPY" />
+          <option name="goal" value="110" />
+          <option name="goalIncrement" value="10" />
+          <option name="id" value="legacy-done-COPY-110" />
+          <option name="name" value="Copy Challenge" />
+          <option name="progress" value="110" />
+          <option name="rewardXP" value="1600" />
+          <option name="rewardXPIncrement" value="150" />
+        </CodeXPChallenge>
+        <CodeXPChallenge>
+          <option name="description" value="Run [goal] times." />
+          <option name="event" value="RUN" />
+          <option name="goal" value="10" />
+          <option name="goalIncrement" value="10" />
+          <option name="id" value="legacy-done-RUN-10" />
+          <option name="name" value="Run Challenge" />
+          <option name="progress" value="10" />
+          <option name="rewardXP" value="200" />
+          <option name="rewardXPIncrement" value="250" />
+        </CodeXPChallenge>
+        <CodeXPChallenge>
+          <option name="description" value="Save [goal] times." />
+          <option name="event" value="SAVE" />
+          <option name="goal" value="10" />
+          <option name="goalIncrement" value="10" />
+          <option name="id" value="legacy-done-SAVE-10" />
+          <option name="name" value="Save Challenge" />
+          <option name="progress" value="10" />
+          <option name="rewardXP" value="300" />
+          <option name="rewardXPIncrement" value="400" />
+        </CodeXPChallenge>
+        <CodeXPChallenge>
+          <option name="description" value="Save [goal] times." />
+          <option name="event" value="SAVE" />
+          <option name="goal" value="1230" />
+          <option name="goalIncrement" value="10" />
+          <option name="id" value="legacy-done-SAVE-1230" />
+          <option name="name" value="Save Challenge" />
+          <option name="progress" value="1230" />
+          <option name="rewardXP" value="49100" />
+          <option name="rewardXPIncrement" value="400" />
+        </CodeXPChallenge>
+        <CodeXPChallenge>
+          <option name="description" value="Save [goal] times." />
+          <option name="event" value="SAVE" />
+          <option name="goal" value="12330" />
+          <option name="goalIncrement" value="10" />
+          <option name="id" value="legacy-done-SAVE-12330" />
+          <option name="name" value="Save Challenge" />
+          <option name="progress" value="12330" />
+          <option name="rewardXP" value="493100" />
+          <option name="rewardXPIncrement" value="400" />
+        </CodeXPChallenge>
+        <CodeXPChallenge>
+          <option name="description" value="Typing [goal] times." />
+          <option name="event" value="TYPING" />
+          <option name="goal" value="100" />
+          <option name="goalIncrement" value="100" />
+          <option name="id" value="legacy-done-TYPING-100" />
+          <option name="name" value="Typing Challenge" />
+          <option name="progress" value="100" />
+          <option name="rewardXP" value="100" />
+          <option name="rewardXPIncrement" value="200" />
+        </CodeXPChallenge>
+        <CodeXPChallenge>
+          <option name="description" value="Typing [goal] times." />
+          <option name="event" value="TYPING" />
+          <option name="goal" value="200" />
+          <option name="goalIncrement" value="100" />
+          <option name="id" value="legacy-done-TYPING-200" />
+          <option name="name" value="Typing Challenge" />
+          <option name="progress" value="200" />
+          <option name="rewardXP" value="300" />
+          <option name="rewardXPIncrement" value="200" />
+        </CodeXPChallenge>
+      </list>
+    </option>
+    <option name="eventCounts">
+      <map>
+        <entry key="NONE" value="9876543210" />
+        <entry key="TYPING" value="9876543211" />
+        <entry key="CUT" value="9876543212" />
+        <entry key="COPY" value="9876543213" />
+        <entry key="PASTE" value="9876543214" />
+        <entry key="BACKSPACE" value="9876543215" />
+        <entry key="TAB" value="9876543216" />
+        <entry key="ENTER" value="9876543217" />
+        <entry key="SAVE" value="9876543218" />
+        <entry key="BUILD" value="9876543219" />
+        <entry key="RUN" value="9876543220" />
+        <entry key="DEBUG" value="9876543221" />
+        <entry key="ACTION" value="9876543222" />
+      </map>
+    </option>
+    <option name="hasExecuted" value="true" />
+    <option name="nickname" value="Upgrade QA 한글 &amp; &lt;legacy&gt;" />
+    <option name="showCompletedChallenges" value="false" />
+    <option name="xp" value="1234567890" />
+  </component>
+</application>

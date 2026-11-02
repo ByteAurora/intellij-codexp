@@ -33,10 +33,6 @@ data class CodeXPState(
      */
     var completedChallenges: MutableList<CodeXPChallenge> = mutableListOf(),
     /**
-     * Show completed challenges in the dashboard.
-     */
-    var showCompletedChallenges: Boolean = true,
-    /**
      * The configuration of the CodeXP plugin
      */
     var codeXPConfiguration: CodeXPConfiguration = CodeXPConfiguration(),

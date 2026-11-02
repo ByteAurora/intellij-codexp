@@ -1,12 +1,15 @@
 package com.github.ilovegamecoding.intellijcodexp.listeners
 
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.AnActionResult
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.ex.AnActionListener
+import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.actionSystem.EditorAction
 
 /**
  * CodeXPEventListener class
@@ -20,7 +23,7 @@ internal class IdeEventListener : AnActionListener {
     ) {
         super.afterEditorTyping(c, dataContext)
 
-        fireEvent(Event.TYPING, dataContext)
+        fireEvent(Event.TYPING, dataContext, IdeXpOrigin.typing(dataContext))
     }
 
     override fun afterActionPerformed(
@@ -30,7 +33,9 @@ internal class IdeEventListener : AnActionListener {
     ) {
         super.afterActionPerformed(action, event, result)
 
-        fireEvent(IdeActionEventMapper.eventFor(action), event.dataContext)
+        val actionId = ActionManager.getInstance().getId(action)
+        val mappedEvent = IdeActionEventMapper.eventForAction(actionId, action.templateText)
+        fireEvent(mappedEvent, event.dataContext, IdeXpOrigin.action(event, mappedEvent, actionId, action is EditorAction))
     }
 
     /**
@@ -41,12 +46,13 @@ internal class IdeEventListener : AnActionListener {
      */
     private fun fireEvent(
         event: Event,
-        dataContext: DataContext? = null,
+        dataContext: DataContext,
+        origin: IdeXpOrigin,
     ) {
         ApplicationManager
             .getApplication()
             .messageBus
             .syncPublisher(CodeXPEventListener.CODEXP_EVENT)
-            .eventOccurred(event, dataContext)
+            .eventOccurred(event, SimpleDataContext.getSimpleContext(IdeXpOrigin.KEY, origin, dataContext))
     }
 }
