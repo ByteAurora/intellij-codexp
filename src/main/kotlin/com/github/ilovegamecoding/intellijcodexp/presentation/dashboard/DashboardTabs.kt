@@ -1,5 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.presentation.dashboard
 
+import com.github.ilovegamecoding.intellijcodexp.presentation.controls.CodeXPTab
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
 import java.awt.CardLayout
@@ -7,7 +8,6 @@ import java.awt.Component
 import java.awt.GridLayout
 import java.awt.event.ActionEvent
 import javax.swing.AbstractAction
-import javax.swing.BorderFactory
 import javax.swing.ButtonGroup
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -17,11 +17,15 @@ import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
 
 /** A small retained card switcher, avoiding recursive Darcula scroll-tab layout during IDE restoration. */
-internal class DashboardTabs : JPanel(BorderLayout()) {
+internal class DashboardTabs(
+    private val reducedMotion: () -> Boolean = ::systemReducedMotion,
+) : JPanel(BorderLayout()) {
     private val strip =
         JPanel(GridLayout(1, 0, JBUI.scale(4), 0)).apply {
             isOpaque = false
-            border = JBUI.Borders.empty(0, 12)
+            border = JBUI.Borders.empty(6, 12)
+            preferredSize = JBUI.size(230, 50)
+            minimumSize = JBUI.size(0, 50)
         }
     private val cards = JPanel(CardLayout()).apply { isOpaque = false }
     private val group = ButtonGroup()
@@ -36,12 +40,6 @@ internal class DashboardTabs : JPanel(BorderLayout()) {
             (cards.layout as CardLayout).show(cards, value.toString())
             buttons.forEachIndexed { index, button ->
                 button.isSelected = index == value
-                button.foreground = if (index == value) DashboardPalette.gold else DashboardPalette.muted
-                button.border =
-                    BorderFactory.createCompoundBorder(
-                        BorderFactory.createMatteBorder(0, 0, JBUI.scale(2), 0, if (index == value) DashboardPalette.gold else DashboardPalette.line),
-                        JBUI.Borders.empty(12, 0, 10, 0),
-                    )
             }
             if (changed) listeners.toList().forEach { it.stateChanged(ChangeEvent(this)) }
         }
@@ -58,10 +56,9 @@ internal class DashboardTabs : JPanel(BorderLayout()) {
     ) {
         val index = buttons.size
         val button =
-            JToggleButton(title).apply {
-                font = dashboardFont(11f)
-                isOpaque = false
-                isContentAreaFilled = false
+            CodeXPTab(title, reducedMotion).apply {
+                font = dashboardFont(11f, java.awt.Font.BOLD)
+                border = JBUI.Borders.empty(6, 2)
                 addActionListener { selectedIndex = index }
                 for ((key, direction) in listOf("RIGHT" to 1, "LEFT" to -1)) {
                     getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(key), key)

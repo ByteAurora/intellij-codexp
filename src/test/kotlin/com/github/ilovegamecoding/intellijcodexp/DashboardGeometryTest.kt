@@ -1,6 +1,7 @@
 package com.github.ilovegamecoding.intellijcodexp
 
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
+import com.github.ilovegamecoding.intellijcodexp.presentation.collection.CollectionMotionFrame
 import com.github.ilovegamecoding.intellijcodexp.presentation.dashboard.DashboardCrest
 import com.github.ilovegamecoding.intellijcodexp.presentation.dashboard.DashboardLevel
 import com.github.ilovegamecoding.intellijcodexp.presentation.dashboard.crestNumberLayout
@@ -16,20 +17,21 @@ import kotlin.math.ceil
 
 class DashboardGeometryTest {
     @Test fun `remaining XP reaches the engine boundary at variable thresholds`() {
-        for (level in listOf(1, 2, 3, 9, 12, 99, 100)) {
+        for (level in listOf(1, 2, 3, 9, 12, 58, 59, 99, 100, 149)) {
             var amount = 300.0
             var total = 0.0
             repeat(level) {
                 total += amount
-                amount *= 1.05
+                amount = (amount * 1.05).coerceAtMost(5000.0)
             }
-            val boundary = ceil(total).toLong()
+            val boundary = ceil(total).toLong() * 3
             val before = dashboardLevel(boundary - 1)
             assertEquals(level, before.level)
             assertEquals(1L, before.remaining)
             assertTrue(before.fraction < 1)
             assertEquals(level + 1, CodeXPLevel.createLevelInfo(boundary).level)
             assertEquals(before.required, before.into + before.remaining)
+            if (level >= 59) assertEquals(15000L, before.required)
         }
     }
 
@@ -44,7 +46,7 @@ class DashboardGeometryTest {
                 assertTrue(fit.font.size2D > 0)
             }
         }
-        assertTrue(CodeXPLevel.createLevelInfo(Long.MAX_VALUE).level in 100..998)
+        assertEquals(150, CodeXPLevel.createLevelInfo(Long.MAX_VALUE).level)
     }
 
     @Test fun `ambient changes decoration without moving the level number`() {
@@ -53,7 +55,7 @@ class DashboardGeometryTest {
         crest.level = DashboardLevel(9999, 1, 10, 9)
 
         fun render(phase: Double): BufferedImage {
-            crest.ambientPhase = phase
+            crest.motionFrame = CollectionMotionFrame(phase * 28, 0.0, true)
             return BufferedImage(240, 210, BufferedImage.TYPE_INT_ARGB).also {
                 val g = it.createGraphics()
                 crest.paint(g)

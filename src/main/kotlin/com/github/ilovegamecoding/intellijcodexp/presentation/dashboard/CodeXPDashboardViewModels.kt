@@ -1,5 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.presentation.dashboard
 
+import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPGrowthPolicy
 import com.github.ilovegamecoding.intellijcodexp.enums.EffectStyle
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallenge
@@ -7,7 +8,6 @@ import com.github.ilovegamecoding.intellijcodexp.models.CodeXPChallengeFactory
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPLevel
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPState
 import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
-import kotlin.math.ceil
 
 /**
  * Creates display-ready values for the dashboard UI.
@@ -24,7 +24,7 @@ internal object CodeXPDashboardViewModels {
         return CodeXPLevelSummaryViewModel(
             totalXP = StringUtil.numberToStringWithCommas(totalXP),
             currentLevel = StringUtil.numberToStringWithCommas(levelInfo.level.toLong()),
-            nextLevel = StringUtil.numberToStringWithCommas((levelInfo.level + 1).toLong()),
+            nextLevel = if (levelInfo.level >= CodeXPGrowthPolicy.MAX_LEVEL) "MAX" else StringUtil.numberToStringWithCommas((levelInfo.level + 1).toLong()),
             currentLevelXP = StringUtil.numberToStringWithCommas(levelInfo.xpIntoCurrentLevel),
             progressToNextLevel = levelInfo.progressPercentage,
             progressText = "${levelInfo.progressPercentage} %",
@@ -76,20 +76,13 @@ internal data class DashboardLevel(
     val fraction: Double get() = (into.toDouble() / required).coerceIn(0.0, 1.0)
 }
 
-/** Match the engine's floating thresholds, including the final fractional XP boundary. */
+/** Use the engine's exact integer boundaries, including migrated fractional progress. */
 internal fun dashboardLevel(
     totalXP: Long,
     info: CodeXPLevel = CodeXPLevel.createLevelInfo(totalXP),
 ): DashboardLevel {
-    var required = 300.0
-    var accumulated = required
-    repeat(info.level - 1) {
-        required *= 1.05
-        accumulated += required
-    }
-    val start = (accumulated - required).toLong()
-    val end = ceil(accumulated).toLong()
-    return DashboardLevel(info.level, info.xpIntoCurrentLevel.coerceAtLeast(0), (end - start).coerceAtLeast(1), (end - totalXP).coerceAtLeast(0))
+    if (info.level == CodeXPGrowthPolicy.MAX_LEVEL) return DashboardLevel(info.level, 1, 1, 0)
+    return DashboardLevel(info.level, info.xpIntoCurrentLevel, info.totalXPForNextLevel, info.totalXPForNextLevel - info.xpIntoCurrentLevel)
 }
 
 internal data class DashboardChallenge(
@@ -129,6 +122,7 @@ internal data class DashboardSnapshot(
     val counts: Map<Event, Long>,
     val reducedMotion: Boolean,
     val subtle: Boolean,
+    val levelOffset: Long = 0,
 ) {
     companion object {
         fun from(
@@ -145,6 +139,7 @@ internal data class DashboardSnapshot(
                 Event.entries.filter { it != Event.NONE }.associateWith(state::getEventCount),
                 state.codeXPConfiguration.reducedMotion,
                 EffectStyle.fromStoredValue(state.codeXPConfiguration.effectStyle) == EffectStyle.SUBTLE,
+                state.levelOffset,
             )
     }
 }

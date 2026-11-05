@@ -14,6 +14,7 @@ import com.github.ilovegamecoding.intellijcodexp.presentation.overlay.EffectOpti
 import com.github.ilovegamecoding.intellijcodexp.presentation.overlay.LevelEffect
 import com.github.ilovegamecoding.intellijcodexp.presentation.overlay.XpCluster
 import com.github.ilovegamecoding.intellijcodexp.presentation.overlay.achievementBounds
+import com.github.ilovegamecoding.intellijcodexp.presentation.overlay.achievementKeyframeMs
 import com.github.ilovegamecoding.intellijcodexp.presentation.overlay.layoutXpText
 import com.github.ilovegamecoding.intellijcodexp.presentation.overlay.xpBounds
 import org.junit.Assert.assertEquals
@@ -66,14 +67,25 @@ class AchievementMotionTest {
         val timeline = AchievementTimeline()
         timeline.enqueue(effect(), 100)
         assertNotNull(timeline.frame(100)?.challengeAge)
-        assertNotNull(timeline.frame(2949)?.challengeAge)
-        assertNull(timeline.frame(2950)?.challengeAge)
-        assertNull(timeline.frame(3199)?.levelAge)
-        assertEquals(0L, timeline.frame(3200)?.levelAge)
-        assertNull(timeline.frame(7000))
+        assertNotNull(timeline.frame(4374)?.challengeAge)
+        assertNull(timeline.frame(4375)?.challengeAge)
+        assertNull(timeline.frame(4624)?.levelAge)
+        assertEquals(0L, timeline.frame(4625)?.levelAge)
+        assertNotNull(timeline.frame(10324)?.levelAge)
+        assertNull(timeline.frame(10325))
         assertFalse(timeline.isActive)
-        assertEquals(2200, EffectOptions(EffectStyle.SUBTLE, false).timing.level)
-        assertEquals(3800, options.timing.level)
+    }
+
+    @Test
+    fun `all four celebrations stretch while XP and the gap keep their original duration`() {
+        fun durations(options: EffectOptions) = options.timing.run { listOf(challenge, level, choice, equip, xp, levelAt - challenge) }
+
+        assertEquals(620L, achievementKeyframeMs(930L)) // The celebratory level-number roll starts here.
+        assertEquals(listOf(4275L, 5700L, 3900L, 2250L, 1450L, 250L), durations(options))
+        assertEquals(listOf(3150L, 3300L, 3150L, 1650L, 1100L, 250L), durations(EffectOptions(EffectStyle.SUBTLE, false)))
+        for (style in EffectStyle.entries) {
+            assertEquals(listOf(2700L, 3000L, 2700L, 1800L, 1250L, 300L), durations(EffectOptions(style, true)))
+        }
     }
 
     @Test

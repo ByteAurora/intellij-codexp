@@ -1,6 +1,8 @@
 package com.github.ilovegamecoding.intellijcodexp.presentation.overlay
 
 import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPProgressResult
+import com.github.ilovegamecoding.intellijcodexp.domain.collection.ChoiceAward
+import com.github.ilovegamecoding.intellijcodexp.domain.collection.CrestDesign
 import com.github.ilovegamecoding.intellijcodexp.enums.CodeXPNotificationType
 import com.github.ilovegamecoding.intellijcodexp.enums.EffectStyle
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPConfiguration
@@ -15,9 +17,9 @@ internal data class EffectOptions(
     val timing: EffectTiming
         get() =
             when {
-                reducedMotion -> EffectTiming(1800, 2100, 2000, 1250)
-                subtle -> EffectTiming(2100, 2350, 2200, 1100)
-                else -> EffectTiming(2850, 3100, 3800, 1450)
+                reducedMotion -> EffectTiming.REDUCED
+                subtle -> EffectTiming.SUBTLE
+                else -> EffectTiming.CELEBRATORY
             }
 
     companion object {
@@ -25,12 +27,30 @@ internal data class EffectOptions(
     }
 }
 
-internal data class EffectTiming(
-    val challenge: Long,
-    val levelAt: Long,
-    val level: Long,
+private const val ACHIEVEMENT_TIME_SCALE = 1.5
+
+internal fun achievementKeyframeMs(elapsedMs: Long): Long = (elapsedMs / ACHIEVEMENT_TIME_SCALE).toLong()
+
+/** Only visible achievement phases stretch; gaps and the independent XP label use wall time. */
+internal enum class EffectTiming(
+    val challengeKeyframes: Long,
+    levelGap: Long,
+    val levelKeyframes: Long,
+    val choiceKeyframes: Long,
+    val equipKeyframes: Long,
     val xp: Long,
-)
+) {
+    REDUCED(1800, 300, 2000, 1800, 1200, 1250),
+    SUBTLE(2100, 250, 2200, 2100, 1100, 1100),
+    CELEBRATORY(2850, 250, 3800, 2600, 1500, 1450),
+    ;
+
+    val challenge = (challengeKeyframes * ACHIEVEMENT_TIME_SCALE).toLong()
+    val levelAt = challenge + levelGap
+    val level = (levelKeyframes * ACHIEVEMENT_TIME_SCALE).toLong()
+    val choice = (choiceKeyframes * ACHIEVEMENT_TIME_SCALE).toLong()
+    val equip = (equipKeyframes * ACHIEVEMENT_TIME_SCALE).toLong()
+}
 
 internal data class ChallengeEffect(
     val id: String,
@@ -49,8 +69,14 @@ internal data class AchievementEffect(
     val challenge: ChallengeEffect?,
     val level: LevelEffect?,
     val options: EffectOptions,
+    val crest: CrestDesign? = null,
+    val choice: ChoiceAward? = null,
+    val choiceCount: Long = choice?.count ?: 0,
+    val equippedEventId: String? = null,
 ) {
-    val duration: Long
+    val choiceDuration: Long get() = options.timing.choice
+    val equipDuration: Long get() = options.timing.equip
+    val choiceAt: Long
         get() =
             if (level != null) {
                 (if (challenge != null) options.timing.levelAt else 0) + options.timing.level
@@ -59,6 +85,8 @@ internal data class AchievementEffect(
             } else {
                 0
             }
+    val equipAt: Long get() = choiceAt + if (choice != null) choiceDuration else 0
+    val duration: Long get() = equipAt + if (equippedEventId != null) equipDuration else 0
 
     companion object {
         fun from(
@@ -83,7 +111,8 @@ internal data class AchievementEffect(
                 } else {
                     null
                 }
-            return if (challenge == null && level == null) null else AchievementEffect(challenge, level, EffectOptions.from(config))
+            val choice = result.choiceAward?.takeIf { config.showLevelUpNotification }
+            return if (challenge == null && level == null && choice == null) null else AchievementEffect(challenge, level, EffectOptions.from(config), choice = choice)
         }
     }
 }
@@ -91,7 +120,10 @@ internal data class AchievementEffect(
 internal data class AchievementFrame(
     val effect: AchievementEffect,
     val age: Long,
+    val motionSeconds: Double = age / 1000.0,
 ) {
+    val choiceAge: Long? get() = (age - effect.choiceAt).takeIf { effect.choice != null && it in 0 until effect.choiceDuration }
+    val equipAge: Long? get() = (age - effect.equipAt).takeIf { effect.equippedEventId != null && it in 0 until effect.equipDuration }
     val challengeAge: Long? get() = age.takeIf { effect.challenge != null && it < effect.options.timing.challenge }
     val levelAge: Long?
         get() =
@@ -140,6 +172,8 @@ internal class AchievementTimeline {
     private val pending = ArrayDeque<AchievementEffect>()
     private val seenChallenges = LinkedHashSet<String>()
     private var highestLevel = 0
+    private val choiceWatermarks = linkedMapOf<String, Long>()
+    private val seenEquips = LinkedHashSet<String>()
     private var current: AchievementEffect? = null
     private var startedAt = 0L
     val pendingCount: Int get() = pending.size
@@ -156,8 +190,22 @@ internal class AchievementTimeline {
         }
         val level = effect.level?.takeIf { it.to > highestLevel }
         if (level != null) highestLevel = level.to
-        if (challenge == null && level == null) return
-        val next = effect.copy(challenge = challenge, level = level)
+        val choice =
+            effect.choice?.let { award ->
+                val seen = choiceWatermarks[award.generation] ?: 0
+                if (award.last <= seen) {
+                    null
+                } else {
+                    award.copy(first = maxOf(award.first, seen + 1)).also {
+                        choiceWatermarks[award.generation] = award.last
+                        if (choiceWatermarks.size > 16) choiceWatermarks.remove(choiceWatermarks.keys.first())
+                    }
+                }
+            }
+        val equipped = effect.equippedEventId?.takeIf { seenEquips.add(it) }
+        if (seenEquips.size > 128) seenEquips.remove(seenEquips.first())
+        if (challenge == null && level == null && choice == null && equipped == null) return
+        val next = effect.copy(challenge = challenge, level = level, choice = choice, choiceCount = choice?.count ?: 0, equippedEventId = equipped)
         if (current == null) {
             current = next
             startedAt = now
@@ -181,6 +229,14 @@ internal class AchievementTimeline {
     fun cancel() {
         current = null
         pending.clear()
+    }
+
+    fun reset() {
+        cancel()
+        seenChallenges.clear()
+        highestLevel = 0
+        choiceWatermarks.clear()
+        seenEquips.clear()
     }
 
     private fun merge(
@@ -210,7 +266,14 @@ internal class AchievementTimeline {
                 second.level == null -> first.level
                 else -> LevelEffect(minOf(first.level.from, second.level.from), maxOf(first.level.to, second.level.to))
             }
-        return first.copy(challenge = challenge, level = level)
+        val choice =
+            when {
+                first.choice == null -> second.choice
+                second.choice == null -> first.choice
+                first.choice.generation != second.choice.generation -> second.choice
+                else -> first.choice.copy(first = minOf(first.choice.first, second.choice.first), last = maxOf(first.choice.last, second.choice.last))
+            }
+        return first.copy(challenge = challenge, level = level, crest = second.crest ?: first.crest, choice = choice, choiceCount = first.choiceCount + second.choiceCount, equippedEventId = second.equippedEventId ?: first.equippedEventId)
     }
 }
 

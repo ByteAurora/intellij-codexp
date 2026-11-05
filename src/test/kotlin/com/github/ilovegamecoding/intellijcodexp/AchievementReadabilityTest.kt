@@ -174,6 +174,24 @@ class AchievementReadabilityTest {
     }
 
     @Test
+    fun `achievement overlays omit decorative code caption rows`() {
+        val subtle = EffectOptions(EffectStyle.SUBTLE, true)
+        val celebratory = EffectOptions(EffectStyle.CELEBRATORY, true)
+        val challenge = ChallengeEffect("save", "Save", "Save 10 times", 300)
+        val cases =
+            listOf(
+                AchievementEffect(null, LevelEffect(12, 13), subtle) to 290,
+                AchievementEffect(challenge, null, subtle) to 280,
+                AchievementEffect(challenge, null, celebratory) to 318,
+            )
+        for ((effect, footerY) in cases) {
+            val image = achievementImage(effect, 1500)
+            assertTrue(maxAlpha(image) > 0)
+            assertEquals(0, maxAlpha(image.getSubimage(0, footerY, image.width, image.height - footerY)))
+        }
+    }
+
+    @Test
     fun `both achievement styles follow IDE client centre at thirty five percent height`() {
         for (scale in listOf(1.0, 1.5, 2.0)) {
             for (client in listOf(Rectangle(0, 0, 1400, 1000), Rectangle(25, 45, 1920, 1200), Rectangle(0, 0, 160, 120))) {

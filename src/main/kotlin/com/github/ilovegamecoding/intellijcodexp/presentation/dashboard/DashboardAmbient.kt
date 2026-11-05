@@ -1,74 +1,77 @@
 package com.github.ilovegamecoding.intellijcodexp.presentation.dashboard
 
+import com.github.ilovegamecoding.intellijcodexp.presentation.collection.CollectionMotion
+import com.github.ilovegamecoding.intellijcodexp.presentation.collection.CollectionMotionFrame
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.mac.foundation.Foundation
 import java.awt.GraphicsEnvironment
-import javax.swing.Timer
 
-/** Ambient motion is capped at 20 FPS and repaints only the crest decoration. */
+/** The dashboard uses the collection clock and elapsed time, repainting only its crest. */
 internal class DashboardAmbient(
     private val crest: DashboardCrest,
-    private val osReducedMotion: () -> Boolean = ::systemReducedMotion,
+    osReducedMotion: () -> Boolean = ::systemReducedMotion,
+    now: () -> Long = System::nanoTime,
+    automaticClock: Boolean = true,
     private val reducedChanged: (Boolean) -> Unit = {},
 ) {
-    private val timer = Timer(50) { tick(System.nanoTime() / 1_000_000) }.apply { isCoalesce = true }
     private var visible = false
-    private var activeWindow = false
     private var reduced = false
     private var osReduced = false
     private var disposed = false
     private var configured = false
-    private var nextPreferenceRead = 0L
-    val isRunning: Boolean get() = timer.isRunning
+    private val motion =
+        CollectionMotion(
+            ::repaintCrest,
+            {
+                osReducedMotion().also {
+                    osReduced = it
+                    reducedChanged(reduced || osReduced)
+                }
+            },
+            now,
+            automaticClock,
+        )
+    val isRunning: Boolean get() = motion.isRunning
 
     fun configure(
         subtle: Boolean,
         reducedMotion: Boolean,
     ) {
-        if (configured && crest.subtle == subtle && reduced == reducedMotion) return
+        if (disposed || (configured && crest.subtle == subtle && reduced == reducedMotion)) return
         configured = true
         crest.subtle = subtle
         reduced = reducedMotion
-        refreshPreferences()
-    }
-
-    fun visibilityChanged(
-        showing: Boolean,
-        windowActive: Boolean,
-    ) {
-        visible = showing
-        activeWindow = windowActive
-        refreshPreferences()
-    }
-
-    private fun refreshPreferences() {
-        if (disposed) return
-        osReduced = osReducedMotion()
+        motion.configure(reducedMotion)
         reducedChanged(reduced || osReduced)
-        if (visible && activeWindow && !reduced && !osReduced) {
-            timer.start()
-        } else {
-            timer.stop()
-            crest.ambientPhase = 0.0
+        repaintCrest()
+    }
+
+    fun visibilityChanged(showing: Boolean) {
+        if (disposed) return
+        visible = showing
+        // The dashboard stays animated while visible, even when its project window loses focus.
+        motion.visibilityChanged(showing, windowActive = true, hasOwnedInViewport = true)
+        repaintCrest()
+    }
+
+    private fun repaintCrest() {
+        crest.animationRunning = motion.isRunning
+        if (motion.isRunning) {
+            crest.motionFrame = motion.frame("dashboard", true)
+        } else if (reduced || osReduced) {
+            crest.motionFrame = CollectionMotionFrame()
         }
+        // A hidden dashboard retains its last pose without accumulating paused wall time.
         if (visible) crest.repaint()
     }
 
-    internal fun tick(now: Long) {
-        if (!timer.isRunning || disposed) return
-        if (now >= nextPreferenceRead) {
-            nextPreferenceRead = now + 2000
-            refreshPreferences()
-            if (!timer.isRunning) return
-        }
-        val period = if (crest.subtle) 42000 else 28000
-        crest.ambientPhase = (now % period).toDouble() / period
-        crest.repaint()
-    }
+    /** Test hook retains the dashboard's existing millisecond time unit. */
+    internal fun tick(now: Long) = motion.tick(now * 1_000_000)
 
     fun dispose() {
         disposed = true
-        timer.stop()
+        motion.dispose()
+        crest.animationRunning = false
     }
 }
 

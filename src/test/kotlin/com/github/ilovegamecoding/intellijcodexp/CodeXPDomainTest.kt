@@ -19,17 +19,17 @@ class CodeXPDomainTest {
         assertEquals(1, levelInfo.level)
         assertEquals(0, levelInfo.xpIntoCurrentLevel)
         assertEquals(0, levelInfo.progressPercentage)
-        assertEquals(300, levelInfo.totalXPForNextLevel)
+        assertEquals(900, levelInfo.totalXPForNextLevel)
     }
 
     @Test
     fun `level advances after reaching required xp`() {
-        val levelInfo = CodeXPLevel.createLevelInfo(300)
+        val levelInfo = CodeXPLevel.createLevelInfo(900)
 
         assertEquals(2, levelInfo.level)
         assertEquals(0, levelInfo.xpIntoCurrentLevel)
         assertEquals(0, levelInfo.progressPercentage)
-        assertEquals(315, levelInfo.totalXPForNextLevel)
+        assertEquals(945, levelInfo.totalXPForNextLevel)
     }
 
     @Test
