@@ -25,6 +25,7 @@
 - Keep the mini crest visible when context menus or completion open, and allow dragging while it is dimmed near the caret or XP text.
 - Reduce animation overhead during continuous typing and avoid mini-crest flicker around XP events.
 - Wrap settings descriptions in smaller windows, use readable caret-position labels, and fit large XP totals into narrow dashboards.
+- Keep dashboard and collection tab labels readable with wider platform fonts in narrow panels, without hiding collection counts.
 
 ### Changed
 - Make all 30 crest animations easier to see at compact sizes while preserving distinct family motions, stable level text and Reduce motion support.

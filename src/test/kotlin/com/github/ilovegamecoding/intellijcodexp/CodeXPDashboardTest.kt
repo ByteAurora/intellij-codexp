@@ -111,6 +111,27 @@ class CodeXPDashboardTest : BasePlatformTestCase() {
             assertEquals(listOf(1, 1, 1), listOf(settings, collections, guides))
         }
 
+    fun testTabsReflowForWidePlatformFontsWithoutShrinkingTheirText() =
+        withService { service ->
+            val panel = CodeXPDashboardPanel { true }
+            Disposer.register(testRootDisposable, panel)
+            CodeXPDashboardController(service, panel, testRootDisposable).initialize()
+            val tabs = descendants(panel.tabs).filterIsInstance<CodeXPTab>().toList()
+            val wideFont = java.awt.Font(java.awt.Font.MONOSPACED, java.awt.Font.BOLD, 16)
+            tabs.forEach { it.font = wideFont }
+            for (width in listOf(230, 420, 230)) {
+                panel.setSize(width, 900)
+                repeat(4) { layout(panel) }
+                tabs.forEach {
+                    assertEquals(wideFont, it.font)
+                    assertTrue(it.getFontMetrics(it.font).stringWidth(it.text) <= it.width - it.insets.left - it.insets.right)
+                    assertTrue(it.bounds.maxX <= it.parent.width && it.bounds.maxY <= it.parent.height)
+                }
+                tabs.zipWithNext().forEach { (a, b) -> assertFalse(a.bounds.intersects(b.bounds)) }
+                if (width == 230) assertTrue(tabs[0].y < tabs[1].y) else assertEquals(tabs[0].y, tabs[1].y)
+            }
+        }
+
     fun testAllHistoryAndTwoDashboardsStayInSyncWithLegacyHiddenHistory() =
         withService { service ->
             val legacy = XmlSerializer.serialize(service.state)

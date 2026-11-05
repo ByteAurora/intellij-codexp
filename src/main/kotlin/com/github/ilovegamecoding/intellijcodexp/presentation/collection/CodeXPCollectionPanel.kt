@@ -523,7 +523,13 @@ internal class CodeXPCollectionPanel(
         revalidate()
     }
 
-    private fun headerHeight(width: Int): Int = JBUI.scale(138) + balanceOverflow(width)
+    private fun headerHeight(width: Int): Int = JBUI.scale(100) + tabAreaHeight(width) + balanceOverflow(width)
+
+    private fun tabHeight(): Int = maxOf(JBUI.scale(38), crestTab.preferredSize.height, titleTab.preferredSize.height)
+
+    private fun stackedTabs(width: Int): Boolean = crestTab.preferredSize.width + titleTab.preferredSize.width + JBUI.scale(6) > width - JBUI.scale(24)
+
+    private fun tabAreaHeight(width: Int): Int = if (stackedTabs(width)) tabHeight() * 2 + JBUI.scale(6) else tabHeight()
 
     private fun balanceWidth(): Int = balance.preferredSize.width
 
@@ -543,10 +549,18 @@ internal class CodeXPCollectionPanel(
         val bh = balance.preferredSize.height
         balance.setBounds(if (overflow > 0) pad else header.width - pad - bw, if (overflow > 0) JBUI.scale(44) else JBUI.scale(24) - bh / 2, bw, bh)
         var y = JBUI.scale(50) + overflow
-        val tabWidth = minOf(JBUI.scale(160), ((w - gap) / 2).coerceAtLeast(0))
-        crestTab.setBounds(pad, y, tabWidth, JBUI.scale(38))
-        titleTab.setBounds(pad + tabWidth + gap, y, tabWidth, JBUI.scale(38))
-        y += JBUI.scale(44)
+        if (stackedTabs(header.width)) {
+            crestTab.setBounds(pad, y, w, tabHeight())
+            titleTab.setBounds(pad, y + tabHeight() + gap, w, tabHeight())
+        } else {
+            val required = crestTab.preferredSize.width + titleTab.preferredSize.width
+            val available = minOf(w - gap, maxOf(JBUI.scale(320), required))
+            val extra = ((available - required) / 2).coerceAtLeast(0)
+            val firstWidth = crestTab.preferredSize.width + extra
+            crestTab.setBounds(pad, y, firstWidth, tabHeight())
+            titleTab.setBounds(pad + firstWidth + gap, y, titleTab.preferredSize.width + extra, tabHeight())
+        }
+        y += tabAreaHeight(header.width) + gap
         val filterWidth = minOf(JBUI.scale(100), w / 2)
         search.setBounds(pad, y, (w - filterWidth - gap).coerceAtLeast(0), JBUI.scale(34))
         filter.setBounds(header.width - pad - filterWidth, y, filterWidth, JBUI.scale(34))

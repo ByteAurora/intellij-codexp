@@ -259,6 +259,33 @@ class CollectionMotionUiTest : BasePlatformTestCase() {
         }
     }
 
+    fun testCollectionTabsReflowForWideFontsWithoutHidingCounts() {
+        val service = CodeXPService(MemoryCollectionPersistence())
+        service.loadState(CollectionProductFixtures.profile(175, 310))
+        val panel = CodeXPCollectionPanel(service) { false }
+        try {
+            panel.apply(service.collectionSnapshot())
+            val tabs = listOf(panel.crestTab, panel.titleTab)
+            val wideFont = java.awt.Font(java.awt.Font.MONOSPACED, java.awt.Font.BOLD, 18)
+            tabs.forEach { it.font = wideFont }
+            for (width in listOf(230, 420, 230)) {
+                layoutAt(panel, width, 900)
+                tabs.forEach {
+                    assertEquals(wideFont, it.font)
+                    assertTrue(it.text.contains('/'))
+                    assertTrue(it.getFontMetrics(it.font).stringWidth(it.text) <= it.width - it.insets.left - it.insets.right)
+                    assertTrue(it.bounds.maxX <= it.parent.width && it.bounds.maxY <= it.parent.height)
+                }
+                assertFalse(panel.crestTab.bounds.intersects(panel.titleTab.bounds))
+                assertTrue(panel.titleTab.bounds.maxY <= panel.search.y)
+                if (width == 230) assertTrue(panel.crestTab.y < panel.titleTab.y) else assertEquals(panel.crestTab.y, panel.titleTab.y)
+            }
+        } finally {
+            panel.dispose()
+            Disposer.dispose(service)
+        }
+    }
+
     fun testResponsiveLayoutAtAllScalesKeepsListInlineDetailsAndLargeBalancesInsideBounds() {
         val originalScale = JBUIScale.scale(1f)
         val service = CodeXPService(MemoryCollectionPersistence())
