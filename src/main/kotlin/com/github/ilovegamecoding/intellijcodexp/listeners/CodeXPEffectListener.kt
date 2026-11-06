@@ -11,6 +11,12 @@ internal fun interface CodeXPEffectListener {
         dataContext: DataContext?,
     )
 
+    fun crestEquipped(
+        eventId: String,
+        design: com.github.ilovegamecoding.intellijcodexp.domain.collection.CrestDesign,
+        dataContext: DataContext?,
+    ) {}
+
     companion object {
         val EFFECTS: Topic<CodeXPEffectListener> = Topic.create("CodeXP effects", CodeXPEffectListener::class.java)
     }

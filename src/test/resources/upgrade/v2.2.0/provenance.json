@@ -1,0 +1,16 @@
+{
+  "source": "Frozen local 2.2.0 build before collection RC; not represented as a published release",
+  "artifactSha256": "7e7d0e77b6fa181fe85d588d0a08843bd2c19b29d6b2ee71c719ae1e186becbe",
+  "classSource": "CodeXPState and CodeXPProgressEngine from intellij-codexp-2.2.0.jar only; no 2.3.0 classes",
+  "serializer": "IntelliJ 2026.1.1 XmlSerializer with SkipDefaultValuesSerializationFilters",
+  "generator": "GenerateLegacyFixtures.java",
+  "synthetic": true,
+  "history": "Real 2.2.0 engine completions, bounded to selected ordinals; no real user profiles read",
+  "fixtures": {
+    "codexp-2.2.0-default.xml": "a5b3ab4bc5187799222b3d3f59dc031a9bd51ca783bf2a437cd7d05a159b481b",
+    "codexp-2.2.0-fresh.xml": "98e33844fb6ee22eec5256c7afca8b4c8cbc0d7b7feb2b52e06d77b7d045e43a",
+    "codexp-2.2.0-large-reward.xml": "330b2476752279321b25e06ca599b77cd157cb5ed4ca762d612efb10bffb8810",
+    "codexp-2.2.0-legacy175.xml": "49a85d92dfa662ffe9e7fc592e07d208806b1a24be7d5b47935f162c771180f9",
+    "codexp-2.2.0-nearcap.xml": "71a2748dd026db590500f08cb7ef7fa9b75f66a35a02c595d193f3315675c4ea"
+  }
+}

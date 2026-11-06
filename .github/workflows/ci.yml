@@ -44,7 +44,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Check and package plugin
-        run: ./gradlew check koverXmlReport buildPlugin
+        run: xvfb-run --auto-servernum ./gradlew check koverXmlReport buildPlugin
 
       - name: Upload plugin artifact
         uses: actions/upload-artifact@v7

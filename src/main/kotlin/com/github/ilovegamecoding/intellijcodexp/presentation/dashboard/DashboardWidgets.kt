@@ -2,6 +2,10 @@ package com.github.ilovegamecoding.intellijcodexp.presentation.dashboard
 
 import com.github.ilovegamecoding.intellijcodexp.CodeXPBundle
 import com.github.ilovegamecoding.intellijcodexp.enums.Event
+import com.github.ilovegamecoding.intellijcodexp.presentation.collection.CollectionCrestPainter
+import com.github.ilovegamecoding.intellijcodexp.presentation.collection.CollectionFrameMetrics
+import com.github.ilovegamecoding.intellijcodexp.presentation.collection.CollectionMotionFrame
+import com.github.ilovegamecoding.intellijcodexp.presentation.smoothArtwork
 import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
@@ -14,6 +18,7 @@ import java.awt.Font
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.GridLayout
+import java.awt.Rectangle
 import java.awt.RenderingHints
 import java.awt.font.FontRenderContext
 import java.awt.geom.Arc2D
@@ -21,6 +26,7 @@ import java.awt.geom.Ellipse2D
 import java.awt.geom.Line2D
 import java.awt.geom.Path2D
 import java.awt.geom.Rectangle2D
+import java.util.Locale
 import javax.swing.BorderFactory
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -81,6 +87,58 @@ internal class DashboardProgressBar(
     }
 }
 
+/** The pointer follows the committed bar value; only its label is clamped at the edges. */
+internal class DashboardProgressMarker : JPanel() {
+    var fraction = 0.0
+        set(value) {
+            field = if (value.isFinite()) value.coerceIn(0.0, 1.0) else 0.0
+            getAccessibleContext().accessibleName = percentageText
+            repaint()
+        }
+    val percentageText: String get() = String.format(Locale.ROOT, "%.1f%%", fraction * 100)
+    val pointerX: Double get() = JBUI.scale(16) + (width - JBUI.scale(32)).coerceAtLeast(0) * fraction
+    val textBounds: Rectangle
+        get() {
+            val fm = getFontMetrics(font)
+            val textWidth = fm.stringWidth(percentageText)
+            val padding = JBUI.scale(4)
+            val x = (pointerX - textWidth / 2).toInt().coerceIn(padding, (width - textWidth - padding).coerceAtLeast(padding))
+            return Rectangle(x, JBUI.scale(10), textWidth, fm.height)
+        }
+
+    init {
+        isOpaque = false
+        font = dashboardFont(11f)
+    }
+
+    override fun paintComponent(graphics: Graphics) {
+        val g = graphics.create() as Graphics2D
+        try {
+            g.smoothArtwork()
+            val x = pointerX
+            val top = JBUI.scale(1).toDouble()
+            val side = JBUI.scale(3).toDouble()
+            g.color = DashboardPalette.gold
+            g.stroke = BasicStroke(JBUI.scale(1.2f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+            g.draw(
+                Path2D.Double().apply {
+                    moveTo(x - side, top + side)
+                    lineTo(x, top)
+                    lineTo(x + side, top + side)
+                    moveTo(x, top)
+                    lineTo(x, top + JBUI.scale(6))
+                },
+            )
+            g.color = DashboardPalette.muted
+            g.font = font
+            val bounds = textBounds
+            g.drawString(percentageText, bounds.x, bounds.y + g.fontMetrics.ascent)
+        } finally {
+            g.dispose()
+        }
+    }
+}
+
 internal data class CrestNumberLayout(
     val font: Font,
     val x: Float,
@@ -108,8 +166,15 @@ internal fun crestNumberLayout(
 
 /** Geometry depends only on allocated bounds. Ambient paint touches decoration, never the level or XP. */
 internal class DashboardCrest : JPanel() {
+    private val frameMetrics = CollectionFrameMetrics("DASHBOARD_FRAMES")
+    var animationRunning = false
+        set(value) {
+            field = value
+            if (!value) frameMetrics.pause()
+        }
     var level = dashboardLevel(0)
-    var ambientPhase = 0.0
+    var collectionDesign: com.github.ilovegamecoding.intellijcodexp.domain.collection.CrestDesign? = null
+    var motionFrame = CollectionMotionFrame()
     var subtle = false
 
     init {
@@ -119,9 +184,14 @@ internal class DashboardCrest : JPanel() {
     }
 
     override fun paintComponent(graphics: Graphics) {
+        val start = System.nanoTime()
         val g = graphics.create() as Graphics2D
         try {
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+            collectionDesign?.let {
+                CollectionCrestPainter.paintEquipped(g, width, height, it, level.level, motionFrame, subtle)
+                return
+            }
+            g.smoothArtwork()
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
             g.translate(width / 2.0, height / 2.0)
             val scale = minOf(width / 240.0, height / 210.0)
@@ -152,7 +222,7 @@ internal class DashboardCrest : JPanel() {
             // Thin outer accents orbit without moving, scaling or pulsing the crest itself.
             val accents = if (subtle) 1 else 3
             repeat(accents) { index ->
-                val angle = ambientPhase * 360 + index * 120
+                val angle = motionFrame.seconds / (if (subtle) 42 else 28) * 360 + index * 120
                 val r = radius * 1.04
                 g.color = DashboardPalette.gold
                 g.composite = AlphaComposite.SrcOver.derive(if (subtle) .18f else .32f)
@@ -170,12 +240,16 @@ internal class DashboardCrest : JPanel() {
             g.composite = AlphaComposite.SrcOver
             g.color = DashboardPalette.gold
             g.font = Font(Font.MONOSPACED, Font.PLAIN, 10)
-            g.drawString("LEVEL", -g.fontMetrics.stringWidth("LEVEL") / 2, -32)
+            val caption = CodeXPBundle.message("dashboard.crest.caption")
+            g.drawString(caption, -g.fontMetrics.stringWidth(caption) / 2, -32)
             val text = level.level.toString()
             val fit = crestNumberLayout(text, g.fontRenderContext)
             g.drawGlyphVector(fit.font.createGlyphVector(g.fontRenderContext, text), fit.x, fit.baseline)
         } finally {
             g.dispose()
+            if (animationRunning) {
+                frameMetrics.painted(start, System.nanoTime(), width, height, 1, (graphics as Graphics2D).transform.scaleX, graphicsConfiguration?.device?.displayMode?.refreshRate ?: 0)
+            }
         }
     }
 }
@@ -183,7 +257,7 @@ internal class DashboardCrest : JPanel() {
 internal class DashboardChallengeRow : JPanel(BorderLayout(0, JBUI.scale(5))) {
     var highlightAlpha = 0f
     var highlightGold = false
-    var highlightInsetY = 0
+    var cardInsetY = 0
     private val title = dashboardLabel(size = 13f)
     val sequence = dashboardLabel(size = 10f, color = DashboardPalette.muted)
     private val reward = dashboardLabel(size = 11f, color = DashboardPalette.gold)
@@ -237,6 +311,13 @@ internal class DashboardChallengeRow : JPanel(BorderLayout(0, JBUI.scale(5))) {
         bar.accessibleContext.accessibleName = count.text
     }
 
+    override fun paintComponent(graphics: Graphics) {
+        // History's outer border is spacing, not part of the card surface.
+        // The opaque list paints the canvas beneath these transparent gaps.
+        graphics.color = background
+        graphics.fillRect(0, cardInsetY, width, (height - 2 * cardInsetY).coerceAtLeast(0))
+    }
+
     override fun paintBorder(graphics: Graphics) {
         super.paintBorder(graphics)
         if (highlightAlpha <= 0f) return
@@ -244,7 +325,7 @@ internal class DashboardChallengeRow : JPanel(BorderLayout(0, JBUI.scale(5))) {
         try {
             g.composite = AlphaComposite.SrcOver.derive(highlightAlpha.coerceIn(0f, 1f))
             g.color = if (highlightGold) DashboardPalette.gold else DashboardPalette.teal
-            g.drawRect(0, highlightInsetY, (width - 1).coerceAtLeast(0), (height - 1 - 2 * highlightInsetY).coerceAtLeast(0))
+            g.drawRect(0, cardInsetY, (width - 1).coerceAtLeast(0), (height - 1 - 2 * cardInsetY).coerceAtLeast(0))
         } finally {
             g.dispose()
         }
@@ -255,7 +336,7 @@ internal class DashboardChallengeRow : JPanel(BorderLayout(0, JBUI.scale(5))) {
 internal class DashboardActivityRow(
     event: Event,
 ) : JPanel(null) {
-    val nameLabel = dashboardLabel(event.name.lowercase().replaceFirstChar { it.uppercase() })
+    val nameLabel = dashboardLabel(CodeXPBundle.message("activity.${event.name.lowercase()}"))
     val xpLabel = dashboardLabel("+${number(event.xpValue)} XP", 11f, DashboardPalette.gold)
     val count = dashboardLabel("0", 13f)
 

@@ -19,6 +19,15 @@ Useful commands:
 
 The plugin zip is created in `build/distributions/`.
 
+The UI tests create AWT windows and require a display. On Linux without a desktop,
+install `xvfb` and `xauth`, then use the same virtual-display wrapper as CI and Release:
+
+```bash
+xvfb-run --auto-servernum ./gradlew check koverXmlReport buildPlugin
+```
+
+Do not skip the window-ownership tests or force headless mode for release validation.
+
 ## Pull Requests
 
 Before opening a pull request:

@@ -7,10 +7,13 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.DataKey
 import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.IdeFrame
 import java.awt.Component
+import java.awt.KeyboardFocusManager
+import java.awt.Window
 import java.awt.event.InputEvent
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
@@ -28,6 +31,7 @@ internal data class IdeXpOrigin(
 ) {
     companion object {
         val KEY: DataKey<IdeXpOrigin> = IdeXpOriginKey.KEY
+        private val log = Logger.getInstance(IdeXpOrigin::class.java)
 
         fun typing(context: DataContext): IdeXpOrigin {
             val editor = CommonDataKeys.EDITOR.getData(context)
@@ -51,7 +55,13 @@ internal data class IdeXpOrigin(
             if (sourceFrame?.project != null && sourceFrame.project !== project) return IdeXpOrigin(null, null, null, XpDestination.NONE)
             val frame = (sourceFrame ?: contextFrame)?.takeIf { it.project === project }
             val editor = CommonDataKeys.EDITOR.getData(context)?.takeIf { project != null && it.project === project }
-            val insideEditor = editor != null && component != null && (component === editor.contentComponent || SwingUtilities.isDescendingFrom(component, editor.contentComponent))
+            val content = editor?.contentComponent
+            val focus = KeyboardFocusManager.getCurrentKeyboardFocusManager().focusOwner
+            val insideEditor = content != null && component != null && SwingUtilities.isDescendingFrom(component, content)
+            // A key may originate on the IDE frame rather than the editor that has keyboard focus.
+            val focusedEditorSource =
+                event.inputEvent is KeyEvent && content != null && component != null && SwingUtilities.isDescendingFrom(content, component) &&
+                    focus != null && SwingUtilities.isDescendingFrom(focus, content)
             val destination =
                 actionDestination(
                     project != null,
@@ -62,7 +72,11 @@ internal data class IdeXpOrigin(
                     event.place,
                     event.inputEvent,
                     insideEditor,
+                    focusedEditorSource,
                 )
+            if (log.isDebugEnabled) {
+                log.debug("XP route id=$actionId event=$mappedEvent place=${event.place} input=${event.inputEvent?.javaClass?.simpleName} source=${component?.javaClass?.simpleName} editor=${editor != null} inside=$insideEditor focused=$focusedEditorSource destination=$destination")
+            }
             return IdeXpOrigin(project, editor.takeIf { destination == XpDestination.CARET }, frame?.component?.rootPane?.layeredPane, destination)
         }
 
@@ -73,7 +87,7 @@ internal data class IdeXpOrigin(
         }
 
         private fun frameOf(component: Component?): IdeFrame? {
-            var window = component?.let(SwingUtilities::getWindowAncestor)
+            var window = component as? Window ?: component?.let(SwingUtilities::getWindowAncestor)
             while (window != null) {
                 if (window is IdeFrame) return window
                 window = window.owner
@@ -92,12 +106,13 @@ internal fun actionDestination(
     place: String,
     input: InputEvent?,
     sourceInsideEditor: Boolean,
+    focusedEditorSource: Boolean = false,
 ): XpDestination {
     if (!projectKnown) return XpDestination.NONE
     val directPlace = place == ActionPlaces.KEYBOARD_SHORTCUT || place == ActionPlaces.MOUSE_SHORTCUT || place == ActionPlaces.UNKNOWN
     val edit = event in EDIT_EVENTS || (event == Event.ACTION && (editorAction || actionId in EDIT_ACTION_IDS))
-    val directInput = input is KeyEvent || input is MouseEvent
-    return if (editorKnown && edit && directPlace && directInput && sourceInsideEditor) XpDestination.CARET else XpDestination.WINDOW
+    val directInput = (input is KeyEvent && (sourceInsideEditor || focusedEditorSource)) || (input is MouseEvent && sourceInsideEditor)
+    return if (editorKnown && edit && directPlace && directInput) XpDestination.CARET else XpDestination.WINDOW
 }
 
 private val EDIT_EVENTS = setOf(Event.CUT, Event.COPY, Event.PASTE, Event.BACKSPACE, Event.TAB, Event.ENTER)

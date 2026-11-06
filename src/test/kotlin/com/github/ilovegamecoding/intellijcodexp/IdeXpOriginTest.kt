@@ -38,6 +38,22 @@ class IdeXpOriginTest {
     }
 
     @Test
+    fun `editing keys delivered by the frame follow only the focused editor`() {
+        for ((id, event) in mapOf("EditorEnter" to Event.ENTER, "EditorTab" to Event.TAB, "EditorBackSpace" to Event.BACKSPACE, "EditorDelete" to Event.ACTION)) {
+            for (place in listOf(ActionPlaces.UNKNOWN, ActionPlaces.KEYBOARD_SHORTCUT)) {
+                assertEquals(XpDestination.CARET, actionDestination(true, true, event, id, true, place, key, false, true))
+                assertEquals(XpDestination.WINDOW, actionDestination(true, true, event, id, true, place, key, false, false))
+                assertEquals(XpDestination.WINDOW, actionDestination(true, true, event, id, true, place, null, false, true))
+            }
+            for (place in listOf(ActionPlaces.MAIN_MENU, ActionPlaces.MAIN_TOOLBAR, ActionPlaces.ACTION_SEARCH, ActionPlaces.EDITOR_POPUP)) {
+                assertEquals(XpDestination.WINDOW, actionDestination(true, true, event, id, true, place, key, false, true))
+            }
+        }
+        assertEquals(XpDestination.WINDOW, actionDestination(true, true, Event.ENTER, "EditorEnter", true, ActionPlaces.UNKNOWN, mouse, false, true))
+        assertEquals(XpDestination.WINDOW, actionDestination(true, true, Event.SAVE, "SaveAll", false, ActionPlaces.KEYBOARD_SHORTCUT, key, false, true))
+    }
+
+    @Test
     fun `an editor or a mouse event alone cannot imply direct editing and unknown projects are skipped`() {
         assertEquals(XpDestination.WINDOW, actionDestination(true, true, Event.PASTE, null, false, ActionPlaces.UNKNOWN, mouse, false))
         assertEquals(XpDestination.WINDOW, actionDestination(true, true, Event.PASTE, null, false, ActionPlaces.UNKNOWN, null, true))

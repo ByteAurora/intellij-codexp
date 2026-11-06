@@ -17,6 +17,8 @@
         <notificationGroup displayType="BALLOON" id="CodeXP"
                            bundle="messages.CodeXPBundle"
                            key="notification.group.codexp"/>
+        <notificationGroup displayType="BALLOON" id="CodeXP Guide"
+                           bundle="messages.CodeXPBundle" key="guide.notification.group"/>
         <applicationConfigurable parentId="tools"
                                  instance="com.github.ilovegamecoding.intellijcodexp.presentation.settings.CodeXPConfigurable"
                                  bundle="messages.CodeXPBundle"
@@ -27,4 +29,14 @@
         <listener class="com.github.ilovegamecoding.intellijcodexp.listeners.IdeEventListener"
                   topic="com.intellij.openapi.actionSystem.ex.AnActionListener"/>
     </applicationListeners>
+
+    <actions>
+        <action id="CodeXP.Guide" class="com.github.ilovegamecoding.intellijcodexp.presentation.guide.CodeXPGuideAction">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="CodeXP.MiniCrestOptions"
+                class="com.github.ilovegamecoding.intellijcodexp.presentation.collection.MiniCrestOptionsAction">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>

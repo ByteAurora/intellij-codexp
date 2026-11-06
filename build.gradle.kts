@@ -168,6 +168,10 @@ ktlint {
 }
 
 tasks {
+    test {
+        // Window-ownership tests create AWT windows; Linux CI supplies a virtual display.
+        systemProperty("java.awt.headless", false)
+    }
     publishPlugin {
         dependsOn(patchChangelog)
     }
