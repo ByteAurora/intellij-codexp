@@ -103,11 +103,13 @@ class CodeXPResetTest : BasePlatformTestCase() {
         withFixture { service ->
             val first = CodeXPDashboardPanel { false }
             val second = CodeXPDashboardPanel { false }
-            CodeXPDashboardController(service, first, testRootDisposable).initialize()
-            CodeXPDashboardController(service, second, testRootDisposable).initialize()
+            val firstController = CodeXPDashboardController(service, first, testRootDisposable).also { it.initialize() }
+            val secondController = CodeXPDashboardController(service, second, testRootDisposable).also { it.initialize() }
             first.visibilityChanged(true)
             second.visibilityChanged(true)
             service.eventOccurred(Event.DEBUG, null)
+            firstController.flushPending()
+            secondController.flushPending()
             assertTrue(first.challenges.motion.isRunning)
             val pane =
                 object : JLayeredPane() {

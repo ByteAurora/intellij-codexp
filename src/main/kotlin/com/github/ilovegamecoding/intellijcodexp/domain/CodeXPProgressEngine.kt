@@ -34,7 +34,7 @@ class CodeXPProgressEngine(
         state: CodeXPState,
         event: Event,
     ): CodeXPProgressResult {
-        state.eventCounts[event] = state.eventCounts.getOrDefault(event, 0) + 1
+        state.eventCounts[event] = state.eventCounts.getOrDefault(event, 0).let { if (it == Long.MAX_VALUE) it else it + 1 }
 
         val xpChanges = mutableListOf<CodeXPChange>()
         xpChanges += increaseXP(state, event.xpValue)
@@ -82,9 +82,9 @@ class CodeXPProgressEngine(
         state: CodeXPState,
         incrementAmount: Long,
     ): CodeXPChange {
-        val beforeLevelInfo = CodeXPLevel.createLevelInfo(state.xp)
-        state.xp += incrementAmount
-        val currentLevelInfo = CodeXPLevel.createLevelInfo(state.xp)
+        val beforeLevelInfo = state.levelInfo()
+        state.xp = if (incrementAmount > 0 && state.xp > Long.MAX_VALUE - incrementAmount) Long.MAX_VALUE else state.xp + incrementAmount
+        val currentLevelInfo = state.levelInfo()
 
         return CodeXPChange(
             beforeLevelInfo = beforeLevelInfo,
@@ -111,6 +111,7 @@ data class CodeXPProgressResult(
     val completedChallenge: CodeXPChallenge? = null,
     val newChallenge: CodeXPChallenge? = null,
     val xpChanges: List<CodeXPChange> = emptyList(),
+    val choiceAward: com.github.ilovegamecoding.intellijcodexp.domain.collection.ChoiceAward? = null,
 )
 
 data class CodeXPChange(

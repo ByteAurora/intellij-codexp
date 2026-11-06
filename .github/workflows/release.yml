@@ -90,7 +90,7 @@ jobs:
           ./gradlew patchChangelog --release-note="$CHANGELOG"
 
       - name: Verify release build
-        run: ./gradlew check buildPlugin
+        run: xvfb-run --auto-servernum ./gradlew check buildPlugin
 
       - name: Publish plugin
         env:

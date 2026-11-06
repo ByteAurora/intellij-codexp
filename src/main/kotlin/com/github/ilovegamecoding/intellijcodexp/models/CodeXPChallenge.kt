@@ -57,6 +57,20 @@ class CodeXPChallenge() {
      */
     var goalIncrement: Long = 0L
 
+    internal fun detachedCopy(): CodeXPChallenge =
+        CodeXPChallenge().also {
+            it.id = id
+            it.lastUpdatedOrder = lastUpdatedOrder
+            it.event = event
+            it.name = name
+            it.description = description
+            it.rewardXP = rewardXP
+            it.rewardXPIncrement = rewardXPIncrement
+            it.progress = progress
+            it.goal = goal
+            it.goalIncrement = goalIncrement
+        }
+
     /**
      * Constructor for CodeXPChallenge with all parameters.
      */

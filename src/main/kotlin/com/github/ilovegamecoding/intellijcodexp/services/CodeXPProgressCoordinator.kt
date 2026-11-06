@@ -4,8 +4,10 @@ import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPProgressResult
 import com.github.ilovegamecoding.intellijcodexp.enums.CodeXPNotificationType
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPEffectListener
 import com.github.ilovegamecoding.intellijcodexp.listeners.CodeXPListener
+import com.github.ilovegamecoding.intellijcodexp.listeners.IdeXpOrigin
 import com.github.ilovegamecoding.intellijcodexp.models.CodeXPState
 import com.github.ilovegamecoding.intellijcodexp.presentation.notification.CodeXPNotificationNotifier
+import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.util.messages.MessageBus
 
@@ -65,6 +67,12 @@ internal class CodeXPProgressCoordinator(
                 .challengeUpdated(result.event, challenge, result.newChallenge)
         }
 
+        if (notificationType == CodeXPNotificationType.INTELLIJ && state.codeXPConfiguration.showLevelUpNotification) {
+            result.choiceAward?.let { award ->
+                val project = dataContext?.let { IdeXpOrigin.KEY.getData(it)?.project ?: CommonDataKeys.PROJECT.getData(it) }
+                CodeXPNotificationNotifier.notifyChoiceCredits(award.count, project)
+            }
+        }
         messageBus.syncPublisher(CodeXPEffectListener.EFFECTS).progressRecorded(result, dataContext)
     }
 }

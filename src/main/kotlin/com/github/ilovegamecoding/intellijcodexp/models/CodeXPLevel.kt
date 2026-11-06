@@ -1,5 +1,7 @@
 package com.github.ilovegamecoding.intellijcodexp.models
 
+import com.github.ilovegamecoding.intellijcodexp.domain.CodeXPGrowthPolicy
+
 /**
  * CodeXPLevel class
  *
@@ -30,7 +32,10 @@ data class CodeXPLevel(
          * @param totalXP XP to calculate the level and progress to the next level.
          * @return Level info data.
          */
-        fun createLevelInfo(totalXP: Long): CodeXPLevel {
+        fun createLevelInfo(totalXP: Long): CodeXPLevel = CodeXPGrowthPolicy.levelInfo(totalXP)
+
+        /** Exact 2.2.0 formula, used only to record the level at migration. */
+        fun createLegacyLevelInfo(totalXP: Long): CodeXPLevel {
             var level = 1
             var xpRequiredForNextLevel = 300.0
             var accumulatedXP = 300.0

@@ -1,0 +1,200 @@
+<application>
+  <component name="com.github.ilovegamecoding.intellijcodexp.services.CodeXP">
+    <option name="challenges">
+      <map>
+        <entry key="TYPING">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Typing [goal] times." />
+              <option name="event" value="TYPING" />
+              <option name="goal" value="100" />
+              <option name="goalIncrement" value="100" />
+              <option name="id" value="v220-active-fresh-TYPING" />
+              <option name="name" value="Typing Challenge" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="200" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="CUT">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Cut [goal] times." />
+              <option name="event" value="CUT" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="v220-active-fresh-CUT" />
+              <option name="name" value="Cut Challenge" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="150" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="COPY">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Copy [goal] times." />
+              <option name="event" value="COPY" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="v220-active-fresh-COPY" />
+              <option name="name" value="Copy Challenge" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="150" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="PASTE">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Paste [goal] times." />
+              <option name="event" value="PASTE" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="v220-active-fresh-PASTE" />
+              <option name="name" value="Paste Challenge" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="150" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="BACKSPACE">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Press the backspace key [goal] times." />
+              <option name="event" value="BACKSPACE" />
+              <option name="goal" value="50" />
+              <option name="goalIncrement" value="50" />
+              <option name="id" value="v220-active-fresh-BACKSPACE" />
+              <option name="name" value="Backspace Challenge" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="150" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="TAB">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Press the tab key [goal] times." />
+              <option name="event" value="TAB" />
+              <option name="goal" value="50" />
+              <option name="goalIncrement" value="50" />
+              <option name="id" value="v220-active-fresh-TAB" />
+              <option name="name" value="Tab Challenge" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="150" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="ENTER">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Press the enter key [goal] times." />
+              <option name="event" value="ENTER" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="v220-active-fresh-ENTER" />
+              <option name="name" value="Enter Challenge" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="200" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="SAVE">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Save [goal] times." />
+              <option name="event" value="SAVE" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="v220-active-fresh-SAVE" />
+              <option name="name" value="Save Challenge" />
+              <option name="rewardXP" value="300" />
+              <option name="rewardXPIncrement" value="400" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="BUILD">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Build [goal] times." />
+              <option name="event" value="BUILD" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="v220-active-fresh-BUILD" />
+              <option name="name" value="Build Challenge" />
+              <option name="rewardXP" value="150" />
+              <option name="rewardXPIncrement" value="200" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="RUN">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Run [goal] times." />
+              <option name="event" value="RUN" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="v220-active-fresh-RUN" />
+              <option name="name" value="Run Challenge" />
+              <option name="rewardXP" value="200" />
+              <option name="rewardXPIncrement" value="250" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="DEBUG">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Debug [goal] times." />
+              <option name="event" value="DEBUG" />
+              <option name="goal" value="10" />
+              <option name="goalIncrement" value="10" />
+              <option name="id" value="v220-active-fresh-DEBUG" />
+              <option name="name" value="Debug Challenge" />
+              <option name="rewardXP" value="300" />
+              <option name="rewardXPIncrement" value="400" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+        <entry key="ACTION">
+          <value>
+            <CodeXPChallenge>
+              <option name="description" value="Perform [goal] actions." />
+              <option name="event" value="ACTION" />
+              <option name="goal" value="20" />
+              <option name="goalIncrement" value="20" />
+              <option name="id" value="v220-active-fresh-ACTION" />
+              <option name="name" value="Action Challenge" />
+              <option name="rewardXP" value="100" />
+              <option name="rewardXPIncrement" value="120" />
+            </CodeXPChallenge>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="codeXPConfiguration">
+      <CodeXPConfiguration>
+        <option name="effectStyle" value="subtle" />
+      </CodeXPConfiguration>
+    </option>
+    <option name="eventCounts">
+      <map>
+        <entry key="NONE" value="0" />
+        <entry key="TYPING" value="0" />
+        <entry key="CUT" value="0" />
+        <entry key="COPY" value="0" />
+        <entry key="PASTE" value="0" />
+        <entry key="BACKSPACE" value="0" />
+        <entry key="TAB" value="0" />
+        <entry key="ENTER" value="0" />
+        <entry key="SAVE" value="0" />
+        <entry key="BUILD" value="0" />
+        <entry key="RUN" value="0" />
+        <entry key="DEBUG" value="0" />
+        <entry key="ACTION" value="0" />
+      </map>
+    </option>
+    <option name="hasExecuted" value="true" />
+    <option name="nickname" value="CodeXP 2.3.0 RC · fresh" />
+  </component>
+</application>

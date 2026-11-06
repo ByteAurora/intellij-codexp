@@ -1,6 +1,11 @@
 package com.github.ilovegamecoding.intellijcodexp.presentation.overlay
 
 import com.github.ilovegamecoding.intellijcodexp.CodeXPBundle
+import com.github.ilovegamecoding.intellijcodexp.domain.collection.CrestDesign
+import com.github.ilovegamecoding.intellijcodexp.presentation.collection.CollectionCrestPainter
+import com.github.ilovegamecoding.intellijcodexp.presentation.collection.CollectionMotionFrame
+import com.github.ilovegamecoding.intellijcodexp.presentation.collection.crestColors
+import com.github.ilovegamecoding.intellijcodexp.presentation.smoothArtwork
 import com.github.ilovegamecoding.intellijcodexp.utils.StringUtil
 import java.awt.AlphaComposite
 import java.awt.BasicStroke
@@ -36,10 +41,13 @@ internal object AchievementPainter {
         g.scale(scale, scale)
         // Balance the complete motif + labels around the surface centre.
         val originY = if (frame.challengeAge != null) (if (options.subtle) -44.0 else -32.0) else (if (options.subtle) -10.0 else -4.0)
-        g.translate(0.0, originY)
-        val ink = Ink(g, dark, scale, width / scale)
-        frame.challengeAge?.let { challenge(ink, frame.effect, it) }
-        frame.levelAge?.let { level(ink, frame.effect, it) }
+        val compactChallenge = frame.challengeAge != null && frame.effect.crest != null && scale < .70
+        if (!compactChallenge) g.translate(0.0, originY)
+        val ink = Ink(g, dark, scale, width / scale, frame.effect.crest)
+        frame.challengeAge?.let { challenge(ink, frame.effect, achievementKeyframeMs(it), frame.motionSeconds, compactChallenge) }
+        frame.levelAge?.let { level(ink, frame.effect, achievementKeyframeMs(it)) }
+        frame.choiceAge?.let { collection(ink, frame, achievementKeyframeMs(it), true) }
+        frame.equipAge?.let { collection(ink, frame, achievementKeyframeMs(it), false) }
     }
 
     private fun level(
@@ -50,7 +58,7 @@ internal object AchievementPainter {
         val level = effect.level ?: return
         val quiet = effect.options.subtle
         val reduced = effect.options.reducedMotion
-        p.g.composite = AlphaComposite.SrcOver.derive(frameAlpha(age, effect.options.timing.level, reduced))
+        p.g.composite = AlphaComposite.SrcOver.derive(frameAlpha(age, effect.options.timing.levelKeyframes, reduced))
         p.seal(if (quiet) 76.0 else 108.0)
         val enter = if (reduced) 1.0 else ease((age - 370) / 600.0)
         if (quiet || reduced) {
@@ -86,42 +94,135 @@ internal object AchievementPainter {
             }
         }
         paintLevelNumbers(p.g, level, effect.options, age, p.text)
-        val caption = if (quiet) "level.next()" else "developer.level(${level.from}) -> ${level.to}"
-        p.text(caption, 0.0, if (quiet || reduced) 118.0 else 164.0, 11.0, p.code, Font.MONOSPACED, if (reduced) 1.0 else ease((age - 1050) / 420.0))
     }
 
     private fun challenge(
         p: Ink,
         effect: AchievementEffect,
         age: Long,
+        seconds: Double,
+        compact: Boolean,
     ) {
         val challenge = effect.challenge ?: return
         val quiet = effect.options.subtle
         val reduced = effect.options.reducedMotion
-        p.g.composite = AlphaComposite.SrcOver.derive(frameAlpha(age, effect.options.timing.challenge, reduced))
-        p.seal(if (quiet) 72.0 else 100.0)
-        val grow = if (reduced) 1.0 else ease(age / 480.0)
-        val radius = if (quiet) 34.0 else 49.0
-        if (!quiet && !reduced) {
-            p.glow(0.0, -13.0, 130.0, p.gold, .12)
-            p.motif(0.0, -13.0, radius * 1.44 * grow, .8)
-            p.burst(age - 430, 16, 130.0)
-            for (side in SIDES) {
-                p.line(side * 67.0, -13.0, side * (70 + 85 * ease((age - 300) / 500.0)), -13.0, p.gold, .8)
-                p.trace(side, 24.0, ease((age - 180) / 650.0), .45)
+        p.g.composite = AlphaComposite.SrcOver.derive(frameAlpha(age, effect.options.timing.challengeKeyframes, reduced))
+        var headerY: Double? = if (quiet) 43.0 else 59.0
+        var nameY = if (quiet) 67.0 else 85.0
+        var rewardY = if (quiet) 114.0 else 139.0
+        if (effect.crest != null) {
+            var scale = if (quiet) .72 else 1.0
+            var centerY = if (quiet) -45.0 else -43.0
+            if (compact) {
+                // The labels keep an 11 px font floor as the artwork shrinks.
+                val row = maxOf(17.0 / p.scale, 27.0)
+                val gap = 3.0 / p.scale
+                val showHeader = p.scale >= .32
+                val labels = row * if (showHeader) 3 else 2
+                scale = minOf(scale, (390.0 - labels - 3 * gap) / 230.0).coerceAtLeast(.01)
+                val art = 230 * scale
+                centerY = -(gap + labels) / 2
+                val firstRow = centerY + art / 2 + gap + row / 2
+                headerY = firstRow.takeIf { showHeader }
+                nameY = if (showHeader) firstRow + row else firstRow
+                rewardY = nameY + row
             }
+            paintCrest(p.g, effect, seconds, age, scale, centerY)
+            val progress = if (reduced) 1.0 else ease((age - 280) / 340.0)
+            paintCrestCheck(p, centerY, scale * if (quiet) 1.4 else 1.2, progress)
+            // Leave room below the moving crest, including the shield's tilted scan lines.
+            if (!compact) p.g.translate(0.0, if (quiet) 9.0 else 31.0)
+        } else {
+            p.seal(if (quiet) 72.0 else 100.0)
+            val grow = if (reduced) 1.0 else ease(age / 480.0)
+            val radius = if (quiet) 34.0 else 49.0
+            if (!quiet && !reduced) {
+                p.glow(0.0, -13.0, 130.0, p.gold, .12)
+                p.motif(0.0, -13.0, radius * 1.44 * grow, .8)
+                p.burst(age - 430, 16, 130.0)
+                for (side in SIDES) {
+                    p.line(side * 67.0, -13.0, side * (70 + 85 * ease((age - 300) / 500.0)), -13.0, p.gold, .8)
+                    p.trace(side, 24.0, ease((age - 180) / 650.0), .45)
+                }
+            }
+            p.diamond(0.0, -13.0, radius * grow, p.gold, .9)
+            p.diamond(0.0, -13.0, radius * .8, p.gold, .3)
+            val check = if (reduced) 1.0 else ease((age - 280) / 340.0)
+            p.line(-12.0, -12.0, -12 + 9 * min(1.0, check / .38), -12 + 9 * min(1.0, check / .38), p.gold, 1.0, 2.4)
+            if (check > .38) p.line(-3.0, -3.0, -3 + 20 * (check - .38) / .62, -3 - 23 * (check - .38) / .62, p.gold, 1.0, 2.4)
         }
-        p.diamond(0.0, -13.0, radius * grow, p.gold, .9)
-        p.diamond(0.0, -13.0, radius * .8, p.gold, .3)
-        val check = if (reduced) 1.0 else ease((age - 280) / 340.0)
-        p.line(-12.0, -12.0, -12 + 9 * min(1.0, check / .38), -12 + 9 * min(1.0, check / .38), p.gold, 1.0, 2.4)
-        if (check > .38) p.line(-3.0, -3.0, -3 + 20 * (check - .38) / .62, -3 - 23 * (check - .38) / .62, p.gold, 1.0, 2.4)
-        p.text(CodeXPBundle.message("effects.challenge.complete"), 0.0, if (quiet) 43.0 else 59.0, 11.0, p.gold, tracked = true)
+        headerY?.let { p.text(CodeXPBundle.message("effects.challenge.complete"), 0.0, it, 11.0, p.gold, tracked = true) }
         val name = if (challenge.count == 1) challenge.name else CodeXPBundle.message("effects.challenge.multiple", challenge.count)
-        p.text(name, 0.0, if (quiet) 67.0 else 85.0, if (quiet) 16.0 else 21.0, p.text)
-        if (challenge.count == 1) p.text(challenge.description, 0.0, if (quiet) 89.0 else 110.0, 11.0, p.muted)
-        p.text(xpText(challenge.reward), 0.0, if (quiet) 114.0 else 139.0, if (quiet) 14.0 else 17.0, p.gold, alpha = if (reduced) 1.0 else ease((age - 700) / 350.0))
-        p.text("achievement.complete()", 0.0, if (quiet) 140.0 else 166.0, 11.0, p.code, Font.MONOSPACED, if (reduced) 1.0 else ease((age - 760) / 350.0))
+        p.text(name, 0.0, nameY, if (quiet) 16.0 else 21.0, p.text)
+        if (!compact && challenge.count == 1) p.text(challenge.description, 0.0, if (quiet) 89.0 else 110.0, 11.0, p.muted)
+        p.text(xpText(challenge.reward), 0.0, rewardY, if (quiet) 14.0 else 17.0, p.gold, alpha = if (reduced) 1.0 else ease((age - 700) / 350.0))
+    }
+
+    private fun paintCrestCheck(
+        p: Ink,
+        centerY: Double,
+        scale: Double,
+        progress: Double,
+    ) {
+        if (progress <= 0.0) return
+        val g = p.g.create() as Graphics2D
+        try {
+            g.translate(0.0, centerY)
+            g.scale(scale, scale)
+            val path = Path2D.Double()
+            path.moveTo(-20.0, 0.0)
+            val down = min(1.0, progress / .38)
+            path.lineTo(-20 + 14 * down, 14 * down)
+            if (progress > .38) {
+                val up = (progress - .38) / .62
+                path.lineTo(-6 + 26 * up, 14 - 28 * up)
+            }
+            g.stroke = BasicStroke(7f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+            g.color = p.base
+            g.draw(path)
+            g.stroke = BasicStroke(3.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+            g.color = p.text
+            g.draw(path)
+        } finally {
+            g.dispose()
+        }
+    }
+
+    private fun paintCrest(
+        graphics: Graphics2D,
+        effect: AchievementEffect,
+        seconds: Double,
+        age: Long,
+        scale: Double,
+        y: Double,
+    ) {
+        val design = effect.crest ?: return
+        val g = graphics.create() as Graphics2D
+        try {
+            g.translate(0.0, y)
+            val open = if (effect.options.reducedMotion) 1.0 else .91 + .09 * ease(age / 360.0)
+            g.scale(scale * open, scale * open)
+            CollectionCrestPainter.paintAnimated(g, design, 0, false, CollectionMotionFrame(seconds, if (effect.options.reducedMotion) 0.0 else .7 * kotlin.math.exp(-age / 1500.0), !effect.options.reducedMotion), effect.options.subtle, null, compact = true)
+        } finally {
+            g.dispose()
+        }
+    }
+
+    private fun collection(
+        p: Ink,
+        frame: AchievementFrame,
+        age: Long,
+        choice: Boolean,
+    ) {
+        val effect = frame.effect
+        val duration = if (choice) effect.options.timing.choiceKeyframes else effect.options.timing.equipKeyframes
+        p.g.composite = AlphaComposite.SrcOver.derive(frameAlpha(age, duration, effect.options.reducedMotion))
+        if (effect.crest != null) {
+            paintCrest(p.g, effect, frame.motionSeconds, age, if (effect.options.subtle) .72 else .95, -25.0)
+        } else {
+            p.diamond(0.0, -25.0, 62.0, p.gold, .85)
+        }
+        p.text(if (choice) CodeXPBundle.message("effects.choice.earned", effect.choiceCount) else CodeXPBundle.message("effects.crest.equipped"), 0.0, 106.0, 17.0, p.gold)
     }
 
     fun paintLevelNumbers(
@@ -183,7 +284,7 @@ internal object AchievementPainter {
     fun xpText(value: Long): String = CodeXPBundle.message("effects.xp", StringUtil.numberToStringWithCommas(value))
 
     private fun prepare(g: Graphics2D) {
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+        g.smoothArtwork()
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
         g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON)
     }
@@ -204,9 +305,11 @@ internal object AchievementPainter {
         dark: Boolean,
         val scale: Double,
         val availableWidth: Double,
+        design: CrestDesign? = null,
     ) {
-        val gold = if (dark) Color(241, 208, 141) else Color(155, 93, 16)
-        val blue = if (dark) Color(136, 198, 255) else Color(47, 111, 165)
+        private val crestInk = design?.let { crestColors(it, dark) }
+        val gold = crestInk?.first ?: if (dark) Color(241, 208, 141) else Color(155, 93, 16)
+        val blue = crestInk?.second ?: if (dark) Color(136, 198, 255) else Color(47, 111, 165)
         val text = if (dark) Color(244, 235, 215) else Color(83, 57, 25)
         val muted = if (dark) Color(190, 192, 204) else Color(102, 100, 100)
         val base = if (dark) Color(26, 29, 37) else Color(251, 248, 239)

@@ -17,7 +17,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class CodeXPProgressCoordinatorTest : BasePlatformTestCase() {
     fun testWholeProgressResultPreservesDomainOrderAndProjectIdentity() {
-        val state = CodeXPState(xp = 299)
+        val state = CodeXPState(xp = 899)
         val engine = CodeXPProgressEngine()
         engine.initialize(state)
         val challenge = state.challenges.getValue(Event.CUT)
@@ -83,7 +83,7 @@ class CodeXPProgressCoordinatorTest : BasePlatformTestCase() {
         assertEquals(listOf("level", "xp", "level", "xp", "challengeCompleted", "challengeUpdated", "effects"), order)
         assertEquals(result.xpChanges.map { it.currentLevelInfo }, levels)
         assertEquals(1, effects)
-        assertEquals(1300, state.xp)
+        assertEquals(1900, state.xp)
         assertEquals(1, state.completedChallenges.size)
     }
 }

@@ -11,9 +11,9 @@ import org.junit.Test
 class CodeXPDashboardViewModelsTest {
     @Test
     fun `level boundary displays new level with empty progress`() {
-        val summary = CodeXPDashboardViewModels.levelSummary(300, CodeXPLevel.createLevelInfo(300))
+        val summary = CodeXPDashboardViewModels.levelSummary(900, CodeXPLevel.createLevelInfo(900))
 
-        assertEquals("300", summary.totalXP)
+        assertEquals("900", summary.totalXP)
         assertEquals("2", summary.currentLevel)
         assertEquals("3", summary.nextLevel)
         assertEquals("0", summary.currentLevelXP)

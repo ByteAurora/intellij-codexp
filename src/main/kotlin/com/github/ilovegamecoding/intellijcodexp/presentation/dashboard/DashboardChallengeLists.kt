@@ -1,5 +1,6 @@
 package com.github.ilovegamecoding.intellijcodexp.presentation.dashboard
 
+import com.github.ilovegamecoding.intellijcodexp.CodeXPBundle
 import com.intellij.openapi.Disposable
 import com.intellij.util.ui.JBUI
 import java.awt.Component
@@ -112,7 +113,8 @@ internal class DashboardHistoryList(
                     row.setFinal(value)
                     row.highlightAlpha = motion.highlight(value.id)
                     row.highlightGold = true
-                    row.highlightInsetY = JBUI.scale(5)
+                    row.isOpaque = false
+                    row.cardInsetY = JBUI.scale(5)
                     row.border =
                         BorderFactory.createCompoundBorder(
                             JBUI.Borders.empty(5, 0),
@@ -121,7 +123,7 @@ internal class DashboardHistoryList(
                     return row
                 }
             }
-        getAccessibleContext().accessibleName = "All completed challenges"
+        getAccessibleContext().accessibleName = CodeXPBundle.message("dashboard.history.accessible")
         motionReady = true
         installMotionUI()
     }
