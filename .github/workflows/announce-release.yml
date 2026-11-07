@@ -1,0 +1,69 @@
+name: Prepare blog announcement
+
+on:
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful Release workflow run ID
+        required: true
+        type: string
+      dry_run:
+        description: Validate without dispatching to the blog
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: blog-handoff-${{ github.event.workflow_run.id || inputs.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  handoff:
+    if: >-
+      github.repository == 'ByteAurora/intellij-codexp' &&
+      ((github.event_name == 'workflow_run' && vars.CODEXP_BLOG_AUTOMATION_ENABLED == 'true' &&
+        github.event.workflow_run.event == 'release' && github.event.workflow_run.conclusion == 'success') ||
+       (github.event_name == 'workflow_dispatch' && github.actor == 'ByteAurora' && github.ref == 'refs/heads/main'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch trusted announcement code
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Validate release identity
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
+        run: python3 .github/scripts/blog_handoff.py --run-id "$RUN_ID" --output "$RUNNER_TEMP/blog-dispatch.json"
+      - name: Create blog-only token
+        id: app
+        if: vars.CODEXP_BLOG_AUTOMATION_ENABLED == 'true' && (github.event_name == 'workflow_run' || !inputs.dry_run)
+        uses: actions/create-github-app-token@v3.3.0
+        with:
+          client-id: ${{ vars.CODEXP_BLOG_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CODEXP_BLOG_APP_PRIVATE_KEY }}
+          owner: ByteAurora
+          repositories: ByteAurora.github.io
+          permission-contents: write
+      - name: Request blog review
+        if: steps.app.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: gh api --method POST repos/ByteAurora/ByteAurora.github.io/dispatches --input "$RUNNER_TEMP/blog-dispatch.json"
+      - name: Summarize
+        env:
+          SENT: ${{ steps.app.outcome == 'success' }}
+        run: |
+          if [ "$SENT" = true ]; then
+            echo 'Blog review requested. No plugin publishing or blog merging was performed.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Validation only. Enable CODEXP_BLOG_AUTOMATION_ENABLED explicitly after reviewing the blog receiver.' >> "$GITHUB_STEP_SUMMARY"
+          fi

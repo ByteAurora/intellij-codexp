@@ -152,6 +152,10 @@ Normal merges do not publish the plugin.
 6. Wait for the compatibility matrix to pass, then approve the `jetbrains-marketplace` deployment. The workflow rechecks the release identity, builds, tests, signs, and publishes the plugin.
 7. Confirm the version is listed on JetBrains Marketplace.
 
+The optional [blog announcement handoff](blog-announcements.md) can then request
+a separate patch-note PR. It is disabled until explicitly enabled, independently
+checks Marketplace availability, and never merges or republishes the plugin.
+
 Release draft creation must be an explicit maintainer action.
 
 The deployment environment requires the maintainer's approval, permits self-approval,
