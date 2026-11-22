@@ -46,7 +46,7 @@ jobs:
       - name: Create blog-only token
         id: app
         if: vars.CODEXP_BLOG_AUTOMATION_ENABLED == 'true' && (github.event_name == 'workflow_run' || !inputs.dry_run)
-        uses: actions/create-github-app-token@v3.3.0
+        uses: actions/create-github-app-token@v3.4.0
         with:
           client-id: ${{ vars.CODEXP_BLOG_APP_CLIENT_ID }}
           private-key: ${{ secrets.CODEXP_BLOG_APP_PRIVATE_KEY }}
